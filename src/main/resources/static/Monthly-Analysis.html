@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Collection Analysis - Jeewan Avenue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 2vw;
+            border-radius: 15px;
+            margin: 2vw auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1400px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        /* Top Header Section */
+        .analysis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .month-selector {
+            flex: 1;
+        }
+
+        .month-selector label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .month-selector select {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 300px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .download-btn {
+            background: white;
+            color: #764ba2;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Section Cards */
+        .analysis-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid;
+        }
+
+        .analysis-card h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 22px;
+        }
+
+        .marriage-card { border-color: #e91e63; }
+        .custom-dues-card { border-color: #ff9800; }
+        .house-card { border-color: #4caf50; }
+        .shop-card { border-color: #2196f3; }
+        .summary-card { border-color: #9c27b0; }
+
+        /* Breakdown Grid */
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .status-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-box h4 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .status-box .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .status-box .detail-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .status-box .detail-value {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .status-box .total-row {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+            font-size: 15px;
+        }
+
+        .status-box .received-row {
+            color: #27ae60;
+            font-weight: 700;
+        }
+
+        .status-box .outstanding-row {
+            color: #e74c3c;
+            font-weight: 700;
+        }
+
+        /* Completed Status Colors */
+        .completed-box { border-left: 4px solid #27ae60; }
+        .vacant-box { border-left: 4px solid #e74c3c; }
+        .residential-box { border-left: 4px solid #3498db; }
+        .construction-box { border-left: 4px solid #f39c12; }
+
+        /* Filter Section */
+        .filter-section {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Users Table */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 20px;
+        }
+
+        .users-table {
+            width: 100%;
+            min-width: 800px;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .users-table th {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .users-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .users-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-box .stat-label {
+            color: #6c757d;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .stat-box .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .stat-box.positive .stat-value {
+            color: #27ae60;
+        }
+
+        .stat-box.negative .stat-value {
+            color: #e74c3c;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-size: 18px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        /* Tablet Styles */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            h2 {
+                font-size: 26px;
+            }
+
+            .breakdown-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+
+            .summary-stats {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+
+            .filter-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 120px;
+            }
+
+            .container {
+                padding: 1rem;
+                margin: 0.5rem;
+                border-radius: 10px;
+            }
+
+            h2 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            .analysis-header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .month-selector select {
+                max-width: 100%;
+                font-size: 14px;
+            }
+
+            .download-buttons {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .download-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+
+            .breakdown-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .analysis-card {
+                padding: 15px;
+            }
+
+            .analysis-card h3 {
+                font-size: 18px;
+            }
+
+            .status-box {
+                padding: 15px;
+            }
+
+            .status-box h4 {
+                font-size: 14px;
+            }
+
+            .status-box .detail-row {
+                font-size: 13px;
+            }
+
+            .filter-section {
+                padding: 15px;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 10px 20px;
+            }
+
+            .summary-stats {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-box {
+                padding: 15px;
+            }
+
+            .stat-box .stat-value {
+                font-size: 20px;
+            }
+
+            /* Table responsive scroll */
+            .users-table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .users-table thead,
+            .users-table tbody,
+            .users-table tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+            .users-table th,
+            .users-table td {
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+
+            .status-badge {
+                font-size: 10px;
+                padding: 3px 8px;
+            }
+        }
+
+        /* Small Mobile Styles */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.75rem;
+                margin: 0.25rem;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            .analysis-header {
+                padding: 12px;
+            }
+
+            .month-selector label {
+                font-size: 12px;
+            }
+
+            .download-btn {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+
+            .analysis-card h3 {
+                font-size: 16px;
+            }
+
+            .stat-box .stat-value {
+                font-size: 18px;
+            }
+
+            .stat-box .stat-label {
+                font-size: 11px;
+            }
+
+            .users-table th,
+            .users-table td {
+                padding: 6px 4px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div id="president_console"></div>
+
+    <div class="container">
+        <h2>📊 Monthly Collection Analysis</h2>
+
+        <!-- Header with Month Selector and Download Buttons -->
+        <div class="analysis-header">
+            <div class="month-selector">
+                <label for="analysisMonth">Select Month for Analysis:</label>
+                <select id="analysisMonth" onchange="loadAnalysisData()">
+                    <option value="">Select a month...</option>
+                </select>
+            </div>
+            <div class="download-buttons">
+                <button class="download-btn" onclick="downloadCSV()">
+                    📥 Download CSV
+                </button>
+                <button class="download-btn" onclick="downloadPDF()">
+                    📄 Download PDF
+                </button>
+            </div>
+        </div>
+
+        <div id="analysisContent">
+            <div class="no-data">
+                Please select a month to view analysis
+            </div>
+        </div>
+    </div>
+
+    <!-- Include common scripts -->
+    <script src="/js/common.js"></script>
+    <script src="/js/header-loader.js"></script>
+    <script src="/js/role-permissions.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        let currentAnalysisData = null;
+        let currentMonthYear = null;
+
+        // Check access on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check if user has Finance Secretary role
+            const currentUser = await getCurrentUser();
+            const userRole = currentUser?.role;
+            if (!currentUser || (userRole !== 'Finance Secretary' && userRole !== 'Finance-Secretary' && 
+                userRole !== 'finance secretary' && userRole !== 'FINANCE_SECRETARY')) {
+                alert('⛔ Access Denied\n\nOnly Finance Secretary can access Monthly Analysis.\n\nRedirecting...');
+                window.location.href = '/Financials-President%20Console.html';
+                return;
+            }
+
+            // Load month dropdown
+            await populateMonthDropdown();
+        });
+
+        async function populateMonthDropdown() {
+            console.log('🔍 populateMonthDropdown() called');
+            try {
+                console.log('📡 Fetching dues from /api/dues...');
+                // Fetch Due records to populate dropdown (since that's what we use for analysis)
+                const response = await fetch('/api/dues');
+                console.log('📡 Response received:', response.status, response.ok);
+                if (!response.ok) throw new Error('Failed to fetch dues');
+                
+                const dues = await response.json();
+                console.log('✅ Fetched dues for dropdown:', dues.length, 'records');
+                console.log('📋 First 3 dues:', dues.slice(0, 3));
+                
+                const select = document.getElementById('analysisMonth');
+                
+                // Create unique month-year combinations from Due records
+                const monthYearSet = new Set();
+                dues.forEach(due => {
+                    console.log('Due record:', due, 'Month:', due.month, 'Year:', due.year);
+                    if (due.month && due.year) {
+                        const monthYear = `${due.year}-${String(due.month).padStart(2, '0')}`;
+                        monthYearSet.add(monthYear);
+                    }
+                });
+                
+                console.log('Unique month-years found:', Array.from(monthYearSet));
+                
+                if (monthYearSet.size === 0) {
+                    console.warn('No valid month-year combinations found in Due records');
+                    select.innerHTML = '<option value="">No months available</option>';
+                    return;
+                }
+                
+                // Sort in descending order (latest first)
+                const sortedMonthYears = Array.from(monthYearSet).sort().reverse();
+                
+                sortedMonthYears.forEach(monthYear => {
+                    const [year, month] = monthYear.split('-');
+                    const monthName = getMonthName(parseInt(month));
+                    const option = document.createElement('option');
+                    option.value = monthYear;
+                    option.textContent = `${monthName} ${year}`;
+                    select.appendChild(option);
+                });
+                
+                console.log('Month dropdown populated with', sortedMonthYears.length, 'options');
+            } catch (error) {
+                console.error('Error loading months:', error);
+                showError('Failed to load available months');
+            }
+        }
+
+        async function loadAnalysisData() {
+            const monthYear = document.getElementById('analysisMonth').value;
+            if (!monthYear) {
+                document.getElementById('analysisContent').innerHTML = '<div class="no-data">Please select a month to view analysis</div>';
+                return;
+            }
+
+            currentMonthYear = monthYear;
+            document.getElementById('analysisContent').innerHTML = '<div class="loading">⏳ Loading analysis data...</div>';
+
+            try {
+                const [year, month] = monthYear.split('-');
+                
+                // Fetch all required data including Due records
+                const [monthlyPayments, incomeRecords, customDues, users, dueRecordsResponse] = await Promise.all([
+                    fetch('/api/monthly-payments').then(r => r.json()),
+                    fetch('/api/financials').then(r => r.json()),
+                    fetch('/api/custom-dues').then(r => r.json()),
+                    fetch('/api/users').then(r => r.json()),
+                    fetch(`/api/dues?month=${month}&year=${year}`).then(r => r.json())
+                ]);
+
+                // Ensure dueRecords is an array
+                const dueRecords = Array.isArray(dueRecordsResponse) ? dueRecordsResponse : [];
+
+                // Filter data for selected month
+                const monthlyData = monthlyPayments.filter(p => 
+                    p.year === parseInt(year) && p.month === parseInt(month)
+                );
+
+                console.log('=== MONTHLY ANALYSIS DEBUG ===');
+                console.log('Selected Month:', month, 'Year:', year);
+                console.log('All Monthly Payments:', monthlyPayments);
+                console.log('Filtered Monthly Data for selected month:', monthlyData);
+                console.log('Due Records for selected month:', dueRecords);
+                console.log('All Users:', users);
+
+                // Build target month string for matching (e.g., "January 2026" or just "January")
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                  'July', 'August', 'September', 'October', 'November', 'December'];
+                const targetMonth = monthNames[parseInt(month) - 1];
+                const targetMonthYear = `${targetMonth} ${year}`;
+
+                const incomeData = incomeRecords.filter(record => {
+                    if (record.type !== 'Income') return false;
+                    
+                    // For Monthly Fees: use month column
+                    if (record.category === 'Monthly Fees') {
+                        // Match either "January 2026" or just "January" format
+                        return record.month && (record.month === targetMonth || record.month === targetMonthYear);
+                    }
+                    
+                    // For Marriage & Contribution: use date column
+                    if (record.category === 'Marriage' || record.category === 'Contribution') {
+                        const recordDate = new Date(record.date);
+                        return recordDate.getFullYear() === parseInt(year) &&
+                               (recordDate.getMonth() + 1) === parseInt(month);
+                    }
+                    
+                    return false;
+                });
+
+                const monthCustomDues = customDues.filter(due => {
+                    const dueDate = new Date(due.createdAt);
+                    return dueDate.getFullYear() === parseInt(year) &&
+                           (dueDate.getMonth() + 1) === parseInt(month);
+                });
+
+                // Process and display data
+                currentAnalysisData = processAnalysisData(monthlyData, incomeData, monthCustomDues, users, dueRecords, parseInt(month), parseInt(year));
+                displayAnalysis(currentAnalysisData);
+
+            } catch (error) {
+                console.error('Error loading analysis:', error);
+                document.getElementById('analysisContent').innerHTML = '<div class="no-data">❌ Error loading analysis data</div>';
+            }
+        }
+
+        function processAnalysisData(monthlyData, incomeData, customDues, users, dueRecords, month, year) {
+            const data = {
+                marriage: { total: 0, count: 0 },
+                contribution: { total: 0, count: 0 },
+                customDues: { total: 0, paid: 0, outstanding: 0, count: 0 },
+                house: { completed: {}, vacant: {}, residential: {}, underConstruction: {} },
+                shop: { completed: {}, vacant: {}, residential: {}, underConstruction: {} },
+                summary: { totalExpected: 0, totalReceived: 0, outstanding: 0, collectionRate: 0 },
+                users: []
+            };
+
+            // Process Marriage and Contribution
+            incomeData.forEach(record => {
+                if (record.category === 'Marriage') {
+                    data.marriage.total += parseFloat(record.amount) || 0;
+                    data.marriage.count++;
+                } else if (record.category === 'Contribution') {
+                    data.contribution.total += parseFloat(record.amount) || 0;
+                    data.contribution.count++;
+                }
+            });
+
+            // Process Custom Dues
+            customDues.forEach(due => {
+                const amount = parseFloat(due.amount) || 0;
+                data.customDues.total += amount;
+                data.customDues.count++;
+                if (due.paid) {
+                    data.customDues.paid += amount;
+                } else {
+                    data.customDues.outstanding += amount;
+                }
+            });
+
+            // Process users who have Due records for this month (payment was set for them)
+            dueRecords.forEach(due => {
+                // Find the user for this due record
+                const user = users.find(u => u.id === due.userId);
+                if (!user || !user.plotNo) return;
+
+                const propertyType = user.propertyType || 'House';
+                const builtStatus = user.builtStatus || 'Completed';
+                const statusKey = builtStatus.toLowerCase().replace('-', '');
+
+                // Calculate size and expected based on property type
+                let size = 0;
+                let sizeDisplay = '';
+                if (propertyType.toLowerCase() === 'shop') {
+                    // For shops, plotSizeMarla contains the shop count
+                    size = parseInt(user.plotSizeMarla) || 0;
+                    sizeDisplay = size + ' Shop' + (size !== 1 ? 's' : '');
+                } else {
+                    size = parseFloat(user.plotSizeMarla) || 0;
+                    sizeDisplay = size + ' Marla';
+                }
+
+                const expected = parseFloat(due.dueAmount) || 0;
+
+                // Find actual received amount
+                const userIncome = incomeData.find(record => 
+                    record.category === 'Monthly Fees' && 
+                    record.plotNo === user.plotNo
+                );
+                const received = userIncome ? parseFloat(userIncome.amount) || 0 : 0;
+
+                // Find custom dues for this user
+                const userCustomDues = customDues.filter(d => d.userId === user.id);
+                const customDueTotal = userCustomDues.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
+
+                const propType = propertyType.toLowerCase() === 'shop' ? 'shop' : 'house';
+                
+                if (!data[propType][statusKey] || !data[propType][statusKey].rate) {
+                    // Get rate from monthly payment or calculate from due amount
+                    const rate = size > 0 ? expected / size : 0;
+                    data[propType][statusKey] = {
+                        rate: rate,
+                        totalSize: 0,
+                        expected: 0,
+                        customDues: 0,
+                        totalExpected: 0,
+                        received: 0,
+                        outstanding: 0
+                    };
+                }
+
+                data[propType][statusKey].totalSize += size;
+                data[propType][statusKey].expected += expected;
+                data[propType][statusKey].customDues += customDueTotal;
+                data[propType][statusKey].totalExpected += expected + customDueTotal;
+                data[propType][statusKey].received += received;
+                data[propType][statusKey].outstanding = data[propType][statusKey].totalExpected - data[propType][statusKey].received;
+
+                // Add to summary
+                data.summary.totalExpected += expected + customDueTotal;
+                data.summary.totalReceived += received;
+
+                // Add user details
+                data.users.push({
+                    name: user.ownerName,
+                    plotNo: user.plotNo,
+                    propertyType: propertyType,
+                    builtStatus: builtStatus,
+                    size: size,
+                    sizeDisplay: sizeDisplay,
+                    expected: expected,
+                    customDues: customDueTotal,
+                    totalExpected: expected + customDueTotal,
+                    paid: received,
+                    status: received >= (expected + customDueTotal) ? 'Paid' : received > 0 ? 'Partial' : 'Pending',
+                    outstanding: (expected + customDueTotal) - received,
+                    paymentDate: userIncome ? userIncome.date : '-'
+                });
+
+                console.log(`Processed user from Due record: ${user.ownerName} (${user.plotNo}) - Type: ${propertyType}, Status: ${builtStatus}, Expected: ${expected}`);
+            });
+
+            data.summary.outstanding = data.summary.totalExpected - data.summary.totalReceived;
+            data.summary.collectionRate = data.summary.totalExpected > 0 
+                ? ((data.summary.totalReceived / data.summary.totalExpected) * 100).toFixed(2)
+                : 0;
+
+            return data;
+        }
+
+        function displayAnalysis(data) {
+            let html = '';
+
+            // Marriage & Contribution
+            html += `
+                <div class="analysis-card marriage-card">
+                    <h3>💒 Marriage & 🤝 Contribution</h3>
+                    <div class="summary-stats">
+                        <div class="stat-box positive">
+                            <div class="stat-label">Marriage Income</div>
+                            <div class="stat-value">PKR ${data.marriage.total.toLocaleString('en-PK', {minimumFractionDigits: 2})}</div>
+                            <div class="stat-label">${data.marriage.count} income</div>
+                        </div>
+                        <div class="stat-box positive">
+                            <div class="stat-label">Contributions</div>
+                            <div class="stat-value">PKR ${data.contribution.total.toLocaleString('en-PK', {minimumFractionDigits: 2})}</div>
+                            <div class="stat-label">${data.contribution.count} contribution(s)</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Custom Dues
+            html += `
+                <div class="analysis-card custom-dues-card">
+                    <h3>➕ Custom Dues</h3>
+                    <div class="summary-stats">
+                        <div class="stat-box">
+                            <div class="stat-label">Total Custom Dues</div>
+                            <div class="stat-value">PKR ${data.customDues.total.toLocaleString('en-PK', {minimumFractionDigits: 2})}</div>
+                            <div class="stat-label">${data.customDues.count} due(s)</div>
+                        </div>
+                        <div class="stat-box positive">
+                            <div class="stat-label">Paid</div>
+                            <div class="stat-value">PKR ${data.customDues.paid.toLocaleString('en-PK', {minimumFractionDigits: 2})}</div>
+                        </div>
+                        <div class="stat-box negative">
+                            <div class="stat-label">Outstanding</div>
+                            <div class="stat-value">PKR ${data.customDues.outstanding.toLocaleString('en-PK', {minimumFractionDigits: 2})}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // House Breakdown - All 4 Built Status tables side by side
+            html += generateAllPropertyBreakdowns('house', '🏠 Property Type: HOUSE', data.house);
+
+            // Shop Breakdown - All 4 Built Status tables side by side
+            html += generateAllPropertyBreakdowns('shop', '🏪 Property Type: SHOP', data.shop);
+
+            // Monthly Summary
+            html += `
+                <div class="analysis-card summary-card">
+                    <h3>📊 Monthly Summary</h3>
+                    <div class="summary-stats">
+                        <div class="stat-box">
+                            <div class="stat-label">Total Expected</div>
+                            <div class="stat-value">PKR ${data.summary.totalExpected.toLocaleString('en-PK', {minimumFractionDigits: 2})}</div>
+                        </div>
+                        <div class="stat-box positive">
+                            <div class="stat-label">Total Received</div>
+                            <div class="stat-value">PKR ${data.summary.totalReceived.toLocaleString('en-PK', {minimumFractionDigits: 2})}</div>
+                        </div>
+                        <div class="stat-box negative">
+                            <div class="stat-label">Outstanding</div>
+                            <div class="stat-value">PKR ${data.summary.outstanding.toLocaleString('en-PK', {minimumFractionDigits: 2})}</div>
+                        </div>
+                        <div class="stat-box ${data.summary.collectionRate >= 70 ? 'positive' : 'negative'}">
+                            <div class="stat-label">Collection Rate</div>
+                            <div class="stat-value">${data.summary.collectionRate}%</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Filter Section
+            html += `
+                <div class="filter-section">
+                    <h3 style="color: #2c3e50; margin: 0 0 15px 0;">🔍 Filter Users</h3>
+                    <div class="filter-grid">
+                        <div class="filter-group">
+                            <label>Property Type</label>
+                            <select id="filterPropertyType" onchange="filterUsers()">
+                                <option value="all">Select All</option>
+                                <option value="House">House</option>
+                                <option value="Shop">Shop</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Built Status</label>
+                            <select id="filterBuiltStatus" onchange="filterUsers()">
+                                <option value="all">Select All</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Vacant">Vacant</option>
+                                <option value="Residential">Residential</option>
+                                <option value="Under-Construction">Under-Construction</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Payment Status</label>
+                            <select id="filterPaymentStatus" onchange="filterUsers()">
+                                <option value="all">All Status</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Partial">Partial</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <button class="btn" onclick="resetFilters()">Reset Filters</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Users Table
+            html += `
+                <div class="analysis-card">
+                    <h3>👥 User Payment Details - Selected Month</h3>
+                    <div class="table-wrapper">
+                        <table class="users-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>User Name</th>
+                                    <th>Plot No</th>
+                                    <th>Property Type</th>
+                                    <th>Built Status</th>
+                                    <th>Size/Shops</th>
+                                    <th>Expected</th>
+                                    <th>Custom Dues</th>
+                                    <th>Total Expected</th>
+                                    <th>Paid</th>
+                                    <th>Outstanding</th>
+                                    <th>Status</th>
+                                    <th>Payment Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                ${generateUsersTableRows(data.users)}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('analysisContent').innerHTML = html;
+        }
+
+        function generatePropertyBreakdown(type, title, breakdown) {
+            const cardClass = type === 'house' ? 'house-card' : 'shop-card';
+            let html = `
+                <div class="analysis-card ${cardClass}">
+                    <h3>${title}</h3>
+                    <div class="breakdown-grid">
+            `;
+
+            const statusMap = {
+                completed: { name: '🏠 Completed Properties', class: 'completed-box' },
+                vacant: { name: '📦 Vacant Plots', class: 'vacant-box' },
+                residential: { name: '🏘️ Residential', class: 'residential-box' },
+                underconstruction: { name: '🚧 Under-Construction', class: 'construction-box' }
+            };
+
+            Object.keys(statusMap).forEach(key => {
+                const status = breakdown[key];
+                const statusInfo = statusMap[key];
+                
+                if (status && status.rate !== undefined) {
+                    html += `
+                        <div class="status-box ${statusInfo.class}">
+                            <h4>${statusInfo.name}</h4>
+                            <div class="detail-row">
+                                <span class="detail-label">Rate/Marla:</span>
+                                <span class="detail-value">PKR ${status.rate.toFixed(2)}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Total Size:</span>
+                                <span class="detail-value">${status.totalSize.toFixed(2)} marla</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Expected:</span>
+                                <span class="detail-value">PKR ${status.expected.toLocaleString('en-PK', {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Custom Dues:</span>
+                                <span class="detail-value">PKR ${status.customDues.toLocaleString('en-PK', {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <div class="detail-row total-row">
+                                <span class="detail-label">Total Expected:</span>
+                                <span class="detail-value">PKR ${status.totalExpected.toLocaleString('en-PK', {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <div class="detail-row received-row">
+                                <span class="detail-label">Received:</span>
+                                <span class="detail-value">PKR ${status.received.toLocaleString('en-PK', {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <div class="detail-row outstanding-row">
+                                <span class="detail-label">Outstanding:</span>
+                                <span class="detail-value">PKR ${status.outstanding.toLocaleString('en-PK', {minimumFractionDigits: 2})}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        // New function to show all 4 built status tables for a property type
+        function generateAllPropertyBreakdowns(type, title, breakdown) {
+            const cardClass = type === 'house' ? 'house-card' : 'shop-card';
+            let html = `
+                <div class="analysis-card ${cardClass}">
+                    <h3>${title}</h3>
+                    <div class="breakdown-grid">
+            `;
+
+            const statusMap = {
+                completed: { name: '🏠 Completed', class: 'completed-box', displayName: 'Completed' },
+                vacant: { name: '📦 Vacant', class: 'vacant-box', displayName: 'Vacant' },
+                residential: { name: '🏘️ Residential', class: 'residential-box', displayName: 'Residential' },
+                underconstruction: { name: '🚧 Under-Construction', class: 'construction-box', displayName: 'Under-Construction' }
+            };
+
+            // Always show all 4 status boxes (even if no data)
+            Object.keys(statusMap).forEach(key => {
+                const status = breakdown[key];
+                const statusInfo = statusMap[key];
+                
+                // Show box even if no data
+                const rate = status?.rate || 0;
+                const totalSize = status?.totalSize || 0;
+                const expected = status?.expected || 0;
+                const customDues = status?.customDues || 0;
+                const totalExpected = status?.totalExpected || 0;
+                const received = status?.received || 0;
+                const outstanding = status?.outstanding || 0;
+                
+                // Determine size unit based on property type
+                const sizeDisplay = type === 'shop' 
+                    ? `${totalSize.toFixed(0)} Shop${totalSize !== 1 ? 's' : ''}` 
+                    : `${totalSize.toFixed(2)} marla`;
+                const rateLabel = type === 'shop' ? 'Rate/Shop:' : 'Rate/Marla:';
+                
+                html += `
+                    <div class="status-box ${statusInfo.class}">
+                        <h4>${statusInfo.name}</h4>
+                        <div class="detail-row">
+                            <span class="detail-label">${rateLabel}</span>
+                            <span class="detail-value">PKR ${rate.toFixed(2)}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Total Size:</span>
+                            <span class="detail-value">${sizeDisplay}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Expected:</span>
+                            <span class="detail-value">PKR ${expected.toLocaleString('en-PK', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Custom Dues:</span>
+                            <span class="detail-value">PKR ${customDues.toLocaleString('en-PK', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div class="detail-row total-row">
+                            <span class="detail-label">Total Expected:</span>
+                            <span class="detail-value">PKR ${totalExpected.toLocaleString('en-PK', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div class="detail-row received-row">
+                            <span class="detail-label">Received:</span>
+                            <span class="detail-value">PKR ${received.toLocaleString('en-PK', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div class="detail-row outstanding-row">
+                            <span class="detail-label">Outstanding:</span>
+                            <span class="detail-value">PKR ${outstanding.toLocaleString('en-PK', {minimumFractionDigits: 2})}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        function generateUsersTableRows(users) {
+            if (users.length === 0) {
+                return '<tr><td colspan="12" style="text-align: center; padding: 40px;">No users found</td></tr>';
+            }
+
+            return users.map(user => `
+                <tr>
+                    <td>${user.name}</td>
+                    <td>${user.plotNo}</td>
+                    <td>${user.propertyType}</td>
+                    <td>${user.builtStatus}</td>
+                    <td>${user.size.toFixed(2)} ${user.propertyType === 'Shop' ? 'Shop(s)' : 'marla'}</td>
+                    <td>PKR ${user.expected.toLocaleString('en-PK', {minimumFractionDigits: 2})}</td>
+                    <td>PKR ${user.customDues.toLocaleString('en-PK', {minimumFractionDigits: 2})}</td>
+                    <td>PKR ${user.totalExpected.toLocaleString('en-PK', {minimumFractionDigits: 2})}</td>
+                    <td style="color: #27ae60; font-weight: 600;">PKR ${user.paid.toLocaleString('en-PK', {minimumFractionDigits: 2})}</td>
+                    <td style="color: #e74c3c; font-weight: 600;">PKR ${user.outstanding.toLocaleString('en-PK', {minimumFractionDigits: 2})}</td>
+                    <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
+                    <td>${user.paymentDate}</td>
+                </tr>
+            `).join('');
+        }
+
+        function filterUsers() {
+            if (!currentAnalysisData) return;
+
+            const propertyType = document.getElementById('filterPropertyType').value;
+            const builtStatus = document.getElementById('filterBuiltStatus').value;
+            const paymentStatus = document.getElementById('filterPaymentStatus').value;
+
+            let filteredUsers = currentAnalysisData.users;
+
+            if (propertyType !== 'all') {
+                filteredUsers = filteredUsers.filter(u => u.propertyType === propertyType);
+            }
+
+            if (builtStatus !== 'all') {
+                filteredUsers = filteredUsers.filter(u => u.builtStatus === builtStatus);
+            }
+
+            if (paymentStatus !== 'all') {
+                filteredUsers = filteredUsers.filter(u => u.status === paymentStatus);
+            }
+
+            document.getElementById('usersTableBody').innerHTML = generateUsersTableRows(filteredUsers);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterPropertyType').value = 'all';
+            document.getElementById('filterBuiltStatus').value = 'all';
+            document.getElementById('filterPaymentStatus').value = 'all';
+            filterUsers();
+        }
+
+        function downloadCSV() {
+            if (!currentAnalysisData || !currentMonthYear) {
+                alert('Please select a month first');
+                return;
+            }
+
+            const [year, month] = currentMonthYear.split('-');
+            const monthName = getMonthName(parseInt(month));
+            
+            let csv = `JEEWAN AVENUE - MONTHLY COLLECTION ANALYSIS\n`;
+            csv += `Month: ${monthName} ${year}\n`;
+            csv += `Generated: ${new Date().toLocaleString('en-PK')}\n`;
+            csv += `==============================================\n\n`;
+            
+            // OVERALL SUMMARY
+            csv += `OVERALL MONTHLY SUMMARY\n`;
+            csv += `------------------------\n`;
+            csv += `Total Expected Amount,PKR ${currentAnalysisData.summary.totalExpected.toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+            csv += `Total Received Amount,PKR ${currentAnalysisData.summary.totalReceived.toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+            csv += `Total Outstanding,PKR ${currentAnalysisData.summary.outstanding.toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+            csv += `Collection Rate,${currentAnalysisData.summary.collectionRate}%\n\n`;
+
+            // MARRIAGE & CONTRIBUTION
+            csv += `MARRIAGE & CONTRIBUTION\n`;
+            csv += `------------------------\n`;
+            csv += `Marriage Income,PKR ${currentAnalysisData.marriage.total.toLocaleString('en-PK', {minimumFractionDigits: 2})},${currentAnalysisData.marriage.count} donation(s)\n`;
+            csv += `Contributions,PKR ${currentAnalysisData.contribution.total.toLocaleString('en-PK', {minimumFractionDigits: 2})},${currentAnalysisData.contribution.count} contribution(s)\n\n`;
+
+            // CUSTOM DUES SUMMARY
+            csv += `CUSTOM DUES SUMMARY\n`;
+            csv += `-------------------\n`;
+            csv += `Total Custom Dues,PKR ${currentAnalysisData.customDues.total.toLocaleString('en-PK', {minimumFractionDigits: 2})},${currentAnalysisData.customDues.count} due(s)\n`;
+            csv += `Paid Custom Dues,PKR ${currentAnalysisData.customDues.paid.toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+            csv += `Outstanding Custom Dues,PKR ${currentAnalysisData.customDues.outstanding.toLocaleString('en-PK', {minimumFractionDigits: 2})}\n\n`;
+
+            // PROPERTY BREAKDOWN - HOUSES
+            csv += `HOUSE PROPERTY BREAKDOWN\n`;
+            csv += `------------------------\n`;
+            ['Completed', 'Vacant', 'Residential', 'Under-Construction'].forEach(status => {
+                const breakdown = currentAnalysisData.house[status] || {};
+                csv += `${status} Houses:\n`;
+                csv += `  Rate/Marla: PKR ${(breakdown.ratePerMarla || 0).toLocaleString('en-PK')}\n`;
+                csv += `  Total Size: ${breakdown.totalSize || 0} marla\n`;
+                csv += `  Expected: PKR ${(breakdown.expected || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+                csv += `  Custom Dues: PKR ${(breakdown.customDues || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+                csv += `  Total Expected: PKR ${(breakdown.totalExpected || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+                csv += `  Received: PKR ${(breakdown.received || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+                csv += `  Outstanding: PKR ${(breakdown.outstanding || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}\n\n`;
+            });
+
+            // PROPERTY BREAKDOWN - SHOPS
+            csv += `SHOP PROPERTY BREAKDOWN\n`;
+            csv += `-----------------------\n`;
+            ['Completed', 'Vacant', 'Residential', 'Under-Construction'].forEach(status => {
+                const breakdown = currentAnalysisData.shop[status] || {};
+                csv += `${status} Shops:\n`;
+                csv += `  Rate/Marla: PKR ${(breakdown.ratePerMarla || 0).toLocaleString('en-PK')}\n`;
+                csv += `  Total Size: ${breakdown.totalSize || 0} marla\n`;
+                csv += `  Expected: PKR ${(breakdown.expected || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+                csv += `  Custom Dues: PKR ${(breakdown.customDues || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+                csv += `  Total Expected: PKR ${(breakdown.totalExpected || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+                csv += `  Received: PKR ${(breakdown.received || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}\n`;
+                csv += `  Outstanding: PKR ${(breakdown.outstanding || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}\n\n`;
+            });
+
+            // USER PAYMENT DETAILS
+            csv += `DETAILED USER PAYMENT RECORDS\n`;
+            csv += `==============================\n`;
+            csv += `User Name,Plot No,Property Type,Built Status,Size (Marla),Monthly Rate,Expected,Custom Dues,Total Expected,Amount Paid,Outstanding,Status,Payment Date\n`;
+            
+            // Get filtered users based on current filters
+            const propertyType = document.getElementById('filterPropertyType').value;
+            const builtStatus = document.getElementById('filterBuiltStatus').value;
+            const paymentStatus = document.getElementById('filterPaymentStatus').value;
+
+            let filteredUsers = currentAnalysisData.users;
+
+            if (propertyType !== 'all') {
+                filteredUsers = filteredUsers.filter(u => u.propertyType === propertyType);
+            }
+
+            if (builtStatus !== 'all') {
+                filteredUsers = filteredUsers.filter(u => u.builtStatus === builtStatus);
+            }
+
+            if (paymentStatus !== 'all') {
+                filteredUsers = filteredUsers.filter(u => u.status === paymentStatus);
+            }
+
+            filteredUsers.forEach(user => {
+                csv += `${user.name},${user.plotNo},${user.propertyType},${user.builtStatus},${user.size},${user.expected.toFixed(2)},${user.expected.toFixed(2)},${user.customDues.toFixed(2)},${user.totalExpected.toFixed(2)},${user.paid.toFixed(2)},${user.outstanding.toFixed(2)},${user.status},${user.paymentDate}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Jeewan_Avenue_Monthly_Analysis_${monthName}_${year}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function downloadPDF() {
+            if (!currentAnalysisData || !currentMonthYear) {
+                alert('Please select a month first');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            const [year, month] = currentMonthYear.split('-');
+            const monthName = getMonthName(parseInt(month));
+            let yPos = 15;
+
+            // Header - Title
+            doc.setFillColor(52, 73, 94);
+            doc.rect(0, 0, 210, 35, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(20);
+            doc.setFont(undefined, 'bold');
+            doc.text('JEEWAN AVENUE', 105, 15, { align: 'center' });
+            doc.setFontSize(16);
+            doc.text('Monthly Collection Analysis', 105, 23, { align: 'center' });
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${monthName} ${year}`, 105, 30, { align: 'center' });
+            
+            doc.setTextColor(0, 0, 0);
+            yPos = 45;
+
+            // Overall Summary Section
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setFillColor(236, 240, 241);
+            doc.rect(14, yPos - 5, 182, 8, 'F');
+            doc.text('Overall Monthly Summary', 16, yPos);
+            yPos += 10;
+
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            const summaryData = [
+                ['Total Expected', `PKR ${currentAnalysisData.summary.totalExpected.toLocaleString('en-PK', {minimumFractionDigits: 2})}`],
+                ['Total Received', `PKR ${currentAnalysisData.summary.totalReceived.toLocaleString('en-PK', {minimumFractionDigits: 2})}`],
+                ['Outstanding', `PKR ${currentAnalysisData.summary.outstanding.toLocaleString('en-PK', {minimumFractionDigits: 2})}`],
+                ['Collection Rate', `${currentAnalysisData.summary.collectionRate}%`]
+            ];
+
+            doc.autoTable({
+                startY: yPos,
+                head: [],
+                body: summaryData,
+                theme: 'grid',
+                headStyles: { fillColor: [52, 73, 94] },
+                columnStyles: {
+                    0: { fontStyle: 'bold', cellWidth: 50 },
+                    1: { cellWidth: 130, halign: 'right' }
+                },
+                styles: { fontSize: 10 }
+            });
+
+            yPos = doc.lastAutoTable.finalY + 10;
+
+            // Marriage & Contribution Section
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setFillColor(236, 240, 241);
+            doc.rect(14, yPos - 5, 182, 8, 'F');
+            doc.text('Marriage & Contribution', 16, yPos);
+            yPos += 10;
+
+            const marriageData = [
+                ['Marriage Income', `PKR ${currentAnalysisData.marriage.total.toLocaleString('en-PK', {minimumFractionDigits: 2})}`, `${currentAnalysisData.marriage.count} income`],
+                ['Contributions', `PKR ${currentAnalysisData.contribution.total.toLocaleString('en-PK', {minimumFractionDigits: 2})}`, `${currentAnalysisData.contribution.count} contribution`]
+            ];
+
+            doc.autoTable({
+                startY: yPos,
+                body: marriageData,
+                theme: 'grid',
+                columnStyles: {
+                    0: { fontStyle: 'bold', cellWidth: 60 },
+                    1: { cellWidth: 70, halign: 'right' },
+                    2: { cellWidth: 50, halign: 'center' }
+                },
+                styles: { fontSize: 10 }
+            });
+
+            yPos = doc.lastAutoTable.finalY + 10;
+
+            // Custom Dues Section
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setFillColor(236, 240, 241);
+            doc.rect(14, yPos - 5, 182, 8, 'F');
+            doc.text('Custom Dues Summary', 16, yPos);
+            yPos += 10;
+
+            const customDuesData = [
+                ['Total Custom Dues', `PKR ${currentAnalysisData.customDues.total.toLocaleString('en-PK', {minimumFractionDigits: 2})}`, `${currentAnalysisData.customDues.count} due(s)`],
+                ['Paid', `PKR ${currentAnalysisData.customDues.paid.toLocaleString('en-PK', {minimumFractionDigits: 2})}`, ''],
+                ['Outstanding', `PKR ${currentAnalysisData.customDues.outstanding.toLocaleString('en-PK', {minimumFractionDigits: 2})}`, '']
+            ];
+
+            doc.autoTable({
+                startY: yPos,
+                body: customDuesData,
+                theme: 'grid',
+                columnStyles: {
+                    0: { fontStyle: 'bold', cellWidth: 60 },
+                    1: { cellWidth: 70, halign: 'right' },
+                    2: { cellWidth: 50, halign: 'center' }
+                },
+                styles: { fontSize: 10 }
+            });
+
+            yPos = doc.lastAutoTable.finalY + 10;
+
+            // Check if we need a new page
+            if (yPos > 240) {
+                doc.addPage();
+                yPos = 20;
+            }
+
+            // Property Breakdown - HOUSES
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setFillColor(236, 240, 241);
+            doc.rect(14, yPos - 5, 182, 8, 'F');
+            doc.text('House Property Breakdown', 16, yPos);
+            yPos += 10;
+
+            const houseBreakdownData = [];
+            ['Completed', 'Vacant', 'Residential', 'Under-Construction'].forEach(status => {
+                const statusKey = status.toLowerCase().replace('-', '');
+                const breakdown = currentAnalysisData.house[statusKey] || {};
+                houseBreakdownData.push([
+                    status,
+                    `${breakdown.totalSize || 0} marla`,
+                    `PKR ${(breakdown.expected || 0).toLocaleString('en-PK')}`,
+                    `PKR ${(breakdown.received || 0).toLocaleString('en-PK')}`,
+                    `PKR ${(breakdown.outstanding || 0).toLocaleString('en-PK')}`
+                ]);
+            });
+
+            doc.autoTable({
+                startY: yPos,
+                head: [['Status', 'Size', 'Expected', 'Received', 'Outstanding']],
+                body: houseBreakdownData,
+                theme: 'grid',
+                headStyles: { fillColor: [52, 152, 219], fontSize: 9, fontStyle: 'bold' },
+                styles: { fontSize: 8 },
+                columnStyles: {
+                    0: { cellWidth: 45 },
+                    1: { cellWidth: 30, halign: 'center' },
+                    2: { cellWidth: 37, halign: 'right' },
+                    3: { cellWidth: 37, halign: 'right' },
+                    4: { cellWidth: 37, halign: 'right' }
+                }
+            });
+
+            yPos = doc.lastAutoTable.finalY + 10;
+
+            // Check if we need a new page
+            if (yPos > 240) {
+                doc.addPage();
+                yPos = 20;
+            }
+
+            // Property Breakdown - SHOPS
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setFillColor(236, 240, 241);
+            doc.rect(14, yPos - 5, 182, 8, 'F');
+            doc.text('Shop Property Breakdown', 16, yPos);
+            yPos += 10;
+
+            const shopBreakdownData = [];
+            ['Completed', 'Vacant', 'Residential', 'Under-Construction'].forEach(status => {
+                const statusKey = status.toLowerCase().replace('-', '');
+                const breakdown = currentAnalysisData.shop[statusKey] || {};
+                const shopCount = breakdown.totalSize || 0;
+                const shopDisplay = `${shopCount} Shop${shopCount !== 1 ? 's' : ''}`;
+                shopBreakdownData.push([
+                    status,
+                    shopDisplay,
+                    `PKR ${(breakdown.expected || 0).toLocaleString('en-PK')}`,
+                    `PKR ${(breakdown.received || 0).toLocaleString('en-PK')}`,
+                    `PKR ${(breakdown.outstanding || 0).toLocaleString('en-PK')}`
+                ]);
+            });
+
+            doc.autoTable({
+                startY: yPos,
+                head: [['Status', 'Size', 'Expected', 'Received', 'Outstanding']],
+                body: shopBreakdownData,
+                theme: 'grid',
+                headStyles: { fillColor: [231, 76, 60], fontSize: 9, fontStyle: 'bold' },
+                styles: { fontSize: 8 },
+                columnStyles: {
+                    0: { cellWidth: 45 },
+                    1: { cellWidth: 30, halign: 'center' },
+                    2: { cellWidth: 37, halign: 'right' },
+                    3: { cellWidth: 37, halign: 'right' },
+                    4: { cellWidth: 37, halign: 'right' }
+                }
+            });
+
+            yPos = doc.lastAutoTable.finalY + 10;
+
+            // Add new page for user details
+            doc.addPage();
+            yPos = 20;
+
+            // User Payment Details
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setFillColor(236, 240, 241);
+            doc.rect(14, yPos - 5, 182, 8, 'F');
+            doc.text('Detailed User Payment Records', 16, yPos);
+            yPos += 10;
+
+            // Get filtered users based on current filters
+            const propertyType = document.getElementById('filterPropertyType').value;
+            const builtStatus = document.getElementById('filterBuiltStatus').value;
+            const paymentStatus = document.getElementById('filterPaymentStatus').value;
+
+            let filteredUsers = currentAnalysisData.users;
+
+            if (propertyType !== 'all') {
+                filteredUsers = filteredUsers.filter(u => u.propertyType === propertyType);
+            }
+
+            if (builtStatus !== 'all') {
+                filteredUsers = filteredUsers.filter(u => u.builtStatus === builtStatus);
+            }
+
+            if (paymentStatus !== 'all') {
+                filteredUsers = filteredUsers.filter(u => u.status === paymentStatus);
+            }
+
+            const userTableData = filteredUsers.map(user => [
+                user.name,
+                user.plotNo,
+                user.propertyType.substr(0, 1),
+                user.builtStatus.substr(0, 4),
+                user.size,
+                user.totalExpected.toFixed(0),
+                user.paid.toFixed(0),
+                user.status.substr(0, 4)
+            ]);
+
+            doc.autoTable({
+                startY: yPos,
+                head: [['Name', 'Plot', 'T', 'Stat', 'Size', 'Exp', 'Paid', 'Sts']],
+                body: userTableData,
+                theme: 'striped',
+                headStyles: { fillColor: [52, 73, 94], fontSize: 8, fontStyle: 'bold' },
+                styles: { fontSize: 7 },
+                columnStyles: {
+                    0: { cellWidth: 50 },
+                    1: { cellWidth: 20 },
+                    2: { cellWidth: 10, halign: 'center' },
+                    3: { cellWidth: 20 },
+                    4: { cellWidth: 15, halign: 'center' },
+                    5: { cellWidth: 25, halign: 'right' },
+                    6: { cellWidth: 25, halign: 'right' },
+                    7: { cellWidth: 17, halign: 'center' }
+                }
+            });
+
+            // Footer on all pages
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(128, 128, 128);
+                doc.text(`Generated: ${new Date().toLocaleString('en-PK')}`, 14, 290);
+                doc.text(`Page ${i} of ${pageCount}`, 190, 290, { align: 'right' });
+            }
+
+            doc.save(`Jeewan_Avenue_Monthly_Analysis_${monthName}_${year}.pdf`);
+        }
+
+        function getMonthName(month) {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+            return months[month - 1];
+        }
+
+        async function getCurrentUser() {
+            try {
+                const response = await fetch('/api/auth/current-user');
+                if (response.ok) {
+                    return await response.json();
+                }
+                return null;
+            } catch (error) {
+                console.error('Error getting current user:', error);
+                return null;
+            }
+        }
+
+        function showError(message) {
+            alert('❌ Error: ' + message);
+        }
+
+        // Load header components
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('header.html').then(r => r.text()).then(data => {
+                document.getElementById('header').innerHTML = data;
+                if (typeof initializeHeader === 'function') initializeHeader();
+            }).catch(err => console.log('Header load failed:', err));
+        });
+    </script>
+
+    <!-- Include additional scripts -->
+    <script src="/js/announcement-popup.js?v=3"></script>
+    <script src="/js/role-security.js?v=12"></script>
+    <script src="/js/header-menu.js"></script>
+</body>
+</html>

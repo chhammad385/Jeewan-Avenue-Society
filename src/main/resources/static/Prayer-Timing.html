@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Jeewan Avenue Prayer Timings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        
+        body {
+            background-image: url('https://images.unsplash.com/photo-1542319630-5e8c1b741e6f?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover; 
+            background-attachment: fixed; 
+            background-position: center; 
+            min-height: 100vh;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .overlay { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 120%; 
+            background: linear-gradient(to bottom, rgba(0, 51, 102, 0.5), rgba(0, 102, 51, 0.5)); 
+            z-index: 1; 
+        }
+        
+        .prayer-card { 
+            backdrop-filter: blur(10px); 
+            background: rgba(255, 255, 255, 0.9); 
+            border-radius: 1rem; 
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); 
+            z-index: 2; 
+            width: 90%; 
+            max-width: 400px; 
+            padding: 2rem; 
+            margin-top: 120px; 
+        }
+        
+        .prayer-time { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 0.5rem 0; 
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1); 
+        }
+        
+        .prayer-name { 
+            font-weight: bold; 
+            color: #1a3c34; 
+        }
+
+        /* Header Styles - Same as home page */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #34495e;
+            padding: 1rem 2rem;
+            color: white;
+            flex-wrap: wrap;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+            box-sizing: border-box;
+        }
+
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .header-btn {
+            background: #e74c3c;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: clamp(0.9rem, 2.2vw, 1rem);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        .header-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-color: #fff;
+        }
+
+        .header-btn.language-btn {
+            background: #f1c40f;
+            color: black;
+        }
+
+        .header-btn.language-btn:hover {
+            background: #d4ac0d;
+            color: white;
+        }
+
+        .logo {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 600;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-buttons {
+                justify-content: center;
+            }
+
+            .prayer-card {
+                margin-top: 140px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-buttons {
+                flex-direction: row;
+                justify-content: center;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+
+            .header-btn {
+                padding: 0.6rem 1rem;
+                font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+                flex: 1;
+                min-width: 80px;
+                max-width: 120px;
+            }
+
+            .prayer-card {
+                margin-top: 160px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+                width: 100%;
+            }
+
+            .header-btn {
+                width: 100%;
+                max-width: 200px;
+                text-align: center;
+                padding: 0.75rem;
+                font-size: clamp(0.9rem, 3vw, 1rem);
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .logo {
+                font-size: clamp(1.2rem, 4vw, 1.5rem);
+            }
+
+            .prayer-card {
+                margin-top: 350px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay"></div>
+    <header class="header">
+        <div class="logo">
+            <img src="/image/logo3.png" alt="Jeewan Avenue Logo" style="height: 80px; vertical-align: middle;">
+        </div>
+        <div class="header-buttons">
+            <button class="header-btn language-btn" onclick="changeLanguage('en')">English</button>
+            <button class="header-btn language-btn" onclick="changeLanguage('ur')" style="font-family: 'Noto Nastaliq Urdu', sans-serif;">اردو</button>
+            <a href="/Login Page.html" class="header-btn" id="login-btn-text">Login</a>
+        </div>
+    </header>
+    <div class="prayer-card">
+        <h1 class="text-3xl font-bold text-center mb-6" id="prayer-title-text">Jeewan Avenue Prayer Timings</h1>
+        <h2 class="text-lg text-center mb-4 text-gray-600" id="current-date"></h2>
+        <div id="prayer-times-container" class="text-lg"></div>
+    </div>
+
+<script>
+    const translations = {
+        en: { pageTitle: "Jeewan Avenue Prayer Timings", headerTitle: "Jeewan Avenue", loginBtn: "Login", prayers: { fajr: "Fajr", dhuhr: "Dhuhr", asr: "Asr", maghrib: "Maghrib", isha: "Isha", jumma: "Jumma" } },
+        ur: { pageTitle: "جیون ایونیو نماز کے اوقات", headerTitle: "جیون ایونیو", loginBtn: "لاگ ان", prayers: { fajr: "فجر", dhuhr: "ظہر", asr: "عصر", maghrib: "مغرب", isha: "عشاء", jumma: "جمعہ" } }
+    };
+
+    function formatTime12h(time24) {
+        if (!time24) return 'Not Set';
+        const [hours, minutes] = time24.split(':');
+        const h = parseInt(hours, 10);
+        const period = h >= 12 ? 'PM' : 'AM';
+        const hours12 = h % 12 || 12;
+        return `${hours12}:${minutes.padStart(2, '0')} ${period}`;
+    }
+
+    async function displayPrayerTimes(lang = 'en') {
+        try {
+            const response = await fetch('/api/prayer-timings');
+            if (!response.ok) throw new Error('Could not fetch times');
+            const timings = await response.json();
+
+            const container = document.getElementById('prayer-times-container');
+            container.innerHTML = '';
+            
+            const prayerOrder = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha', 'jumma'];
+            prayerOrder.forEach(prayerKey => {
+                const prayerDiv = document.createElement('div');
+                prayerDiv.className = 'prayer-time';
+                prayerDiv.innerHTML = `
+                    <span class="prayer-name">${translations[lang].prayers[prayerKey]}</span>
+                    <span>${formatTime12h(timings[prayerKey])}</span>
+                `;
+                container.appendChild(prayerDiv);
+            });
+        } catch (error) {
+            console.error('Error fetching prayer times:', error);
+            document.getElementById('prayer-times-container').innerHTML = '<p>Could not load prayer times.</p>';
+        }
+        
+        // Update UI text
+        document.getElementById('page-title').textContent = translations[lang].pageTitle;
+        document.getElementById('prayer-title-text').textContent = translations[lang].pageTitle;
+        const loginBtn = document.getElementById('login-btn-text');
+        if (loginBtn) {
+            loginBtn.textContent = translations[lang].loginBtn;
+        }
+    }
+
+    function changeLanguage(lang) {
+        displayPrayerTimes(lang);
+    }
+
+    function initialize() {
+        const today = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = today.toLocaleDateString('en-US', options);
+        displayPrayerTimes('en');
+    }
+    
+    initialize();
+</script>
+</body>
+</html>

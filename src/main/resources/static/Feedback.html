@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Form - Jeewan Avenue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Your existing CSS styles remain unchanged */
+        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; text-align: center; background-color: #f4f4f4; }
+        .container { padding: 20px; background-color: #333333; }
+        .block {
+            display: inline-block; background: white; color: black; padding: 15px;
+            margin: 10px; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer; transition: 0.3s;
+        }
+        .block:hover, .block.active { background: #1abc9c; color: white; }
+        .block.has-feedback {
+            background: #27ae60 !important;
+            color: white !important;
+            position: relative;
+        }
+        .block.has-feedback::after {
+            content: '✓';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #2ecc71;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .feedback-section {
+            padding: 20px; background-color: white; border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); margin: 20px auto; max-width: 1200px;
+        }
+        #feedback-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .member-feedback {
+            background-color: #f9f9f9; padding: 15px; border-radius: 10px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 250px;
+            margin: 10px; border-left: 4px solid #1abc9c;
+        }
+        .member-feedback h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        .member-feedback p {
+            margin: 5px 0;
+            color: #666;
+            font-style: italic;
+        }
+        .radio-group {
+            margin: 10px 0;
+        }
+        .radio-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .radio-group input[type="radio"] {
+            margin-right: 8px;
+            margin-left: 5px;
+        }
+        textarea { 
+            width: 95%; height: 60px; margin-top: 10px; border-radius: 5px; 
+            padding: 8px; border: 1px solid #ddd; font-family: 'Poppins', sans-serif;
+            resize: vertical;
+        }
+        textarea:focus {
+            border-color: #1abc9c;
+            outline: none;
+            box-shadow: 0 0 5px rgba(26, 188, 156, 0.3);
+        }
+        .submit-btn {
+            margin-top: 20px; padding: 12px 30px; background-color: #1abc9c;
+            color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;
+            font-weight: 600; transition: background-color 0.3s ease;
+        }
+        .submit-btn:hover:not(:disabled) { 
+            background-color: #16a085; 
+            transform: translateY(-1px);
+        }
+        .submit-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .feedback-status-message {
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feedback-status-message.warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #f39c12;
+            color: #8b4513;
+        }
+
+        .feedback-status-message.success {
+            background: linear-gradient(135deg, #d4edda, #a8e6cf);
+            border: 2px solid #27ae60;
+            color: #155724;
+        }
+
+        .feedback-status-message h3 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+
+        .feedback-status-message p {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .feedback-status-message small {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .feedback-summary {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            border: 2px solid #27ae60;
+            padding: 15px;
+            margin: 20px auto;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 600px;
+            color: #155724;
+        }
+
+        .feedback-summary h4 {
+            margin: 0 0 10px 0;
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    
+    <div class="container">
+        <h1 style="color: white;">Feedback Form</h1>
+        <p style="color: white;">Select a category and provide your feedback.</p>
+        <div id="category-buttons">
+            <!-- Categories will be loaded dynamically -->
+        </div>
+    </div>
+
+    <div class="feedback-section">
+        <h2 id="feedback-category-title">Provide Feedback for Committee Members</h2>
+        <div id="feedback-container">
+            </div>
+        <button class="submit-btn" onclick="submitFeedback()">Submit All Feedback</button>
+    </div>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js"></script>
+<script>
+    let selectedCategory = null; // Keep track of the selected category
+    let allStaff = []; // Cache all staff members to avoid repeated API calls
+    let allCategories = []; // Cache all categories
+    let feedbackStatus = null; // Store feedback requirement status
+    let tempFeedbackData = {}; // Store feedback data temporarily while switching categories
+
+    // Get category emoji based on name (with fallback for custom categories)
+    function getCategoryEmoji(categoryName) {
+        const emojiMap = {
+            'Committee Member': '🙋‍♂️',
+            'Security Guard': '👮‍♂️',
+            'Gardener': '👨‍🌾',
+            'Imam-Masjid': '👳'
+        };
+        return emojiMap[categoryName] || '📋'; // Default emoji for custom categories
+    }
+
+    // Load categories from backend and render buttons
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/categories');
+            if (!response.ok) throw new Error('Failed to fetch categories');
+            allCategories = await response.json();
+            
+            // Render category buttons
+            const categoryButtonsContainer = document.getElementById('category-buttons');
+            categoryButtonsContainer.innerHTML = '';
+            
+            allCategories.forEach((category, index) => {
+                const pluralName = category.name.endsWith('s') ? category.name : category.name + 's';
+                const button = document.createElement('div');
+                button.className = `block ${index === 0 ? 'active' : ''}`;
+                button.onclick = function() { showFeedbackForm(category.name, this); };
+                button.textContent = `${pluralName} ${getCategoryEmoji(category.name)}`;
+                categoryButtonsContainer.appendChild(button);
+            });
+            
+            // Set first category as default
+            if (allCategories.length > 0) {
+                selectedCategory = allCategories[0].name;
+            }
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            showError('❌ Could not load categories.');
+        }
+    }
+
+    // --- FEEDBACK STATUS CHECKING ---
+    async function checkFeedbackStatus() {
+        try {
+            const response = await fetch('/api/feedback/check-required');
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    showError("❌ Please log in to access the feedback form.");
+                    setTimeout(() => {
+                        window.location.href = '/Login Page.html';
+                    }, 2000);
+                    return null;
+                }
+                throw new Error('Could not check feedback status');
+            }
+            feedbackStatus = await response.json();
+            return feedbackStatus;
+        } catch (error) {
+            console.error("Error checking feedback status:", error);
+            showError("❌ Could not verify feedback requirements.");
+            return null;
+        }
+    }
+
+    // --- DATA FETCHING AND UI RENDERING ---
+    async function fetchAllStaff() {
+        if (allStaff.length > 0) return; // Don't fetch if already cached
+        try {
+            const response = await fetch('/api/staff');
+            if (!response.ok) throw new Error('Could not fetch staff data');
+            allStaff = await response.json();
+        } catch (error) {
+            console.error("Error fetching staff:", error);
+            showError("❌ Could not load member data from the server.");
+        }
+    }
+
+    // Save current feedback data before switching categories
+    function saveCurrentFeedback() {
+        const feedbackForms = document.querySelectorAll('.member-feedback');
+        feedbackForms.forEach(form => {
+            const personName = form.dataset.memberName;
+            const category = form.dataset.category;
+            const satisfactionRadio = form.querySelector('input[type="radio"]:checked');
+            const comments = form.querySelector('textarea').value;
+
+            const feedbackKey = `${personName}_${category}`;
+            if (satisfactionRadio || comments) {
+                tempFeedbackData[feedbackKey] = {
+                    personName: personName,
+                    category: category,
+                    satisfaction: satisfactionRadio ? satisfactionRadio.value : null,
+                    comments: comments
+                };
+            }
+        });
+    }
+
+    // Restore previously saved feedback data
+    function restoreFeedbackData() {
+        setTimeout(() => { // Use timeout to ensure DOM is ready
+            const feedbackForms = document.querySelectorAll('.member-feedback');
+            feedbackForms.forEach(form => {
+                const personName = form.dataset.memberName;
+                const category = form.dataset.category;
+                const feedbackKey = `${personName}_${category}`;
+                
+                if (tempFeedbackData[feedbackKey]) {
+                    const savedData = tempFeedbackData[feedbackKey];
+                    
+                    // Restore satisfaction rating
+                    if (savedData.satisfaction) {
+                        const radioToCheck = form.querySelector(`input[value="${savedData.satisfaction}"]`);
+                        if (radioToCheck) {
+                            radioToCheck.checked = true;
+                        }
+                    }
+                    
+                    // Restore comments
+                    if (savedData.comments) {
+                        const textarea = form.querySelector('textarea');
+                        if (textarea) {
+                            textarea.value = savedData.comments;
+                        }
+                    }
+                }
+            });
+        }, 100);
+    }
+
+    // Update category button visual indicators
+    function updateCategoryIndicators() {
+        const categoryButtons = document.querySelectorAll('.block');
+        
+        categoryButtons.forEach(button => {
+            const categoryText = button.textContent.trim();
+            
+            // Extract category name by removing emoji
+            let category = categoryText.replace(/[^\w\s-]/g, '').trim();
+            // Remove plural 's' if present
+            if (category.endsWith('s') && !category.endsWith('ss')) {
+                category = category.slice(0, -1);
+            }
+            
+            // Match against actual category names
+            const matchedCategory = allCategories.find(c => 
+                category.toLowerCase().includes(c.name.toLowerCase()) ||
+                c.name.toLowerCase().includes(category.toLowerCase())
+            );
+            
+            if (matchedCategory) {
+                category = matchedCategory.name;
+            }
+            
+            // Check if this category has any feedback
+            const hasFeedback = Object.values(tempFeedbackData).some(feedback => 
+                feedback.category === category && feedback.satisfaction
+            );
+            
+            if (hasFeedback) {
+                button.classList.add('has-feedback');
+            } else {
+                button.classList.remove('has-feedback');
+            }
+        });
+    }
+
+    // Auto-save feedback as user types/selects
+    function autoSaveFeedback() {
+        saveCurrentFeedback();
+        updateCategoryIndicators();
+        updateFeedbackSummary();
+    }
+
+    // Update feedback summary showing progress
+    function updateFeedbackSummary() {
+        const activeCategories = allCategories.map(c => c.name);
+        const categoriesWithFeedback = [];
+        const categoriesWithActiveStaff = [];
+
+        // Check which categories have active staff members
+        activeCategories.forEach(category => {
+            const activeStaffInCategory = allStaff.filter(member => 
+                member.category === category && 
+                member.status && 
+                member.status.toLowerCase() === 'active'
+            );
+            
+            if (activeStaffInCategory.length > 0) {
+                categoriesWithActiveStaff.push(category);
+                
+                // Check if this category has feedback
+                const hasFeedback = Object.values(tempFeedbackData).some(feedback => 
+                    feedback.category === category && feedback.satisfaction
+                );
+                
+                if (hasFeedback) {
+                    categoriesWithFeedback.push(category);
+                }
+            }
+        });
+
+        // Remove existing summary
+        const existingSummary = document.getElementById('feedback-summary');
+        if (existingSummary) {
+            existingSummary.remove();
+        }
+
+        // Only show summary if there are active staff categories and some feedback has been provided
+        if (categoriesWithActiveStaff.length > 0 && categoriesWithFeedback.length > 0) {
+            const summaryHTML = `
+                <div id="feedback-summary" class="feedback-summary">
+                    <h4>📋 Feedback Progress</h4>
+                    <p><strong>${categoriesWithFeedback.length} of ${categoriesWithActiveStaff.length}</strong> categories completed</p>
+                    ${categoriesWithFeedback.length === categoriesWithActiveStaff.length ? 
+                        '<p style="color: #27ae60; font-weight: bold;">✅ All required feedback provided! Ready to submit.</p>' : 
+                        '<p>Please provide feedback for all categories with active staff before submitting.</p>'
+                    }
+                </div>
+            `;
+            
+            const feedbackSection = document.querySelector('.feedback-section');
+            feedbackSection.insertAdjacentHTML('afterbegin', summaryHTML);
+        }
+    }
+
+    async function showFeedbackForm(category, element) {
+        // Save current feedback data before switching
+        saveCurrentFeedback();
+        // Update visual indicators after saving
+        updateCategoryIndicators();
+
+        currentCategory = category;
+        const feedbackContainer = document.getElementById('feedback-container');
+        const titleElement = document.getElementById('feedback-category-title');
+        feedbackContainer.innerHTML = 'Loading...'; // Show loading indicator
+        titleElement.textContent = `Provide Feedback for ${category}s`;
+
+        // Check feedback status first
+        if (!feedbackStatus) {
+            feedbackStatus = await checkFeedbackStatus();
+            if (!feedbackStatus) return; // Error occurred
+        }
+
+        // Show feedback status message if needed
+        displayFeedbackStatusMessage();
+
+        // Highlight active button
+        document.querySelectorAll('.block').forEach(block => block.classList.remove('active'));
+        element.classList.add('active');
+        
+        await fetchAllStaff(); // Ensure staff data is loaded
+
+        // Filter members by category AND active status
+        const membersOfCategory = allStaff.filter(member => 
+            member.category === category && 
+            member.status && 
+            member.status.toLowerCase() === 'active'
+        );
+        
+        feedbackContainer.innerHTML = ''; // Clear loading indicator
+
+        if (membersOfCategory.length === 0) {
+            feedbackContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <h3>No Active ${category}s Available</h3>
+                    <p>No active members are currently available for feedback in the ${category} category.</p>
+                    <p style="color: #1abc9c; font-weight: 600;">✓ Feedback is optional when no active staff members are present.</p>
+                    <p style="font-style: italic;">Please check back later when active staff members are available to provide feedback.</p>
+                    <button onclick="completeNoStaffFeedback()" style="margin-top: 15px; padding: 10px 20px; background-color: #1abc9c; color: white; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">
+                        Continue to Portal
+                    </button>
+                </div>
+            `;
+            
+            // Hide submit button when no active staff members
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.style.display = 'none';
+            return;
+        }
+
+        // Show submit button when staff members are present
+        const submitBtn = document.querySelector('.submit-btn');
+        submitBtn.style.display = 'inline-block';
+
+        // Check if user has already submitted feedback this month
+        if (feedbackStatus && !feedbackStatus.isRequired) {
+            const daysSince = feedbackStatus.daysSinceLastFeedback;
+            if (daysSince !== null && daysSince < 30) {
+                submitBtn.textContent = 'Feedback Already Submitted This Month';
+                submitBtn.disabled = true;
+                submitBtn.style.backgroundColor = '#95a5a6';
+            }
+        }
+
+        membersOfCategory.forEach(member => {
+            const feedbackHTML = `
+                <div class="member-feedback" data-member-name="${member.name}" data-category="${member.category}">
+                    <h3>${member.name}</h3>
+                    <p>${member.position}</p>
+                    <div class="radio-group">
+                        <label>Are you satisfied with their service?</label>
+                        <div>
+                            <input type="radio" name="feedback-${member.id}" value="yes" required id="yes-${member.id}" onchange="autoSaveFeedback()">
+                            <label for="yes-${member.id}" style="display: inline; font-weight: normal; color: #27ae60;">✓ Yes, satisfied</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="feedback-${member.id}" value="no" id="no-${member.id}" onchange="autoSaveFeedback()">
+                            <label for="no-${member.id}" style="display: inline; font-weight: normal; color: #e74c3c;">✗ No, not satisfied</label>
+                        </div>
+                    </div>
+                    <textarea name="comments" placeholder="Additional comments or suggestions (optional)..." oninput="autoSaveFeedback()"></textarea>
+                </div>
+            `;
+            feedbackContainer.insertAdjacentHTML('beforeend', feedbackHTML);
+        });
+
+        // Restore previously saved feedback data
+        restoreFeedbackData();
+        // Update visual indicators after restoring
+        updateCategoryIndicators();
+        // Update feedback summary
+        updateFeedbackSummary();
+    }
+
+    // Display feedback status message to inform user
+    function displayFeedbackStatusMessage() {
+        if (!feedbackStatus) return;
+
+        const existingMessage = document.getElementById('feedback-status-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+
+        let messageHtml = '';
+        let messageClass = '';
+
+        if (feedbackStatus.isRequired) {
+            messageClass = 'warning';
+            if (feedbackStatus.staffNowAvailable) {
+                messageHtml = `
+                    <div id="feedback-status-message" class="feedback-status-message ${messageClass}">
+                        <h3>📢 Feedback Required</h3>
+                        <p><strong>${feedbackStatus.message}</strong></p>
+                        <p><small>Staff members are now available for feedback.</small></p>
+                    </div>
+                `;
+            } else {
+                messageHtml = `
+                    <div id="feedback-status-message" class="feedback-status-message ${messageClass}">
+                        <h3>📝 Monthly Feedback Required</h3>
+                        <p><strong>${feedbackStatus.message}</strong></p>
+                        ${feedbackStatus.lastFeedbackDate ? 
+                            `<p><small>Last feedback: ${new Date(feedbackStatus.lastFeedbackDate).toLocaleDateString()}</small></p>` : 
+                            '<p><small>This is your first feedback submission.</small></p>'
+                        }
+                    </div>
+                `;
+            }
+        } else if (feedbackStatus.daysSinceLastFeedback !== null && feedbackStatus.daysSinceLastFeedback < 30) {
+            messageClass = 'success';
+            const daysRemaining = 30 - feedbackStatus.daysSinceLastFeedback;
+            messageHtml = `
+                <div id="feedback-status-message" class="feedback-status-message ${messageClass}">
+                    <h3>✅ Feedback Up to Date</h3>
+                    <p><strong>Thank you! Your feedback is current.</strong></p>
+                    <p><small>Next feedback due in ${daysRemaining} day(s).</small></p>
+                    <p><small>You can still provide additional feedback if needed.</small></p>
+                </div>
+            `;
+        }
+
+        if (messageHtml) {
+            const feedbackSection = document.querySelector('.feedback-section');
+            feedbackSection.insertAdjacentHTML('afterbegin', messageHtml);
+        }
+    }
+
+    // --- DATA SUBMISSION ---
+    async function submitFeedback() {
+        // Save current feedback data before submitting
+        saveCurrentFeedback();
+
+        // Check if user is allowed to submit feedback
+        if (feedbackStatus && !feedbackStatus.isRequired) {
+            const daysSince = feedbackStatus.daysSinceLastFeedback;
+            if (daysSince !== null && daysSince < 30) {
+                showError("❌ You have already submitted feedback this month. Please wait " + 
+                         (30 - daysSince) + " more day(s) before submitting again.");
+                return;
+            }
+        }
+
+        const feedbackForms = document.querySelectorAll('.member-feedback');
+        
+        // Check if no active staff members are available across all categories
+        const activeStaff = allStaff.filter(member => 
+            member.status && member.status.toLowerCase() === 'active'
+        );
+        
+        if (activeStaff.length === 0) {
+            showSuccess("✅ No active staff members are available for feedback at this time. Feedback is optional!");
+            return;
+        }
+        
+        if (feedbackForms.length === 0) {
+            showSuccess("✅ No active staff members found in the selected category. Feedback is optional!");
+            return;
+        }
+
+        // Validate that ALL active members across ALL categories have received feedback
+        const allActiveStaffMembers = allStaff.filter(member => 
+            member.status && member.status.toLowerCase() === 'active'
+        );
+        
+        const feedbackPayload = [];
+        let allFormsValid = true;
+        let missingFeedbackMembers = [];
+
+        // Collect feedback from ALL saved feedback data (from all categories)
+        Object.values(tempFeedbackData).forEach(savedFeedback => {
+            if (!savedFeedback.satisfaction) {
+                allFormsValid = false;
+                missingFeedbackMembers.push(`${savedFeedback.personName} (${savedFeedback.category})`);
+                return;
+            }
+
+            // Create accurate timestamp with timezone information
+            const now = new Date();
+            const submittedAt = now.toISOString();
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+            feedbackPayload.push({
+                personName: savedFeedback.personName,
+                category: savedFeedback.category,
+                isSatisfied: savedFeedback.satisfaction === 'yes',
+                comments: savedFeedback.comments || '',
+                submittedAt: submittedAt,
+                timeZone: timeZone
+            });
+        });
+
+        // Also collect feedback from currently displayed forms (in case user didn't switch categories)
+        feedbackForms.forEach(form => {
+            const personName = form.dataset.memberName;
+            const category = form.dataset.category;
+            const satisfactionRadio = form.querySelector('input[type="radio"]:checked');
+            const comments = form.querySelector('textarea').value;
+            const feedbackKey = `${personName}_${category}`;
+
+            // Only add if not already in tempFeedbackData
+            if (!tempFeedbackData[feedbackKey]) {
+                if (!satisfactionRadio) {
+                    allFormsValid = false;
+                    missingFeedbackMembers.push(`${personName} (${category})`);
+                    return;
+                }
+
+                const now = new Date();
+                const submittedAt = now.toISOString();
+                const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+                feedbackPayload.push({
+                    personName: personName,
+                    category: category,
+                    isSatisfied: satisfactionRadio.value === 'yes',
+                    comments: comments,
+                    submittedAt: submittedAt,
+                    timeZone: timeZone
+                });
+            }
+        });
+
+        // Check if user has provided feedback for ALL active staff members (not just current category)
+        const feedbackProvidedFor = feedbackPayload.map(f => f.personName);
+        const allActiveStaffNames = allActiveStaffMembers.map(s => s.name);
+        const missingGlobalFeedback = allActiveStaffNames.filter(name => !feedbackProvidedFor.includes(name));
+
+        if (missingGlobalFeedback.length > 0) {
+            const missingMembersWithCategories = missingGlobalFeedback.map(name => {
+                const member = allActiveStaffMembers.find(s => s.name === name);
+                return `${name} (${member.category})`;
+            });
+            
+            showError(`❌ You must provide feedback for ALL active staff members before submitting.\n\n` +
+                     `Missing feedback for:\n• ${missingMembersWithCategories.join('\n• ')}\n\n` +
+                     `Please switch to each category tab and provide feedback for all active members.`);
+            return;
+        }
+
+        if (!allFormsValid) {
+            showError(`❌ Please provide a satisfaction rating (Yes/No) for the following members:\n• ${missingFeedbackMembers.join('\n• ')}`);
+            return;
+        }
+        
+        if (feedbackPayload.length === 0) {
+            showError("❌ Please provide a satisfaction rating for at least one member.");
+            return;
+        }
+
+        // Show loading state
+        const submitBtn = document.querySelector('.submit-btn');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Submitting...';
+        submitBtn.disabled = true;
+
+        console.log('Submitting feedback payload:', feedbackPayload);
+
+        try {
+            const response = await fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(feedbackPayload) // Sending an array of feedback objects
+            });
+
+            console.log('Response status:', response.status);
+
+            if (response.status === 401 || response.status === 403) {
+                showError("❌ Please log in to submit feedback.");
+                setTimeout(() => {
+                    window.location.href = '/Login Page.html';
+                }, 2000);
+                return;
+            }
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server error response:', errorText);
+                
+                // Check for specific error messages
+                if (errorText.includes('already submitted feedback this month')) {
+                    showError("❌ You have already submitted feedback this month. Please wait until next month to submit again.");
+                    // Refresh feedback status
+                    feedbackStatus = await checkFeedbackStatus();
+                    displayFeedbackStatusMessage();
+                    return;
+                }
+                
+                throw new Error(`Server error: ${response.status} - ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log('Success response:', result);
+            showSuccess("✅ Thank you! Your feedback has been submitted successfully. You can now access all portal features.");
+            
+            // Clear the temporary feedback data and form
+            tempFeedbackData = {};
+            feedbackForms.forEach(form => {
+                form.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+                form.querySelector('textarea').value = '';
+            });
+
+            // Update feedback status
+            feedbackStatus = await checkFeedbackStatus();
+            displayFeedbackStatusMessage();
+
+            // Update submit button state
+            submitBtn.textContent = 'Feedback Submitted Successfully';
+            submitBtn.style.backgroundColor = '#27ae60';
+            
+            // Optional: Redirect to user profile after successful submission
+            setTimeout(() => {
+                const shouldRedirect = confirm("Feedback submitted successfully! Would you like to go to your profile now?");
+                if (shouldRedirect) {
+                    window.location.href = '/User Profile.html';
+                }
+            }, 2000);
+
+        } catch (error) {
+            console.error("Error submitting feedback:", error);
+            showError(`❌ An error occurred while submitting your feedback. Please try again.\n\nError: ${error.message}`);
+        } finally {
+            // Restore button state if not successful
+            if (submitBtn.textContent === 'Submitting...') {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+    }
+
+    // --- NO STAFF FEEDBACK COMPLETION ---
+    async function completeNoStaffFeedback() {
+        try {
+            // Show loading state
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '⏳ Updating your access...';
+            button.disabled = true;
+
+            // Call backend API to mark feedback as completed even with no staff
+            const response = await fetch('/api/feedback/complete-no-staff', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                credentials: 'include' // Ensure cookies/session are included
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                showError("❌ Please log in to continue.");
+                setTimeout(() => {
+                    window.location.href = '/Login Page.html';
+                }, 2000);
+                return;
+            }
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server error response:', errorText);
+                throw new Error(`Server error: ${response.status} - ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log('No-staff feedback completion response:', result);
+            
+            if (result.success) {
+                showSuccess("✅ Portal access granted! Redirecting to your profile...");
+                
+                // Redirect to User Profile after a short delay
+                setTimeout(() => {
+                    window.location.href = '/User Profile.html';
+                }, 1500);
+            } else {
+                showError(`❌ ${result.message || 'Unable to grant portal access. Please try again.'}`);
+                // Restore button state
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+
+        } catch (error) {
+            console.error("Error completing no-staff feedback:", error);
+            showError(`❌ An error occurred while updating your access. Please try again.\n\nError: ${error.message}`);
+            
+            // Restore button state
+            const button = event.target;
+            button.innerHTML = 'Continue to Portal';
+            button.disabled = false;
+        }
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener("DOMContentLoaded", async function() {
+        // Load the header
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+                // Initialize hamburger menu after header loads
+                if (window.initializeHamburgerMenu) {
+                    initializeHamburgerMenu();
+                }
+            });
+            
+        // Check feedback status first
+        feedbackStatus = await checkFeedbackStatus();
+        if (!feedbackStatus) {
+            return; // Error occurred, user will be redirected or see error
+        }
+        
+        // Load staff data and check if any active staff members exist
+        await fetchAllStaff();
+        
+        // Check if there are no active staff members at all
+        const activeStaff = allStaff.filter(member => 
+            member.status && member.status.toLowerCase() === 'active'
+        );
+        
+        if (activeStaff.length === 0) {
+            // Show global message when no active staff members exist
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <h1 style="color: white;">Feedback Form</h1>
+                <div style="background: white; padding: 40px; border-radius: 10px; margin: 20px auto; max-width: 600px; text-align: center;">
+                    <h2 style="color: #1abc9c;">📝 Feedback System</h2>
+                    <h3 style="color: #666;">No Active Staff Members Available</h3>
+                    <p style="color: #666; line-height: 1.6;">
+                        Currently, no active staff members are available for feedback.
+                    </p>
+                    <p style="color: #1abc9c; font-weight: 600; font-size: 18px;">
+                        ✓ Feedback is optional when no active staff members are present.
+                    </p>
+                    <p style="color: #666; font-style: italic;">
+                        Please check back later when active staff members are available to provide your valuable feedback.
+                    </p>
+                    <button onclick="completeNoStaffFeedback()" style="display: inline-block; margin-top: 20px; padding: 12px 30px; background-color: #1abc9c; color: white; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; text-decoration: none;">
+                        Continue to Portal
+                    </button>
+                </div>
+            `;
+            
+            // Hide the feedback section
+            document.querySelector('.feedback-section').style.display = 'none';
+            return;
+        }
+        
+        // Display feedback status message
+        displayFeedbackStatusMessage();
+        
+        // Show feedback requirement notice if needed
+        if (feedbackStatus.isRequired) {
+            const container = document.querySelector('.container');
+            const urgentNotice = document.createElement('div');
+            urgentNotice.style.cssText = `
+                background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+                border: 2px solid #f39c12;
+                padding: 15px;
+                margin: 10px;
+                border-radius: 10px;
+                text-align: center;
+                color: #8b4513;
+                font-weight: 600;
+            `;
+            urgentNotice.innerHTML = `
+                <h3 style="margin: 0 0 10px 0;">⚠️ Monthly Feedback Required</h3>
+                <p style="margin: 0;">You must complete your monthly feedback to continue using the portal.</p>
+            `;
+            container.appendChild(urgentNotice);
+        }
+        
+        // Load categories first, then show the default category
+        await loadCategories();
+        
+        // Show the first category on page load if staff members exist
+        if (allCategories.length > 0) {
+            showFeedbackForm(allCategories[0].name, document.querySelector('.block'));
+        }
+    });
+</script>
+
+<script src="/js/header-menu.js"></script>
+</body>
+</html>

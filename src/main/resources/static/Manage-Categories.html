@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Categories - Jeewan Avenue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .new-btn {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+
+        .new-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 188, 156, 0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f7fa;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .edit-btn {
+            background: #3498db;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #2980b9;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        .modal-content input:focus,
+        .modal-content textarea:focus {
+            border-color: #1abc9c;
+            outline: none;
+        }
+
+        .modal-content button[type="submit"] {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .modal-content button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 188, 156, 0.4);
+        }
+
+        .staff-count {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .debug-info {
+            background: #f0f8ff;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 20px 10px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .new-btn {
+                width: 100%;
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 11px;
+            }
+
+            .edit-btn, .delete-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                display: block;
+                margin: 5px 0;
+                width: 100%;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .staff-count {
+                font-size: 10px;
+                padding: 3px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+                margin: 10px 5px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            table {
+                font-size: 10px;
+            }
+
+            th, td {
+                padding: 6px 4px;
+                font-size: 10px;
+            }
+
+            .new-btn {
+                font-size: 13px;
+                padding: 8px;
+            }
+
+            .modal-content {
+                width: 98%;
+                padding: 15px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .modal-content h3 {
+                font-size: 18px;
+            }
+
+            .modal-content label {
+                font-size: 13px;
+            }
+
+            .modal-content input,
+            .modal-content textarea {
+                font-size: 13px;
+                padding: 8px;
+            }
+
+            .edit-btn, .delete-btn {
+                font-size: 11px;
+                padding: 5px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div id="president_console"></div>
+
+    <div class="container">
+        <div id="debug-info" class="debug-info">🔧 Checking permissions...</div>
+        <button class="new-btn add-category-btn" onclick="showAddModal()">New Category</button>
+        <h2>Manage Categories</h2>
+        <table id="categoriesTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Staff Count</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="categories-table-body"></tbody>
+        </table>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div id="addCategoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideAddModal()">×</span>
+            <h3>Add New Category</h3>
+            <form id="newCategoryForm">
+                <label for="name">Category Name *</label>
+                <input type="text" id="name" name="name" required placeholder="Enter category name">
+
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3" placeholder="Enter category description"></textarea>
+
+                <button type="submit">Add Category</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Category Modal -->
+    <div id="editCategoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideEditModal()">×</span>
+            <h3>Edit Category</h3>
+            <form id="editCategoryForm">
+                <input type="hidden" id="editId" name="id">
+                
+                <label for="editName">Category Name *</label>
+                <input type="text" id="editName" name="name" required placeholder="Enter category name">
+
+                <label for="editDescription">Description</label>
+                <textarea id="editDescription" name="description" rows="3" placeholder="Enter category description"></textarea>
+
+                <button type="submit">Update Category</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    const API_URL = '/api/categories';
+    let allCategories = [];
+    let staffCounts = {};
+
+    // Role-based button disabling
+    async function disableUnauthorizedButtons() {
+        try {
+            const debugDiv = document.getElementById('debug-info');
+            debugDiv.innerHTML = '🔄 Loading user permissions...';
+            const currentUser = await getCurrentUser();
+            if (!currentUser) {
+                debugDiv.innerHTML = '⚠️ Not logged in - Access restricted';
+                disableAllButtons();
+                return;
+            }
+            const userRole = currentUser.role;
+            // Only President and General Secretary can manage categories
+            if (userRole !== 'President' && userRole !== 'General-Secretary') {
+                debugDiv.innerHTML = `🔒 Access restricted to President and General Secretary only (Your role: ${userRole})`;
+                disableAllButtons();
+            } else {
+                debugDiv.innerHTML = `✅ Permissions verified - You have full access (Role: ${userRole})`;
+                debugDiv.style.background = '#e8f5e9';
+                debugDiv.style.color = '#2e7d32';
+            }
+        } catch (error) {
+            const debugDiv = document.getElementById('debug-info');
+            debugDiv.innerHTML = '💥 Error loading permissions - Functions may be limited';
+            disableAllButtons();
+        }
+    }
+
+    function disableAllButtons() {
+        const buttons = document.querySelectorAll('.add-category-btn, .edit-btn, .delete-btn');
+        buttons.forEach(button => {
+            if (button) {
+                button.disabled = true;
+                button.style.opacity = '0.5';
+                button.style.cursor = 'not-allowed';
+                button.title = 'Access restricted to President and General Secretary only';
+            }
+        });
+    }
+
+    function showAddModal() { 
+        document.getElementById("addCategoryModal").style.display = "flex"; 
+    }
+    
+    function hideAddModal() { 
+        document.getElementById("addCategoryModal").style.display = "none";
+        document.getElementById("newCategoryForm").reset();
+    }
+    
+    function showEditModal() { 
+        document.getElementById("editCategoryModal").style.display = "flex"; 
+    }
+    
+    function hideEditModal() { 
+        document.getElementById("editCategoryModal").style.display = "none";
+        document.getElementById("editCategoryForm").reset();
+    }
+
+    async function fetchStaffCounts() {
+        try {
+            for (const category of allCategories) {
+                const response = await fetch(`${API_URL}/name/${encodeURIComponent(category.name)}/staff`);
+                if (response.ok) {
+                    const staff = await response.json();
+                    staffCounts[category.id] = staff.length;
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching staff counts:', error);
+        }
+    }
+
+    async function fetchAndDisplayCategories() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('Failed to fetch categories');
+            allCategories = await response.json();
+            
+            await fetchStaffCounts();
+            
+            const tableBody = document.getElementById('categories-table-body');
+            tableBody.innerHTML = '';
+            
+            allCategories.forEach(category => {
+                const count = staffCounts[category.id] || 0;
+                const row = `
+                    <tr>
+                        <td>${category.id}</td>
+                        <td>${category.name}</td>
+                        <td>${category.description || '-'}</td>
+                        <td><span class="staff-count">${count} member${count !== 1 ? 's' : ''}</span></td>
+                        <td>
+                            <button class="edit-btn" onclick="openEditModal(${category.id})">Edit</button>
+                            <button class="delete-btn" onclick="deleteCategory(${category.id}, '${category.name}', ${count})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            showError('❌ Could not load category data.');
+        }
+    }
+
+    function openEditModal(id) {
+        const category = allCategories.find(c => c.id === id);
+        if (!category) return;
+        
+        document.getElementById('editId').value = category.id;
+        document.getElementById('editName').value = category.name;
+        document.getElementById('editDescription').value = category.description || '';
+        
+        showEditModal();
+    }
+
+    async function handleAddFormSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const categoryData = {
+            name: form.name.value.trim(),
+            description: form.description.value.trim()
+        };
+        
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(categoryData)
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to add category');
+            }
+            
+            hideAddModal();
+            fetchAndDisplayCategories();
+            showSuccess('✅ Category added successfully!');
+        } catch (error) {
+            console.error('Error adding category:', error);
+            showError(`❌ ${error.message}`);
+        }
+    }
+
+    async function handleEditFormSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const id = form.id.value;
+        const categoryData = {
+            name: form.name.value.trim(),
+            description: form.description.value.trim()
+        };
+        
+        try {
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(categoryData)
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to update category');
+            }
+            
+            hideEditModal();
+            fetchAndDisplayCategories();
+            showSuccess('✅ Category updated successfully!');
+        } catch (error) {
+            console.error('Error updating category:', error);
+            showError(`❌ ${error.message}`);
+        }
+    }
+
+    async function deleteCategory(id, name, staffCount) {
+        if (staffCount > 0) {
+            const message = `Cannot delete "${name}" because ${staffCount} staff member${staffCount !== 1 ? 's are' : ' is'} assigned to this category.\n\nPlease reassign or delete the staff members first.`;
+            alert(message);
+            return;
+        }
+        
+        if (!confirm(`Are you sure you want to delete the category "${name}"?`)) return;
+        
+        try {
+            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to delete category');
+            }
+            
+            fetchAndDisplayCategories();
+            showSuccess('✅ Category deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting category:', error);
+            showError(`❌ ${error.message}`);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Load header and console
+        fetch('header.html').then(r => r.text()).then(data => {
+            document.getElementById('header').innerHTML = data;
+            setTimeout(() => {
+                if (typeof loadUserInfo === 'function') loadUserInfo();
+                if (typeof initializeAnnouncementButton === 'function') initializeAnnouncementButton();
+                if (typeof initializeHeaderMenu === 'function') initializeHeaderMenu();
+            }, 100);
+        });
+        
+        fetch('President Console.html').then(r => r.text()).then(data => 
+            document.getElementById('president_console').innerHTML = data
+        );
+        
+        // Load categories
+        fetchAndDisplayCategories();
+        
+        // Set up form handlers
+        document.getElementById('newCategoryForm').addEventListener('submit', handleAddFormSubmit);
+        document.getElementById('editCategoryForm').addEventListener('submit', handleEditFormSubmit);
+        
+        // Initialize permissions
+        await disableUnauthorizedButtons();
+    });
+</script>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script -->
+<script src="/js/announcement-popup.js"></script>
+<!-- Include role-based security script -->
+<script src="/js/role-security.js?v=10"></script>
+<!-- Include header menu script -->
+<script src="/js/header-menu.js"></script>
+
+</body>
+</html>

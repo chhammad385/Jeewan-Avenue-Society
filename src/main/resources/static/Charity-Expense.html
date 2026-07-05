@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charity Expense - Jeewan Avenue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f5f5f5;
+        }
+        
+        .section-container { 
+            display: flex; 
+            justify-content: center; 
+            margin: 20px 0; 
+            gap: 20px; 
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: white; 
+            color: black; 
+            text-align: center; 
+            border-radius: 8px;
+            width: 120px; 
+            height: 80px; 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease; 
+            font-weight: bold; 
+            font-size: 18px; 
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            border: none; 
+            cursor: pointer; 
+            text-decoration: none;
+            min-width: 100px;
+        }
+        
+        .btn:hover, .btn.active { 
+            background: #e74c3c; 
+            color: white; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+        }
+        
+        .excel-section { 
+            margin: 20px; 
+            padding: 25px; 
+            background: white; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+            border-radius: 12px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        .table-heading { 
+            text-align: center; 
+            font-size: 28px; 
+            font-weight: 600; 
+            margin-bottom: 20px; 
+            color: #e74c3c;
+        }
+        
+        .search-filter-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        #search-bar { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #e1e8ed; 
+            border-radius: 8px; 
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        
+        #search-bar:focus {
+            outline: none;
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+            gap: 5px;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 10px 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+        
+        .total-amount {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+            background: white;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+        
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        
+        tbody tr:nth-child(even):hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .section-container {
+                gap: 15px;
+                margin: 15px 0;
+            }
+            
+            .btn {
+                width: 100px;
+                height: 70px;
+                font-size: 16px;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+                min-width: unset;
+            }
+            
+            .filter-group select, .filter-group input {
+                width: 100%;
+            }
+            
+            .total-amount {
+                font-size: 18px;
+                padding: 12px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .excel-section {
+                margin: 5px;
+                padding: 10px;
+            }
+            
+            .table-heading {
+                font-size: 20px;
+            }
+            
+            .btn {
+                width: 80px;
+                height: 60px;
+                font-size: 14px;
+            }
+            
+            .section-container {
+                gap: 10px;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .section-container .btn {
+                width: 120px;
+                height: 60px;
+            }
+            
+            #search-bar {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+            
+            .total-amount {
+                font-size: 16px;
+                padding: 10px;
+            }
+            
+            th, td {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            
+            .table-container {
+                margin-top: 15px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .excel-section {
+                margin: 3px;
+                padding: 8px;
+            }
+            
+            .table-heading {
+                font-size: 18px;
+            }
+            
+            th, td {
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+        }
+        
+        /* Add Record Button */
+        .add-record-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .add-record-btn:hover {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .close-modal {
+            color: #aaa;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close-modal:hover,
+        .close-modal:focus {
+            color: #000;
+        }
+        
+        .modal h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .btn-submit,
+        .btn-cancel {
+            flex: 1;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid #28a745;
+        }
+
+        /* Print Styles */
+        @media print {
+            .section-container {
+                display: none;
+            }
+            
+            .excel-section {
+                margin: 0;
+                padding: 10px;
+                box-shadow: none;
+            }
+            
+            .table-container {
+                overflow: visible;
+            }
+            
+            table {
+                min-width: auto;
+            }
+        }
+    </style>
+    <script src="/js/header-loader.js"></script>
+    <script src="/js/header-menu.js"></script>
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="section-container">
+        <a href="Charity-Income.html" class="btn">💰<br />Charity Income</a>
+        <a href="Charity-Expense.html" class="btn active">🛒<br />Charity Expense</a>
+    </div>
+
+    <div class="excel-section">
+        <h2 class="table-heading">🤲 Charity Expense Records</h2>
+        
+        <button class="add-record-btn" onclick="showSecretCodeModal()">
+            ➕ Add Expense Record
+        </button>
+        
+        <div class="search-filter-container">
+            <input type="text" id="search-bar" placeholder="Search by description, category, or vendor..." onkeyup="filterTable()">
+            
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="month-filter">Month:</label>
+                    <select id="month-filter" onchange="filterTable()">
+                        <option value="">All</option>
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                        <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                        <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="year-filter">Year:</label>
+                    <select id="year-filter" onchange="filterTable()">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="category-filter">Category:</label>
+                    <select id="category-filter" onchange="filterTable()">
+                        <option value="">All</option>
+                        <option value="Electricity">Electricity</option>
+                        <option value="Water">Water</option>
+                        <option value="Gas">Gas</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Cleaning">Cleaning</option>
+                        <option value="Imam-Salary">Imam Salary</option>
+                        <option value="Supplies">Supplies</option>
+                        <option value="Repairs">Repairs</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="sort-filter">Sort By:</label>
+                    <select id="sort-filter" onchange="filterTable()">
+                        <option value="date-desc">Latest First</option>
+                        <option value="date-asc">Oldest First</option>
+                        <option value="amount-desc">Highest Amount</option>
+                        <option value="amount-asc">Lowest Amount</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="total-amount">
+            <span>Total Charity Expense: </span><span id="total-amount">PKR 0.00</span>
+        </div>
+        
+        <div class="table-container">
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>Sr. No</th>
+                        <th>Date</th>
+                        <th>Month</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Vendor/Recipient</th>
+                        <th>Receipt</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="expense-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    let allRecords = []; // Store all fetched records globally
+
+    // --- DATA FETCHING AND RENDERING ---
+    async function fetchExpenseRecords() {
+        try {
+            const response = await fetch('/api/charity/expense');
+            if (!response.ok) throw new Error('Failed to fetch charity expense records');
+            allRecords = await response.json();
+            populateYearFilter();
+            filterTable(); // Initial display
+        } catch (error) {
+            console.error('Error fetching charity expense records:', error);
+            alert('Could not load charity expense data.');
+        }
+    }
+
+    function renderTable(records) {
+        const tableBody = document.getElementById('expense-table-body');
+        tableBody.innerHTML = '';
+        let totalAmount = 0;
+
+        if (records.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 20px; color: #7f8c8d; font-style: italic;">
+                        No charity expense records found matching your criteria.
+                    </td>
+                </tr>
+            `;
+            document.getElementById('total-amount').textContent = 'PKR 0.00';
+            return;
+        }
+
+        records.forEach((record, index) => {
+            // Format amount with proper currency formatting
+            const formattedAmount = `PKR ${record.amount.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            
+            // Format date for better readability
+            const recordDate = new Date(record.date);
+            const formattedDate = recordDate.toLocaleDateString('en-PK', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit'
+            });
+            
+            // Use month from database if available, otherwise calculate from date
+            const monthDisplay = record.month || recordDate.toLocaleDateString('en-PK', {
+                month: 'long',
+                year: 'numeric'
+            });
+
+            const row = `
+                <tr>
+                    <td style="font-weight: 600;">${index + 1}</td>
+                    <td>${formattedDate}</td>
+                    <td style="font-weight: 500;">${monthDisplay}</td>
+                    <td style="max-width: 200px; word-wrap: break-word;">${record.description || 'N/A'}</td>
+                    <td style="max-width: 150px; word-wrap: break-word;">${record.category || 'N/A'}</td>
+                    <td style="font-weight: 600; color: #e74c3c;">${formattedAmount}</td>
+                    <td style="font-weight: 500;">${record.vendor || 'N/A'}</td>
+                    <td style="text-align: center;">
+                        ${record.receiptPath ? 
+                            `<a href="/${record.receiptPath}" target="_blank" style="color: #e74c3c; text-decoration: none; font-weight: 600;" title="View Receipt">📄 View</a>` 
+                            : '<span style="color: #95a5a6;">N/A</span>'}
+                    </td>
+                    <td><button class="delete-btn" onclick="deleteExpenseRecord(${record.id})" style="background: #e74c3c; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 14px;">🗑️ Delete</button></td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+            totalAmount += record.amount;
+        });
+
+        // Format total amount with proper currency formatting
+        const formattedTotal = `PKR ${totalAmount.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        document.getElementById('total-amount').textContent = formattedTotal;
+    }
+
+    // --- FILTERING LOGIC ---
+    function filterTable() {
+        const searchInput = document.getElementById('search-bar').value.toLowerCase();
+        const monthFilter = document.getElementById('month-filter').value;
+        const yearFilter = document.getElementById('year-filter').value;
+        const categoryFilter = document.getElementById('category-filter').value;
+        const sortFilter = document.getElementById('sort-filter').value;
+
+        let filteredRecords = allRecords.filter(record => {
+            const recordDate = new Date(record.date);
+            const matchesSearch = Object.values(record).some(val => String(val).toLowerCase().includes(searchInput));
+            const matchesMonth = !monthFilter || recordDate.getMonth() + 1 == monthFilter;
+            const matchesYear = !yearFilter || recordDate.getFullYear() == yearFilter;
+            const matchesCategory = !categoryFilter || record.category === categoryFilter;
+            
+            return matchesSearch && matchesMonth && matchesYear && matchesCategory;
+        });
+
+        // Apply sorting
+        filteredRecords.sort((a, b) => {
+            switch(sortFilter) {
+                case 'date-desc': // Latest first (default)
+                    return new Date(b.date) - new Date(a.date);
+                case 'date-asc': // Oldest first
+                    return new Date(a.date) - new Date(b.date);
+                case 'amount-desc': // Highest amount
+                    return b.amount - a.amount;
+                case 'amount-asc': // Lowest amount
+                    return a.amount - b.amount;
+                default:
+                    return new Date(b.date) - new Date(a.date);
+            }
+        });
+
+        renderTable(filteredRecords);
+    }
+
+    function populateYearFilter() {
+        const yearFilter = document.getElementById('year-filter');
+        const years = [...new Set(allRecords.map(record => new Date(record.date).getFullYear()))];
+        years.sort((a, b) => b - a); // Sort years in descending order
+        years.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearFilter.appendChild(option);
+        });
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+                // Initialize header functions after loading
+                if (typeof setActive === 'function') {
+                    setActive();
+                }
+                if (typeof loadUserProfileImage === 'function') {
+                    loadUserProfileImage();
+                }
+                // Initialize hamburger menu
+                if (typeof initializeHamburgerMenu === 'function') {
+                    initializeHamburgerMenu();
+                }
+            });
+        fetchExpenseRecords();
+    });
+    
+    // Secret Code Modal Functions
+    let isCodeValidatedThisSession = sessionStorage.getItem('charityCodeValidated') === 'true';
+    
+    function showSecretCodeModal() {
+        if (isCodeValidatedThisSession) {
+            // Code already validated in this session, show add form directly
+            showAddExpenseForm();
+        } else {
+            // Show secret code modal
+            document.getElementById('secretCodeModal').style.display = 'block';
+            document.getElementById('secretCodeInput').value = '';
+            document.getElementById('codeError').style.display = 'none';
+        }
+    }
+    
+    function closeSecretCodeModal() {
+        document.getElementById('secretCodeModal').style.display = 'none';
+    }
+    
+    async function validateSecretCode() {
+        const code = document.getElementById('secretCodeInput').value;
+        const errorDiv = document.getElementById('codeError');
+        
+        if (!code) {
+            errorDiv.textContent = 'Please enter the secret code';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/charity/validate-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            });
+            
+            const data = await response.json();
+            
+            if (data.valid) {
+                // Store validation in session
+                sessionStorage.setItem('charityCodeValidated', 'true');
+                isCodeValidatedThisSession = true;
+                
+                // Close secret code modal and show add form
+                closeSecretCodeModal();
+                showAddExpenseForm();
+            } else {
+                errorDiv.textContent = 'Invalid secret code. Please try again.';
+                errorDiv.style.display = 'block';
+                document.getElementById('secretCodeInput').value = '';
+                document.getElementById('secretCodeInput').focus();
+            }
+        } catch (error) {
+            console.error('Error validating code:', error);
+            errorDiv.textContent = 'An error occurred. Please try again.';
+            errorDiv.style.display = 'block';
+        }
+    }
+    
+    function showAddExpenseForm() {
+        document.getElementById('addExpenseModal').style.display = 'block';
+        // Set today's date as default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('expenseDate').value = today;
+        document.getElementById('addExpenseForm').reset();
+        document.getElementById('expenseDate').value = today; // Reset after form reset
+        document.getElementById('successMessage').style.display = 'none';
+    }
+    
+    function closeAddExpenseModal() {
+        document.getElementById('addExpenseModal').style.display = 'none';
+    }
+    
+    async function submitExpenseRecord(event) {
+        event.preventDefault();
+        
+        // Create FormData to handle file upload
+        const formData = new FormData();
+        formData.append('type', 'Expense');
+        formData.append('date', document.getElementById('expenseDate').value);
+        formData.append('description', document.getElementById('expenseDescription').value);
+        formData.append('category', document.getElementById('expenseCategory').value);
+        formData.append('amount', document.getElementById('expenseAmount').value);
+        formData.append('vendor', document.getElementById('expenseVendor').value);
+        
+        // Add receipt file if selected
+        const receiptFile = document.getElementById('expenseReceipt').files[0];
+        if (receiptFile) {
+            formData.append('receipt', receiptFile);
+        }
+        
+        try {
+            const response = await fetch('/api/charity/upload-transaction', {
+                method: 'POST',
+                body: formData  // Don't set Content-Type header for FormData
+            });
+            
+            if (response.ok) {
+                // Show success message
+                const successMsg = document.getElementById('successMessage');
+                successMsg.textContent = '✓ Expense record added successfully!';
+                successMsg.style.display = 'block';
+                
+                // Reset form
+                document.getElementById('addExpenseForm').reset();
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('expenseDate').value = today;
+                
+                // Refresh the table
+                setTimeout(() => {
+                    closeAddExpenseModal();
+                    fetchExpenseRecords();
+                }, 1500);
+            } else {
+                alert('Failed to add expense record. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error adding expense record:', error);
+            alert('An error occurred. Please try again.');
+        }
+    }
+    
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        const secretModal = document.getElementById('secretCodeModal');
+        const addModal = document.getElementById('addExpenseModal');
+        
+        if (event.target === secretModal) {
+            closeSecretCodeModal();
+        }
+        if (event.target === addModal) {
+            closeAddExpenseModal();
+        }
+    }
+    
+    // Allow Enter key to submit secret code
+    document.addEventListener('DOMContentLoaded', function() {
+        const secretCodeInput = document.getElementById('secretCodeInput');
+        if (secretCodeInput) {
+            secretCodeInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    validateSecretCode();
+                }
+            });
+        }
+    });
+</script>
+
+<!-- Secret Code Modal -->
+<div id="secretCodeModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeSecretCodeModal()">&times;</span>
+        <h2>🔐 Enter Secret Code</h2>
+        <p style="color: #666; margin-bottom: 20px;">Please enter the Charity transaction secret code to continue.</p>
+        
+        <div class="form-group">
+            <label for="secretCodeInput">Secret Code:</label>
+            <input type="password" id="secretCodeInput" placeholder="Enter secret code" required>
+            <div id="codeError" class="error-message"></div>
+        </div>
+        
+        <div class="form-buttons">
+            <button type="button" class="btn-submit" onclick="validateSecretCode()">Validate</button>
+            <button type="button" class="btn-cancel" onclick="closeSecretCodeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Expense Modal -->
+<div id="addExpenseModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeAddExpenseModal()">&times;</span>
+        <h2>➕ Add Expense Record</h2>
+        
+        <div id="successMessage" class="success-message"></div>
+        
+        <form id="addExpenseForm" onsubmit="submitExpenseRecord(event)">
+            <div class="form-group">
+                <label for="expenseDate">Date: <span style="color: red;">*</span></label>
+                <input type="date" id="expenseDate" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="expenseCategory">Category: <span style="color: red;">*</span></label>
+                <select id="expenseCategory" required>
+                    <option value="">Select Category</option>
+                    <option value="Electricity">Electricity</option>
+                    <option value="Water">Water</option>
+                    <option value="Gas">Gas</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Cleaning">Cleaning</option>
+                    <option value="Imam-Salary">Imam Salary</option>
+                    <option value="Supplies">Supplies</option>
+                    <option value="Repairs">Repairs</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="expenseAmount">Amount (PKR): <span style="color: red;">*</span></label>
+                <input type="number" id="expenseAmount" placeholder="Enter amount" step="0.01" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="expenseVendor">Vendor/Recipient:</label>
+                <input type="text" id="expenseVendor" placeholder="Enter vendor or recipient name">
+            </div>
+            
+            <div class="form-group">
+                <label for="expenseDescription">Description:</label>
+                <textarea id="expenseDescription" placeholder="Enter description or notes"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="expenseReceipt">Receipt (Optional):</label>
+                <input type="file" id="expenseReceipt" accept="image/*,.pdf" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <small style="color: #7f8c8d; display: block; margin-top: 5px;">Upload receipt image or PDF (max 10MB)</small>
+            </div>
+            
+            <div class="form-buttons">
+                <button type="submit" class="btn-submit">💾 Save Expense</button>
+                <button type="button" class="btn-cancel" onclick="closeAddExpenseModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteCharityExpenseModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 400px; width: 90%; height: auto; padding: 25px;">
+        <h3 style="color: #e74c3c; margin-bottom: 15px; margin-top: 0;">🗑️ Delete Expense Record</h3>
+        <p style="margin-bottom: 20px; margin-top: 0;">Enter your charity secret code to confirm deletion:</p>
+        <input type="password" id="deleteExpenseCode" placeholder="Enter secret code" 
+               style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+        <div id="deleteExpenseErrorMsg" style="color: #e74c3c; margin-bottom: 10px; display: none;"></div>
+        <div class="form-buttons">
+            <button onclick="confirmDeleteExpense()" class="btn-submit" style="background: #e74c3c;">Delete</button>
+            <button onclick="closeDeleteExpenseModal()" class="btn-cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Delete functionality
+    let recordToDelete = null;
+
+    function deleteExpenseRecord(id) {
+        recordToDelete = id;
+        document.getElementById('deleteExpenseCode').value = '';
+        document.getElementById('deleteExpenseErrorMsg').style.display = 'none';
+        document.getElementById('deleteCharityExpenseModal').style.display = 'flex';
+    }
+
+    function closeDeleteExpenseModal() {
+        document.getElementById('deleteCharityExpenseModal').style.display = 'none';
+        recordToDelete = null;
+    }
+
+    async function confirmDeleteExpense() {
+        const code = document.getElementById('deleteExpenseCode').value;
+        const errorMsg = document.getElementById('deleteExpenseErrorMsg');
+
+        if (!code) {
+            errorMsg.textContent = 'Please enter the secret code';
+            errorMsg.style.display = 'block';
+            return;
+        }
+
+        try {
+            // Validate secret code
+            const validateResponse = await fetch('/api/charity/validate-code', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({code: code})
+            });
+            
+            const validateResult = await validateResponse.json();
+            
+            if (!validateResult.valid) {
+                errorMsg.textContent = 'Invalid secret code. Please try again.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Delete the record
+            const deleteResponse = await fetch(`/api/charity/transactions/${recordToDelete}`, {
+                method: 'DELETE'
+            });
+
+            if (deleteResponse.ok) {
+                alert('Expense record deleted successfully!');
+                closeDeleteExpenseModal();
+                await fetchExpenseRecords(); // Refresh the table
+            } else {
+                errorMsg.textContent = 'Failed to delete record. Please try again.';
+                errorMsg.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error deleting record:', error);
+            errorMsg.textContent = 'An error occurred. Please try again.';
+            errorMsg.style.display = 'block';
+        }
+    }
+</script>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js"></script>
+
+</body>
+</html>

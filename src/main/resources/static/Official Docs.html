@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Official Notification & Docs - Jeewan Avenue</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Your existing CSS styles remain unchanged */
+        :root { --main: #7f56d9; --bg: #f9f9fb; --white: #fff; --gray: #6c757d; --spacing-unit: 16px; --border-radius: 12px; }
+        body { font-family: 'poppins', sans-serif; background: var(--bg); color: #333; padding: calc(var(--spacing-unit) * 2); line-height: 1.5; }
+        h1 { font-size: 28px; text-align: center; margin-top: 25px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-unit); margin-top: calc(var(--spacing-unit) * 2.5); }
+        .card { background: var(--white); border-radius: var(--border-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: calc(var(--spacing-unit) * 1.5); cursor: pointer; transition: all 0.2s ease-in-out; }
+        .card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.12); transform: translateY(-5px); }
+        .card h3 { margin-bottom: 0.5rem; }
+        .hidden { display: none; }
+        .document-card { background: var(--white); padding: 1.5rem; border-radius: var(--border-radius); box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+        .doc-footer { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-top: 1rem; }
+        .doc-footer a { background: #1abc9c; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; }
+        .back-button { display: inline-block; color: #1a2b49; font-weight: bold; cursor: pointer; margin-bottom: 1rem; font-size: 1.2rem; }
+        .section-title { font-size: 2rem; text-align: center; margin-bottom: 2rem; }
+    </style>
+    <script src="/js/header-loader.js"></script>
+    <script src="/js/header-menu.js"></script>
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="content">
+        <div id="dashboard">
+            <div style="text-align: center;">
+                <h1>Official Notifications & Docs</h1>
+                <input type="text" id="searchInput" placeholder="Search documents..." onkeyup="searchDocuments()" style="padding: 12px; width: 100%; max-width: 500px; border-radius: 8px; border: 1px solid #ccc;"/>
+            </div>
+
+            <div class="grid">
+                <div class="card" onclick="showSection('constitution')">
+                    <h3>📄 Society Constitution</h3>
+                    <p>Foundation documents defining structure, purpose, governance.</p>
+                    <small id="constitution-stats">0 docs</small>
+                </div>
+                <div class="card" onclick="showSection('notification')">
+                    <h3>🔔 Notifications</h3>
+                    <p>Announcements and updates for society members.</p>
+                    <small id="notification-stats">0 docs</small>
+                </div>
+                <div class="card" onclick="showSection('amendment')">
+                    <h3>✏️ Constitution Amendments</h3>
+                    <p>Approved and proposed changes to the constitution.</p>
+                    <small id="amendment-stats">0 docs</small>
+                </div>
+            </div>
+
+            <div class="stats grid" style="margin-top: 2rem;">
+                <div class="stat-box" style="background: white; padding: 1rem; border-radius: 12px; text-align: center;">
+                    <h2 id="total-docs-stat">0</h2>
+                    <p>Total Documents</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="category-view" class="hidden">
+            <span class="back-button" onclick="goBack()">← Back to Dashboard</span>
+            <h2 id="category-title" class="section-title"></h2>
+            <div id="document-list">
+                </div>
+        </div>
+    </div>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js"></script>
+<script>
+    let allDocuments = []; // Cache for all fetched documents
+
+    // --- DATA FETCHING & INITIALIZATION ---
+    async function initializeDashboard() {
+        try {
+            const response = await fetch('/api/documents');
+            if (!response.ok) throw new Error('Failed to fetch documents');
+            allDocuments = await response.json();
+            
+            updateDashboardStats();
+
+        } catch (error) {
+            console.error('Error initializing dashboard:', error);
+            alert('Could not load document data.');
+        }
+    }
+
+    // --- UI UPDATES ---
+    function updateDashboardStats() {
+        const stats = {
+            constitution: 0,
+            notification: 0,
+            amendment: 0
+        };
+        allDocuments.forEach(doc => {
+            if (stats.hasOwnProperty(doc.category)) {
+                stats[doc.category]++;
+            }
+        });
+
+        document.getElementById('constitution-stats').textContent = `${stats.constitution} docs`;
+        document.getElementById('notification-stats').textContent = `${stats.notification} docs`;
+        document.getElementById('amendment-stats').textContent = `${stats.amendment} docs`;
+        document.getElementById('total-docs-stat').textContent = allDocuments.length;
+    }
+
+    function showSection(category) {
+        document.getElementById('dashboard').classList.add('hidden');
+        const categoryView = document.getElementById('category-view');
+        const documentList = document.getElementById('document-list');
+        const categoryTitle = document.getElementById('category-title');
+
+        categoryTitle.textContent = `📁 ${category.charAt(0).toUpperCase() + category.slice(1)}`;
+        documentList.innerHTML = ''; // Clear previous list
+
+        const filteredDocs = allDocuments.filter(doc => doc.category === category);
+
+        if (filteredDocs.length === 0) {
+            documentList.innerHTML = '<p>No documents found in this category.</p>';
+        } else {
+            filteredDocs.forEach(doc => {
+                console.log('Document file path:', doc.filePath);
+                
+                const docCard = `
+                    <div class="document-card">
+                        <h4>${doc.title}</h4>
+                        <p class="document-desc">${doc.description || 'No description available.'}</p>
+                        <div class="doc-footer">
+                            <small>Uploaded: ${new Date(doc.uploadDate).toLocaleDateString()}</small>
+                            <div class="preview-options">
+                                <a href="/api/documents/preview/${doc.filePath}" target="_blank" style="margin-right: 10px; background: #3498db; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none;">Preview Document</a>
+                                <a href="/api/documents/preview-file?path=${encodeURIComponent(doc.filePath)}" target="_blank" style="background: #2ecc71; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none;">View Online</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                documentList.insertAdjacentHTML('beforeend', docCard);
+            });
+        }
+        categoryView.classList.remove('hidden');
+    }
+
+    function goBack() {
+        document.getElementById('category-view').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+    }
+    
+    // --- SEARCH FUNCTIONALITY ---
+    function searchDocuments() {
+        const filter = document.getElementById('searchInput').value.toLowerCase();
+        const cards = document.querySelectorAll('#dashboard .card');
+        // This is a simple search that filters the main category cards.
+        // A more advanced search would filter allDocuments and display a list.
+        cards.forEach(card => {
+            card.style.display = card.textContent.toLowerCase().includes(filter) ? '' : 'none';
+        });
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+                // Initialize hamburger menu
+                if (typeof initializeHamburgerMenu === 'function') {
+                    initializeHamburgerMenu();
+                }
+            });
+        
+        initializeDashboard();
+    });
+</script>
+
+<!-- Include role-based security script -->
+<script src="/js/role-security.js"></script>
+
+</body>
+</html>

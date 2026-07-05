@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members - Jeewan Avenue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Your existing CSS styles remain unchanged */
+        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; text-align: center; }
+        h1 { margin: 20px; font-size: 50px; }
+        .container { display: flex; justify-content: center; gap: 30px; padding: 20px; background-color: #333333; flex-wrap: wrap; }
+        .left-section { width: 100%; max-width: 650px; background-color: white; border-radius: 10px; padding: 10px; }
+        .right-section { display: flex; flex-wrap: wrap; gap: 10px; width: 100%; max-width: 500px; justify-content: center; }
+        .block {
+            width: 100px; height: 100px; background-color: white; display: flex; align-items: center;
+            justify-content: center; color: black; font-size: 15px; font-weight: bold;
+            border-radius: 10px; text-align: center; padding: 5px; cursor: pointer;
+            transition: all 0.3s ease-in-out; border: 2px solid transparent;
+        }
+        .block:hover, .block.active { background-color: #13A89E; color: white; transform: scale(1.1); border-color: #13A89E; }
+        .info-section { background-color: #f4f4f4; padding: 20px; }
+        .members-section { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; }
+        .member-card {
+            width: 200px; background-color: white; border-radius: 10px; text-align: center;
+            padding: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+        .member-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="container">
+        <div class="left-section">
+            <h1>Members</h1>
+        </div>
+        <div class="right-section" id="category-blocks">
+            <!-- Categories will be loaded dynamically -->
+        </div>
+    </div>
+
+    <div id="info-section" class="info-section"></div>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js"></script>
+<script>
+    let allStaff = []; // This will act as a cache for our staff data
+    let allCategories = []; // Cache for categories
+
+    // Get category emoji based on name (with fallback for custom categories)
+    function getCategoryEmoji(categoryName) {
+        const emojiMap = {
+            'Committee Member': '🙋‍♂️',
+            'Security Guard': '👮‍♂️',
+            'Gardener': '👨‍🌾',
+            'Imam-Masjid': '👳'
+        };
+        return emojiMap[categoryName] || '📋'; // Default emoji for custom categories
+    }
+
+    // Load categories from backend and render buttons
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/categories');
+            if (!response.ok) throw new Error('Failed to fetch categories');
+            allCategories = await response.json();
+            
+            // Render category buttons
+            const categoryBlocksContainer = document.getElementById('category-blocks');
+            categoryBlocksContainer.innerHTML = '';
+            
+            allCategories.forEach((category, index) => {
+                const pluralName = category.name.endsWith('s') ? category.name : category.name + 's';
+                const button = document.createElement('div');
+                button.className = `block ${index === 0 ? 'active' : ''}`;
+                button.onclick = function() { showInfo(category.name, this); };
+                button.innerHTML = `${pluralName}<br />${getCategoryEmoji(category.name)}`;
+                categoryBlocksContainer.appendChild(button);
+            });
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            document.getElementById('category-blocks').innerHTML = '<p style="color: white;">Failed to load categories</p>';
+        }
+    }
+
+    // --- DATA FETCHING ---
+    async function fetchAllStaff() {
+        // Only fetch from the network if the cache is empty
+        if (allStaff.length > 0) {
+            return;
+        }
+        try {
+            const response = await fetch('/api/staff');
+            if (!response.ok) throw new Error('Network response was not ok');
+            allStaff = await response.json();
+        } catch (error) {
+            console.error('Failed to fetch staff:', error);
+            const infoSection = document.getElementById('info-section');
+            infoSection.innerHTML = `<h2>Error</h2><p>Could not load member data from the server.</p>`;
+        }
+    }
+
+    // --- UI RENDERING ---
+    async function showInfo(category, element) {
+        const infoSection = document.getElementById('info-section');
+        infoSection.innerHTML = `<h2>${category}s</h2><div class="members-section"><p>Loading...</p></div>`;
+        
+        // Highlight the clicked button
+        document.querySelectorAll('.block').forEach(block => block.classList.remove('active'));
+        element.classList.add('active');
+        
+        // Ensure the staff data is loaded
+        await fetchAllStaff();
+
+        const membersOfCategory = allStaff.filter(member => member.category === category && member.status === 'Active');
+        
+        const membersSection = document.createElement('div');
+        membersSection.className = 'members-section';
+
+        if (membersOfCategory.length > 0) {
+            membersOfCategory.forEach(member => {
+                // Fix profile picture path to include /uploads/ prefix if not already present
+                let profileImagePath;
+                if (member.profilePicturePath) {
+                    profileImagePath = member.profilePicturePath.startsWith('uploads/') 
+                        ? `/${member.profilePicturePath}` 
+                        : `/uploads/${member.profilePicturePath}`;
+                } else {
+                    profileImagePath = '/image/default-avatar.png';
+                }
+                
+                const memberCard = `
+                    <div class="member-card">
+                        <img src="${profileImagePath}" alt="${member.name}">
+                        <h3>${member.name}</h3>
+                        <p>${member.position}</p>
+                    </div>
+                `;
+                membersSection.insertAdjacentHTML('beforeend', memberCard);
+            });
+        } else {
+            membersSection.innerHTML = `<p>No active members found for this category.</p>`;
+        }
+
+        infoSection.innerHTML = `<h2>${category}s</h2>`;
+        infoSection.appendChild(membersSection);
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Load the header
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+                // Initialize hamburger menu after header loads
+                if (window.initializeHamburgerMenu) {
+                    initializeHamburgerMenu();
+                }
+            });
+        
+        // Load categories first
+        await loadCategories();
+        
+        // Show the first category on page load
+        if (allCategories.length > 0) {
+            showInfo(allCategories[0].name, document.querySelector('.block'));
+        }
+    });
+</script>
+
+<script src="/js/header-menu.js"></script>
+</body>
+</html>

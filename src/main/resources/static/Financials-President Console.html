@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financials-President - Jeewan Avenue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Your existing CSS styles remain unchanged */
+        body {
+            font-family: 'Poppins', sans-serif; margin: 0; padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh;
+        }
+        .container {
+            background: white; padding: 2vw; border-radius: 10px; margin: 2vw auto;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); max-width: 93%; overflow-x: auto;
+        }
+        #search {
+            padding: 10px; margin: 20px auto; width: 100%; max-width: 300px;
+            border-radius: 5px; border: 1px solid #ccc; font-size: 14px; display: block;
+        }
+        h2 { text-align: center; font-size: 28px; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; min-width: 100px; }
+        th { background: #1abc9c; color: white; font-weight: bold; }
+        .edit-btn, .delete-btn {
+            background-color: #1abc9c; color: white; padding: 0.5rem 0.8rem; border: none;
+            cursor: pointer; border-radius: 5px; margin-right: 5px;
+        }
+        .delete-btn { background-color: #e74c3c; margin-top: 2px; }
+        .new-btn {
+            background-color: #1abc9c; color: white; padding: 10px 20px; border: none;
+            border-radius: 5px; font-size: 16px; cursor: pointer; display: block; margin-left: auto;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 0 auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            min-height: fit-content;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            text-align: left;
+            font-size: 1rem;
+            transform: translateY(20px);
+            animation: slideUp 0.3s ease-out forwards;
+            z-index: 10001;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #666;
+            font-weight: bold;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .close:hover {
+            color: #e74c3c;
+            transform: scale(1.1);
+        }
+
+        .modal-content form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .modal-content form > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-content form .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .modal-content h3 {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-content label {
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .modal-content input,
+        .modal-content select,
+        .modal-content textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal-content input:focus,
+        .modal-content select:focus,
+        .modal-content textarea:focus {
+            outline: none;
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+        }
+
+        .modal-content input:disabled,
+        .modal-content select:disabled,
+        .modal-content textarea:disabled {
+            background-color: #f5f5f5 !important;
+            color: #999 !important;
+            cursor: not-allowed;
+            border-color: #ddd !important;
+        }
+
+        .user-dropdown {
+            position: relative;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e1e8ed;
+            border-top: none;
+            background: white;
+            z-index: 1000;
+            display: none;
+        }
+
+        .user-dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+        }
+
+        .user-dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .user-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-info {
+            font-size: 0.9rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1abc9c;
+        }
+
+        .user-details {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+
+        .modal-content button {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            margin-top: 0.5rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal-content button:hover {
+            background: linear-gradient(135deg, #16a085 0%, #138d75 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+        }
+        .receipt-img { max-width: 100px; cursor: pointer; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem auto;
+                padding: 1.5rem;
+            }
+
+            .modal-content form {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .modal-content h3 {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .modal-content {
+                width: 98%;
+                padding: 1rem;
+                margin: 0.5rem auto;
+            }
+
+            .modal-content form {
+                grid-template-columns: 1fr;
+                gap: 0.6rem;
+            }
+
+            .modal-content h3 {
+                font-size: 1.2rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .modal-content input,
+            .modal-content select,
+            .modal-content textarea {
+                padding: 0.6rem;
+                font-size: 0.85rem;
+            }
+
+            .modal-content button {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .close {
+                right: 1rem;
+                top: 0.8rem;
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal {
+                padding: 10px 0;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 0.8rem;
+                border-radius: 8px;
+            }
+
+            .modal-content h3 {
+                font-size: 1.1rem;
+            }
+
+            .modal-content input,
+            .modal-content select,
+            .modal-content textarea {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .modal-content {
+                width: 98%;
+                padding: 0.6rem;
+            }
+
+            .modal-content h3 {
+                font-size: 1rem;
+            }
+
+            .modal-content input,
+            .modal-content select,
+            .modal-content textarea {
+                padding: 0.4rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header"></div>
+    <div id="president_console"></div>
+
+    <div class="container">
+        <div id="debug-info" style="background: #f0f8ff; padding: 10px; margin-bottom: 15px; border-radius: 5px; font-size: 12px; color: #333;">
+            🔧 Checking permissions...
+        </div>
+        <div style="display: flex; gap: 12px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
+            <button class="new-btn add-financial-btn" onclick="showModal()">New</button>
+            <button class="new-btn" id="monthlyPaymentBtn" onclick="openMonthlyPaymentPage()" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                💰 Monthly Payment Management
+            </button>
+            <button class="new-btn" onclick="openMonthlyAnalysisPage()" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                📊 Monthly Analysis
+            </button>
+        </div>
+        <h2>Manage Financials</h2>
+        <div style="display: flex; gap: 12px; margin-bottom: 12px; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="search" placeholder="Search records..." onkeyup="searchRecords()" style="flex: 1; min-width: 250px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="sortBy" style="font-weight: 600; color: #2c3e50;">Sort By:</label>
+                <select id="sortBy" onchange="applySorting()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; font-size: 14px; cursor: pointer;">
+                    <option value="date-desc">Latest First (Date)</option>
+                    <option value="date-asc">Oldest First (Date)</option>
+                    <option value="amount-desc">Amount (High to Low)</option>
+                    <option value="amount-asc">Amount (Low to High)</option>
+                    <option value="type-asc">Type (A-Z)</option>
+                    <option value="category-asc">Category (A-Z)</option>
+                </select>
+            </div>
+        </div>
+        <div class="table-container">
+            <table id="financialsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Month</th>
+                        <th>Type</th>
+                        <th>Name & Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Payment Method</th>
+                        <th>Plot No</th>
+                        <th>Phone No</th>
+                        <th>Receipt Pic</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="financials-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="newRecordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideModal()">×</span>
+            <form id="newRecordForm">
+                <h3>Add New Financial Record</h3>
+                <div>
+                    <label for="type">Payment Type *</label>
+                    <select id="type" name="type" required onchange="handleTypeChange()">
+                        <option value="">Select Type</option>
+                        <option value="Income">Income</option>
+                        <option value="Expense">Expense</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="date">Date *</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div>
+                    <label for="category">Category</label>
+                    <select id="category" name="category" onchange="handleCategoryChange()">
+                        <option value="">Select Category</option>
+                        <option value="Monthly Fees">Monthly Fees</option>
+                        <option value="Marriage">Marriage</option>
+                        <option value="Contribution">Contribution</option>
+                    </select>
+                </div>
+                <div id="monthFieldSection" style="display: none;">
+                    <label for="paymentMonth">Payment Month *</label>
+                    <select id="paymentMonth" name="paymentMonth" onchange="handleMonthChange()">
+                        <option value="">Select Month</option>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+                <div id="yearFieldSection" style="display: none;">
+                    <label for="paymentYear">Payment Year *</label>
+                    <select id="paymentYear" name="paymentYear">
+                        <option value="">Select Year</option>
+                    </select>
+                </div>
+                <div class="full-width">
+                    <label for="description">Name & Description *</label>
+                    <div id="incomeNameSection" style="display: none;">
+                        <input type="text" id="userSearch" placeholder="Search user by name..." oninput="searchUsers()" autocomplete="off">
+                        <div id="userDropdown" class="user-dropdown"></div>
+                        <input type="hidden" id="selectedUserId" name="selectedUserId">
+                        
+                        <!-- Due Amount Display Section -->
+                        <div id="userDueSection" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #3498db;">
+                            <h4 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 16px;">💰 Payment Details</h4>
+                            
+                            <!-- Monthly Breakdown -->
+                            <div id="monthlyBreakdown" style="display: none; margin-bottom: 15px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div style="background: #e8f5e9; padding: 10px; border-radius: 6px;">
+                                        <strong style="font-size: 12px; color: #2e7d32;">📅 Selected Month:</strong>
+                                        <div id="selectedMonthDue" style="color: #2e7d32; font-size: 16px; font-weight: 600;">PKR 0.00</div>
+                                        <small id="selectedMonthName" style="color: #6c757d;">-</small>
+                                    </div>
+                                    <div style="background: #ffebee; padding: 10px; border-radius: 6px;">
+                                        <strong style="font-size: 12px; color: #c62828;">⏪ Previous Months:</strong>
+                                        <div id="previousMonthsDue" style="color: #c62828; font-size: 16px; font-weight: 600;">PKR 0.00</div>
+                                        <small id="previousMonthsCount" style="color: #6c757d;">-</small>
+                                    </div>
+                                    <div style="background: #fff3e0; padding: 10px; border-radius: 6px;">
+                                        <strong style="font-size: 12px; color: #e65100;">⏩ Upcoming Months:</strong>
+                                        <div id="upcomingMonthsDue" style="color: #e65100; font-size: 16px; font-weight: 600;">PKR 0.00</div>
+                                        <small id="upcomingMonthsCount" style="color: #6c757d;">-</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Total Due -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                                <div>
+                                    <strong>Total Due Amount:</strong>
+                                    <div id="userTotalDue" style="color: #e74c3c; font-size: 18px; font-weight: 600;">PKR 0.00</div>
+                                </div>
+                                <div>
+                                    <strong>Late Charges:</strong>
+                                    <div id="userLateCharges" style="color: #f39c12; font-size: 18px; font-weight: 600;">PKR 0.00</div>
+                                </div>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" id="removeLateCharges" onchange="updatePaymentAmount()" style="margin-right: 8px; transform: scale(1.2);">
+                                    <span style="font-weight: 500; color: #27ae60;">Remove late charges from this payment</span>
+                                </label>
+                            </div>
+                            <div style="padding: 10px; background: #e8f5e8; border-radius: 6px; border: 1px solid #27ae60;">
+                                <strong>Suggested Payment Amount:</strong>
+                                <div id="suggestedAmount" style="color: #27ae60; font-size: 20px; font-weight: 700;">PKR 0.00</div>
+                                <small style="color: #6c757d;">This amount will be auto-filled in the amount field</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Marriage Name Section -->
+                    <div id="charityNameSection" style="display: none;">
+                        <input type="text" id="charityName" placeholder="Enter donor/marriage name..." autocomplete="off">
+                        <small style="color: #6c757d; margin-top: 5px; display: block;">
+                            💡 For marriage donations, you can enter any name (doesn't need to be a registered user)
+                        </small>
+                    </div>
+                    
+                    <input type="text" id="description" name="description" required placeholder="Enter description">
+                </div>
+                <div>
+                    <label for="amount">Amount *</label>
+                    <input type="number" step="0.01" id="amount" name="amount" required placeholder="0.00">
+                </div>
+                <div>
+                    <label for="paymentMethod">Payment Method *</label>
+                    <select id="paymentMethod" name="paymentMethod" required>
+                        <option value="">Select Method</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Card">Card</option>
+                        <option value="Online">Online</option>
+                        <option value="Cheque">Cheque</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="plotNo">Plot No</label>
+                    <input type="text" id="plotNo" name="plotNo" placeholder="Enter plot number">
+                </div>
+                <div>
+                    <label for="phoneNo">Phone No</label>
+                    <input type="tel" id="phoneNo" name="phoneNo" placeholder="Enter phone number">
+                </div>
+                <div class="full-width">
+                    <label for="receiptPic">Receipt Picture (for Expenses)</label>
+                    <input type="file" id="receiptPic" name="receiptPic" accept="image/*">
+                </div>
+                <button type="submit" class="add-financial-btn">Add Record</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    const API_URL = '/api/financials';
+
+    // --- UTILITY FUNCTIONS ---
+    async function disableUnauthorizedButtons() {
+        try {
+            const debugDiv = document.getElementById('debug-info');
+            debugDiv.innerHTML = '🔄 Loading user permissions...';
+            console.log('🔧 Starting button authorization check...');
+            const currentUser = await getCurrentUser();
+            console.log('👤 Current user:', currentUser);
+            if (!currentUser) {
+                console.log('❌ No user found - disabling all buttons');
+                debugDiv.innerHTML = '❌ No user logged in - All functions disabled';
+                disableAllButtons();
+                return;
+            }
+            const userRole = currentUser.role;
+            console.log('🎭 User role:', userRole);
+            // Only Finance Secretary can manage financial records
+            if (userRole !== 'Finance Secretary' && userRole !== 'Finance-Secretary' && 
+                userRole !== 'finance secretary' && userRole !== 'FINANCE_SECRETARY') {
+                console.log('🚫 User is not Finance Secretary - disabling financial management buttons');
+                debugDiv.innerHTML = `🚫 Access Restricted: Only Finance Secretary can manage financial records (You: ${userRole})`;
+                // Disable all financial management buttons (except monthly payment button)
+                const buttons = document.querySelectorAll('.add-financial-btn, .edit-btn, .delete-btn, button[onclick*="showModal"], button[onclick*="edit"], button[onclick*="delete"]');
+                buttons.forEach(button => {
+                    // Skip the monthly payment button as it has its own access control
+                    if (button && button.id !== 'monthlyPaymentBtn') {
+                        button.disabled = true;
+                        button.style.backgroundColor = '#cccccc';
+                        button.style.color = '#666666';
+                        button.style.cursor = 'not-allowed';
+                        button.title = `🚫 Only Finance Secretary can perform this action (You are: ${userRole})`;
+                        // Update button text to indicate restriction
+                        const text = button.textContent.trim();
+                        if (button.classList.contains('add-financial-btn') || text === 'New') {
+                            button.innerHTML = '🚫 New (Unauthorized)';
+                        } else if (button.classList.contains('edit-btn') || text === 'Edit' || text.includes('Edit')) {
+                            button.innerHTML = '🚫 Edit (Unauthorized)';
+                        } else if (button.classList.contains('delete-btn') || text === 'Delete' || text.includes('Delete')) {
+                            button.innerHTML = '🚫 Delete (Unauthorized)';
+                        }
+                    }
+                });
+                console.log('🔒 All financial management buttons have been disabled');
+            } else {
+                console.log('✅ User is Finance Secretary - all buttons enabled');
+                debugDiv.innerHTML = `✅ Full Access: Welcome Finance Secretary ${currentUser.name || currentUser.username}`;
+                debugDiv.style.backgroundColor = '#d4edda';
+                debugDiv.style.color = '#155724';
+            }
+        } catch (error) {
+            console.error('💥 Error checking user permissions:', error);
+            const debugDiv = document.getElementById('debug-info');
+            debugDiv.innerHTML = '💥 Error loading permissions - Functions may be limited';
+            disableAllButtons();
+        }
+    }
+    
+    function disableAllButtons() {
+        const buttons = document.querySelectorAll('.add-financial-btn, .edit-btn, .delete-btn, button[onclick*="showModal"], button[onclick*="edit"], button[onclick*="delete"]');
+        buttons.forEach(button => {
+            // Skip the monthly payment button as it has its own access control
+            if (button && button.id !== 'monthlyPaymentBtn') {
+                button.disabled = true;
+                button.style.backgroundColor = '#cccccc';
+                button.style.color = '#666666';
+                button.style.cursor = 'not-allowed';
+                button.title = '🚫 Unauthorized access';
+                // Update button text to indicate restriction
+                const text = button.textContent.trim();
+                if (button.classList.contains('add-financial-btn') || text === 'New') {
+                    button.innerHTML = '🚫 New (Unauthorized)';
+                } else if (button.classList.contains('edit-btn') || text === 'Edit' || text.includes('Edit')) {
+                    button.innerHTML = '🚫 Edit (Unauthorized)';
+                } else if (button.classList.contains('delete-btn') || text === 'Delete' || text.includes('Delete')) {
+                    button.innerHTML = '🚫 Delete (Unauthorized)';
+                }
+            }
+        });
+    }
+    
+    async function showModal() {
+        // AGGRESSIVE SECURITY CHECK - Block immediately for non-Finance Secretary
+        const currentUser = await getCurrentUser();
+        if (!currentUser || (currentUser.role !== 'Finance-Secretary' && currentUser.role !== 'Finance_Secretary' && currentUser.role !== 'FINANCE_SECRETARY')) {
+            console.log('Role Security: BLOCKED showModal - Finance Secretary access required');
+            return false; // Silent blocking - no error messages
+        }
+        
+        // Check permission before allowing modal to open
+        if (window.rolePermissions && !window.rolePermissions.hasPermission('FINANCIALS_ADD')) {
+            console.log('Access denied: Only Finance Secretary can add financial records');
+            return false;
+        }
+        
+        document.getElementById('newRecordModal').style.display = 'flex';
+        
+        // Initialize form field states
+        handleTypeChange();
+    }
+
+    // Populate year dropdown with last 10 years
+    function populateYearDropdown() {
+        const yearSelect = document.getElementById('paymentYear');
+        const currentYear = new Date().getFullYear();
+        
+        // Clear existing options except the first one
+        yearSelect.innerHTML = '<option value="">Select Year</option>';
+        
+        // Add last 10 years (current year and 9 previous years)
+        for (let i = 0; i < 10; i++) {
+            const year = currentYear - i;
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+        
+        // Set current year as default
+        yearSelect.value = currentYear;
+    }
+
+    function hideModal() {
+        document.getElementById('newRecordModal').style.display = 'none';
+        document.getElementById('newRecordForm').reset();
+        
+        // Reset user selection
+        selectedUser = null;
+        document.getElementById('userDropdown').style.display = 'none';
+        document.getElementById('selectedUserId').value = '';
+        
+        // Reset charity name field
+        document.getElementById('charityName').value = '';
+        
+        // Reset month field
+        document.getElementById('paymentMonth').value = '';
+        document.getElementById('paymentYear').value = '';
+        document.getElementById('monthFieldSection').style.display = 'none';
+        document.getElementById('yearFieldSection').style.display = 'none';
+        
+        // Reset field states when modal is closed
+        handleTypeChange();
+    }
+
+    // Handle type change to enable/disable fields based on selection
+    function handleTypeChange() {
+        const typeSelect = document.getElementById('type');
+        const categoryField = document.getElementById('category');
+        const plotNoField = document.getElementById('plotNo');
+        const phoneNoField = document.getElementById('phoneNo');
+        const receiptField = document.getElementById('receiptPic');
+        const incomeNameSection = document.getElementById('incomeNameSection');
+        const charityNameSection = document.getElementById('charityNameSection');
+        const descriptionField = document.getElementById('description');
+        const userDueSection = document.getElementById('userDueSection');
+        
+        const isIncome = typeSelect.value === 'Income';
+        const isExpense = typeSelect.value === 'Expense';
+        
+        if (isIncome) {
+            // Reset category selection when switching to income
+            categoryField.value = '';
+            
+            // Hide all name sections initially
+            incomeNameSection.style.display = 'none';
+            charityNameSection.style.display = 'none';
+            descriptionField.style.display = 'block';
+            descriptionField.required = true;
+            
+            // Enable category, plot no, and phone no for income
+            categoryField.disabled = false;
+            categoryField.style.backgroundColor = '';
+            categoryField.style.color = '';
+            
+            plotNoField.disabled = false;
+            plotNoField.style.backgroundColor = '';
+            plotNoField.style.color = '';
+            plotNoField.placeholder = 'Enter plot number';
+            plotNoField.readOnly = false;
+            
+            phoneNoField.disabled = false;
+            phoneNoField.style.backgroundColor = '';
+            phoneNoField.style.color = '';
+            phoneNoField.placeholder = 'Enter phone number';
+            phoneNoField.readOnly = false;
+            
+            // Disable receipt field for income
+            receiptField.disabled = true;
+            receiptField.style.backgroundColor = '#f5f5f5';
+            receiptField.parentElement.style.opacity = '0.5';
+            
+            // Hide due section initially
+            userDueSection.style.display = 'none';
+            
+            // Hide month field for Income (will show only for Monthly Fees)
+            const monthFieldSection = document.getElementById('monthFieldSection');
+            const paymentMonthField = document.getElementById('paymentMonth');
+            const yearFieldSection = document.getElementById('yearFieldSection');
+            const paymentYearField = document.getElementById('paymentYear');
+            monthFieldSection.style.display = 'none';
+            yearFieldSection.style.display = 'none';
+            paymentMonthField.required = false;
+            paymentYearField.required = false;
+            
+        } else if (isExpense) {
+            // Hide user search for expense
+            incomeNameSection.style.display = 'none';
+            charityNameSection.style.display = 'none';
+            descriptionField.style.display = 'block';
+            descriptionField.required = true;
+            
+            // Hide due section for expense
+            userDueSection.style.display = 'none';
+            
+            // Hide month field for Expense
+            const monthFieldSection = document.getElementById('monthFieldSection');
+            const paymentMonthField = document.getElementById('paymentMonth');
+            const yearFieldSection = document.getElementById('yearFieldSection');
+            const paymentYearField = document.getElementById('paymentYear');
+            monthFieldSection.style.display = 'none';
+            yearFieldSection.style.display = 'none';
+            paymentMonthField.required = false;
+            paymentYearField.required = false;
+            
+            // Disable category, plot no, and phone no for expense
+            categoryField.disabled = true;
+            categoryField.value = '';
+            categoryField.style.backgroundColor = '#f5f5f5';
+            categoryField.style.color = '#999';
+            
+            plotNoField.disabled = true;
+            plotNoField.value = '';
+            plotNoField.style.backgroundColor = '#f5f5f5';
+            plotNoField.style.color = '#999';
+            plotNoField.placeholder = 'Not applicable for expenses';
+            plotNoField.readOnly = false;
+            
+            phoneNoField.disabled = true;
+            phoneNoField.value = '';
+            phoneNoField.style.backgroundColor = '#f5f5f5';
+            phoneNoField.style.color = '#999';
+            phoneNoField.placeholder = 'Not applicable for expenses';
+            phoneNoField.readOnly = false;
+            
+            // Enable receipt field for expense
+            receiptField.disabled = false;
+            receiptField.style.backgroundColor = '';
+            receiptField.parentElement.style.opacity = '1';
+            
+        } else {
+            // Default state - nothing selected
+            incomeNameSection.style.display = 'none';
+            charityNameSection.style.display = 'none';
+            descriptionField.style.display = 'block';
+            descriptionField.required = true;
+            
+            // Hide due section when nothing selected
+            userDueSection.style.display = 'none';
+            
+            categoryField.disabled = false;
+            plotNoField.disabled = false;
+            phoneNoField.disabled = false;
+            receiptField.disabled = false;
+            receiptField.parentElement.style.opacity = '1';
+            plotNoField.readOnly = false;
+            phoneNoField.readOnly = false;
+        }
+    }
+
+    // Handle category change for Income type
+    function handleCategoryChange() {
+        const typeSelect = document.getElementById('type');
+        const categoryField = document.getElementById('category');
+        const incomeNameSection = document.getElementById('incomeNameSection');
+        const charityNameSection = document.getElementById('charityNameSection');
+        const descriptionField = document.getElementById('description');
+        const userDueSection = document.getElementById('userDueSection');
+        const plotNoField = document.getElementById('plotNo');
+        const phoneNoField = document.getElementById('phoneNo');
+        const monthFieldSection = document.getElementById('monthFieldSection');
+        const paymentMonthField = document.getElementById('paymentMonth');
+        const yearFieldSection = document.getElementById('yearFieldSection');
+        const paymentYearField = document.getElementById('paymentYear');
+        
+        // Only apply category logic for Income type
+        if (typeSelect.value === 'Income') {
+            const isMonthlyFees = categoryField.value === 'Monthly Fees';
+            const isMarriage = categoryField.value === 'Marriage';
+            const isContribution = categoryField.value === 'Contribution';
+            
+            if (isMonthlyFees) {
+                // Monthly Fees - Show user search, due amounts, and month field
+                incomeNameSection.style.display = 'block';
+                charityNameSection.style.display = 'none';
+                descriptionField.style.display = 'none';
+                monthFieldSection.style.display = 'block';
+                yearFieldSection.style.display = 'block';
+                paymentMonthField.required = true;
+                paymentYearField.required = true;
+                descriptionField.required = false;
+                
+                // Plot and phone will be auto-filled from selected user
+                plotNoField.placeholder = 'Auto-filled from selected user';
+                plotNoField.readOnly = true;
+                phoneNoField.placeholder = 'Auto-filled from selected user';
+                phoneNoField.readOnly = true;
+                
+            } else if (isMarriage || isContribution) {
+                // Marriage or Contribution - Show name input (no user search, no due amounts, no month field)
+                incomeNameSection.style.display = 'none';
+                charityNameSection.style.display = 'block';
+                descriptionField.style.display = 'block';
+                descriptionField.required = true;
+                monthFieldSection.style.display = 'none';
+                yearFieldSection.style.display = 'none';
+                paymentMonthField.required = false;
+                paymentYearField.required = false;
+                
+                // Update placeholder text based on category
+                const charityNameInput = document.getElementById('charityName');
+                const charitySmallText = charityNameSection.querySelector('small');
+                
+                if (isContribution) {
+                    charityNameInput.placeholder = 'Enter contributor name...';
+                    charitySmallText.innerHTML = '💡 For contributions, you can enter any name (doesn\'t need to be a registered user)';
+                } else {
+                    charityNameInput.placeholder = 'Enter donor/marriage name...';
+                    charitySmallText.innerHTML = '💡 For marriage donations, you can enter any name (doesn\'t need to be a registered user)';
+                }
+                
+                // Hide due section for charity/contribution
+                userDueSection.style.display = 'none';
+                
+                // Allow manual entry for plot and phone
+                plotNoField.placeholder = 'Enter plot number (optional)';
+                plotNoField.readOnly = false;
+                phoneNoField.placeholder = 'Enter phone number (optional)';
+                phoneNoField.readOnly = false;
+                
+                // Clear any selected user data
+                selectedUser = null;
+                document.getElementById('userDropdown').style.display = 'none';
+                document.getElementById('selectedUserId').value = '';
+                
+            } else {
+                // No category selected
+                incomeNameSection.style.display = 'none';
+                charityNameSection.style.display = 'none';
+                descriptionField.style.display = 'block';
+                descriptionField.required = true;
+                userDueSection.style.display = 'none';
+                
+                plotNoField.placeholder = 'Enter plot number';
+                plotNoField.readOnly = false;
+                phoneNoField.placeholder = 'Enter phone number';
+                phoneNoField.readOnly = false;
+            }
+        }
+    }
+
+    // User search functionality
+    let allUsers = [];
+    let selectedUser = null;
+
+    async function loadAllUsers() {
+        try {
+            const response = await fetch('/api/users');
+            if (response.ok) {
+                allUsers = await response.json();
+                console.log('Loaded users:', allUsers.length);
+            } else {
+                console.error('Failed to load users');
+            }
+        } catch (error) {
+            console.error('Error loading users:', error);
+        }
+    }
+
+    function searchUsers() {
+        const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+        const dropdown = document.getElementById('userDropdown');
+        
+        if (searchTerm.length < 2) {
+            dropdown.style.display = 'none';
+            return;
+        }
+        
+        const filteredUsers = allUsers.filter(user => 
+            user.ownerName?.toLowerCase().includes(searchTerm) ||
+            user.plotNo?.toLowerCase().includes(searchTerm) ||
+            user.phoneNo?.includes(searchTerm)
+        );
+        
+        if (filteredUsers.length === 0) {
+            dropdown.innerHTML = '<div class="user-dropdown-item">No users found</div>';
+            dropdown.style.display = 'block';
+            return;
+        }
+        
+        dropdown.innerHTML = filteredUsers.map(user => `
+            <div class="user-dropdown-item" onclick="selectUser(${user.id})">
+                <div class="user-info">
+                    <div class="user-name">${user.ownerName || 'No Name'}</div>
+                    <div class="user-details">Plot: ${user.plotNo || 'N/A'} | Phone: ${user.phoneNo || 'N/A'}</div>
+                </div>
+            </div>
+        `).join('');
+        
+        dropdown.style.display = 'block';
+    }
+
+    function selectUser(userId) {
+        selectedUser = allUsers.find(user => user.id === userId);
+        
+        if (selectedUser) {
+            document.getElementById('userSearch').value = selectedUser.ownerName || '';
+            document.getElementById('selectedUserId').value = userId;
+            document.getElementById('plotNo').value = selectedUser.plotNo || '';
+            document.getElementById('phoneNo').value = selectedUser.phoneNo || '';
+            document.getElementById('userDropdown').style.display = 'none';
+            
+            // Update description field
+            document.getElementById('description').value = selectedUser.ownerName || '';
+            
+            // Load user's due amounts and late charges
+            loadUserDueDetails(userId);
+        }
+    }
+
+    // Load user due details for payment processing
+    async function loadUserDueDetails(userId) {
+        try {
+            const response = await fetch(`/api/monthly-payments/user-details/${userId}`);
+            if (response.ok) {
+                const userDetails = await response.json();
+                displayUserDueDetails(userDetails);
+            } else {
+                console.error('Failed to load user due details');
+            }
+        } catch (error) {
+            console.error('Error loading user due details:', error);
+        }
+    }
+
+    // Display user due details in the form using unified account balance
+    function displayUserDueDetails(userDetails) {
+        const user = userDetails.user || {};
+        const accountBalance = user.accountBalance || 0;
+        const paymentHistory = userDetails.paymentHistory || [];
+        
+        // Determine due amount and debit status based on account balance
+        let totalDue = 0;
+        let isDebit = false;
+        
+        if (accountBalance > 0) {
+            // Positive balance = user has due amount
+            totalDue = accountBalance;
+            isDebit = false;
+        } else if (accountBalance < 0) {
+            // Negative balance = user has debit (advance payment)
+            totalDue = 0;
+            isDebit = true;
+        } else {
+            // Zero balance
+            totalDue = 0;
+            isDebit = false;
+        }
+        
+        // Store user details globally for monthly breakdown
+        window.currentUserDetails = userDetails;
+        
+        // Display the amounts
+        document.getElementById('userTotalDue').textContent = `PKR ${totalDue.toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+        
+        // Show late charges as 0 since we're using unified balance
+        document.getElementById('userLateCharges').textContent = `PKR 0.00`;
+        
+        // Store values for calculation
+        window.currentUserDue = totalDue;
+        window.currentUserLateCharges = 0; // No late charges in unified system
+        
+        // Check if we have a selected month to show breakdown
+        const selectedMonth = document.getElementById('paymentMonth').value;
+        if (selectedMonth && paymentHistory.length > 0) {
+            calculateMonthlyBreakdown(selectedMonth, paymentHistory);
+        } else {
+            document.getElementById('monthlyBreakdown').style.display = 'none';
+        }
+        
+        // Show the due section
+        document.getElementById('userDueSection').style.display = 'block';
+        
+        // Update suggested amount
+        updatePaymentAmount();
+    }
+
+    // Handle month selection change - update monthly breakdown
+    function handleMonthChange() {
+        const selectedMonth = document.getElementById('paymentMonth').value;
+        
+        // If we have stored user details and a month is selected, recalculate breakdown
+        if (selectedMonth && window.currentUserDetails && window.currentUserDetails.paymentHistory) {
+            calculateMonthlyBreakdown(selectedMonth, window.currentUserDetails.paymentHistory);
+        } else {
+            document.getElementById('monthlyBreakdown').style.display = 'none';
+        }
+    }
+
+    // Calculate and display monthly breakdown based on selected month
+    function calculateMonthlyBreakdown(selectedMonthName, paymentHistory) {
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const selectedMonthIndex = monthNames.indexOf(selectedMonthName);
+        
+        if (selectedMonthIndex === -1) {
+            document.getElementById('monthlyBreakdown').style.display = 'none';
+            return;
+        }
+        
+        // Get current date for comparison
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth(); // 0-based
+        
+        let selectedMonthDue = 0;
+        let previousMonthsDue = 0;
+        let upcomingMonthsDue = 0;
+        
+        let previousMonths = [];
+        let upcomingMonths = [];
+        
+        paymentHistory.forEach(due => {
+            const dueAmount = parseFloat(due.dueAmount) || 0;
+            const dueMonth = due.month - 1; // Convert to 0-based
+            const dueYear = due.year || currentYear;
+            
+            // Create a comparable date value
+            const dueDate = new Date(dueYear, dueMonth, 1);
+            const selectedDate = new Date(currentYear, selectedMonthIndex, 1);
+            
+            if (dueMonth === selectedMonthIndex && dueYear === currentYear) {
+                // This is the selected month
+                selectedMonthDue += dueAmount;
+            } else if (dueDate < selectedDate) {
+                // Previous months
+                previousMonthsDue += dueAmount;
+                previousMonths.push(`${monthNames[dueMonth]} ${dueYear}`);
+            } else if (dueDate > selectedDate) {
+                // Upcoming months
+                upcomingMonthsDue += dueAmount;
+                upcomingMonths.push(`${monthNames[dueMonth]} ${dueYear}`);
+            }
+        });
+        
+        // Update display
+        document.getElementById('selectedMonthDue').textContent = `PKR ${selectedMonthDue.toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+        document.getElementById('selectedMonthName').textContent = selectedMonthName;
+        
+        document.getElementById('previousMonthsDue').textContent = `PKR ${previousMonthsDue.toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+        document.getElementById('previousMonthsCount').textContent = previousMonths.length > 0 ? previousMonths.join(', ') : 'None';
+        
+        document.getElementById('upcomingMonthsDue').textContent = `PKR ${upcomingMonthsDue.toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+        document.getElementById('upcomingMonthsCount').textContent = upcomingMonths.length > 0 ? upcomingMonths.join(', ') : 'None';
+        
+        // Show the breakdown section
+        document.getElementById('monthlyBreakdown').style.display = 'block';
+    }
+    
+    // Update payment amount based on late charges checkbox
+    function updatePaymentAmount() {
+        const removeLateCharges = document.getElementById('removeLateCharges').checked;
+        const totalDue = window.currentUserDue || 0;
+        const lateCharges = window.currentUserLateCharges || 0;
+        
+        let suggestedAmount = totalDue;
+        if (removeLateCharges) {
+            suggestedAmount = totalDue - lateCharges;
+        }
+        
+        // Update suggested amount display
+        document.getElementById('suggestedAmount').textContent = `PKR ${suggestedAmount.toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+        
+        // Auto-fill the amount field
+        document.getElementById('amount').value = suggestedAmount.toFixed(2);
+    }
+
+    // Receipt generation
+    async function generateReceipt(recordData, user) {
+        const currentDate = new Date().toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'long', 
+            year: 'numeric'
+        });
+
+        // Get current Finance Secretary info
+        const currentUser = await getCurrentUser();
+        
+        const receiptText = `
+Monthly Town Fees (Receipt)
+Jeewan Avenue, Sahiwal
+
+Amount (Rs.): ${recordData.amount}
+Fee Paid By: ${user.ownerName || 'N/A'}
+House/Shop No: ${recordData.plotNo || 'N/A'}
+Paid Date: ${currentDate}
+Thanks
+
+Finance Secretary:
+${currentUser.ownerName || currentUser.name || 'Muhammad Raza'}
+H-248
+03006913494
+        `.trim();
+
+        return receiptText;
+    }
+
+    // WhatsApp integration - Enhanced version
+    function sendWhatsAppReceipt(phoneNo, receiptText) {
+        if (!phoneNo) {
+            showError('❌ No phone number available for this user. Cannot send WhatsApp receipt.');
+            console.log('No phone number available for WhatsApp');
+            return false;
+        }
+        
+        try {
+            // Clean phone number - remove spaces, dashes, parentheses, and other characters
+            let cleanPhone = phoneNo.replace(/[\s\-\(\)\+]/g, '');
+            
+            // Handle Pakistan phone number formatting
+            if (cleanPhone.startsWith('0')) {
+                // Remove leading 0 and add Pakistan country code
+                cleanPhone = '92' + cleanPhone.substring(1);
+            } else if (!cleanPhone.startsWith('92')) {
+                // Add Pakistan country code if not present
+                cleanPhone = '92' + cleanPhone;
+            }
+            
+            // Ensure we have a valid phone number
+            if (cleanPhone.length < 12 || cleanPhone.length > 15) {
+                showError('❌ Invalid phone number format. Please check the user\'s phone number.');
+                return false;
+            }
+            
+            // Encode the receipt message for URL
+            const encodedMessage = encodeURIComponent(receiptText);
+            
+            // Create WhatsApp URL
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+            
+            console.log('Opening WhatsApp with URL:', whatsappUrl);
+            console.log('Phone number:', cleanPhone);
+            console.log('Message length:', receiptText.length);
+            
+            // Open WhatsApp in new tab/window
+            const whatsappWindow = window.open(whatsappUrl, '_blank');
+            
+            // Check if popup was blocked
+            if (!whatsappWindow || whatsappWindow.closed || typeof whatsappWindow.closed === 'undefined') {
+                showError('❌ Popup blocked! Please allow popups for this site and try again, or manually copy the receipt and send it via WhatsApp.');
+                console.log('WhatsApp popup was blocked');
+                return false;
+            }
+            
+            return true;
+            
+        } catch (error) {
+            console.error('Error opening WhatsApp:', error);
+            showError('❌ Error opening WhatsApp. Please copy the receipt manually and send it via WhatsApp.');
+            return false;
+        }
+    }
+
+    // Global variable to store all records for sorting
+    let allRecords = [];
+
+    // --- DATA FETCHING AND RENDERING ---
+    async function fetchAndDisplayRecords() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('Failed to fetch records');
+            allRecords = await response.json();
+
+            // Apply default sorting (latest first)
+            applySorting();
+        } catch (error) {
+            console.error('Error loading records:', error);
+            showError('❌ Could not load financial data.');
+        }
+    }
+
+    // Sort and display records
+    function applySorting() {
+        const sortBy = document.getElementById('sortBy').value;
+        let sortedRecords = [...allRecords];
+
+        switch(sortBy) {
+            case 'date-desc':
+                sortedRecords.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
+                break;
+            case 'date-asc':
+                sortedRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || a.id - b.id);
+                break;
+            case 'amount-desc':
+                sortedRecords.sort((a, b) => b.amount - a.amount);
+                break;
+            case 'amount-asc':
+                sortedRecords.sort((a, b) => a.amount - b.amount);
+                break;
+            case 'type-asc':
+                sortedRecords.sort((a, b) => (a.type || '').localeCompare(b.type || ''));
+                break;
+            case 'category-asc':
+                sortedRecords.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+                break;
+            default:
+                sortedRecords.sort((a, b) => b.id - a.id);
+        }
+
+        displayRecords(sortedRecords);
+    }
+
+    // Display records in table
+    function displayRecords(records) {
+        const tableBody = document.getElementById('financials-table-body');
+        tableBody.innerHTML = ''; // Clear existing table data
+
+            records.forEach(record => {
+                // Fix receipt path to include /uploads/ prefix if not already present
+                const receiptPath = record.receiptPath 
+                    ? (record.receiptPath.startsWith('uploads/') ? `/${record.receiptPath}` : `/uploads/${record.receiptPath}`)
+                    : null;
+                    
+                const receiptImage = receiptPath
+                    ? `<img src="${receiptPath}" alt="Receipt" class="receipt-img">`
+                    : 'N/A';
+
+                const row = `
+                    <tr data-id="${record.id}">
+                        <td>${record.id}</td>
+                        <td>${record.date}</td>
+                        <td>${record.month || '-'}</td>
+                        <td>${record.type}</td>
+                        <td>${record.description}</td>
+                        <td>${record.category || '-'}</td>
+                        <td>PKR ${record.amount.toFixed(2)}</td>
+                        <td>${record.paymentMethod}</td>
+                        <td>${record.plotNo || '-'}</td>
+                        <td>${record.phoneNo || '-'}</td>
+                        <td>${receiptImage}</td>
+                        <td>
+                            <button class="edit-btn edit-financial-btn" onclick="editRecord(${record.id})">Edit</button>
+                            <button class="delete-btn delete-financial-btn" onclick="deleteRecord(${record.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+            
+        // Apply role-based permissions after table is populated
+        // Always call disableUnauthorizedButtons to ensure buttons are disabled after rendering
+        setTimeout(() => {
+            disableUnauthorizedButtons();
+        }, 0);
+    }
+
+    // --- DATA MANIPULATION ---
+    async function handleFormSubmit(event) {
+        event.preventDefault();
+        
+        // Enhanced security check with user feedback
+        const currentUser = await getCurrentUser();
+        if (!currentUser || (currentUser.role !== 'Finance-Secretary' && currentUser.role !== 'Finance_Secretary' && currentUser.role !== 'FINANCE_SECRETARY')) {
+            console.log('🚫 Role Security: BLOCKED handleFormSubmit - Finance Secretary access required');
+            
+            // Show user-friendly error message
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '🚫 Unauthorized - Finance Secretary Only';
+            submitButton.style.backgroundColor = '#dc3545';
+            
+            setTimeout(() => {
+                submitButton.innerHTML = originalText;
+                submitButton.style.backgroundColor = '';
+            }, 3000);
+            
+            return false;
+        }
+        
+        // Check permission before allowing form submission
+        if (window.rolePermissions && !window.rolePermissions.hasPermission('FINANCIALS_ADD')) {
+            console.log('🚫 Access denied: Only Finance Secretary can add financial records');
+            
+            // Show user-friendly error message  
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '🚫 Permission Denied';
+            submitButton.style.backgroundColor = '#dc3545';
+            
+            setTimeout(() => {
+                submitButton.innerHTML = originalText;
+                submitButton.style.backgroundColor = '';
+            }, 3000);
+            
+            return false;
+        }
+        
+        // Show loading state
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = '⏳ Adding Financial Record...';
+        submitButton.disabled = true;
+        
+        try {
+            const form = event.target;
+            const formData = new FormData();
+
+            // Get basic form data
+            const typeValue = form.type.value;
+            const categoryValue = form.category.value;
+            let descriptionValue = form.description.value;
+            
+            // Handle charity donations - use charity name if provided
+            if (typeValue === 'Income' && (categoryValue === 'Charity' || categoryValue === 'Contribution')) {
+                const charityName = document.getElementById('charityName').value.trim();
+                if (charityName) {
+                    descriptionValue = charityName; // Use charity/contribution name as description
+                }
+            }
+
+            // Combine month and year into single field (e.g., "January 2026")
+            let monthValue = null;
+            const selectedMonth = document.getElementById('paymentMonth').value;
+            const selectedYear = document.getElementById('paymentYear').value;
+            if (selectedMonth && selectedYear) {
+                monthValue = `${selectedMonth} ${selectedYear}`;
+            } else if (selectedMonth) {
+                monthValue = selectedMonth; // Fallback to just month if year not selected
+            }
+
+            const recordData = {
+                type: typeValue,
+                date: form.date.value,
+                month: monthValue,
+                description: descriptionValue,
+                category: categoryValue,
+                amount: parseFloat(form.amount.value),
+                paymentMethod: form.paymentMethod.value,
+                plotNo: form.plotNo.value,
+                phoneNo: form.phoneNo.value,
+                isCharity: (typeValue === 'Income' && (categoryValue === 'Charity' || categoryValue === 'Contribution')) // Flag to indicate charity donation or contribution
+            };
+            
+            // The backend expects a JSON part named 'record'
+            formData.append('record', new Blob([JSON.stringify(recordData)], { type: 'application/json' }));
+
+            // Append the receipt file if it exists
+            const receiptFile = form.receiptPic.files[0];
+            if (receiptFile) {
+                formData.append('receiptPic', receiptFile);
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                     const errorText = await response.text();
+                     throw new Error(`Failed to create record: ${errorText}`);
+                }
+                
+                // Only generate receipts for Monthly Fees (not for Charity)
+                if (recordData.type === 'Income' && recordData.category === 'Monthly Fees' && selectedUser) {
+                    try {
+                        const receiptText = await generateReceipt(recordData, selectedUser);
+                        
+                        // Show loading message
+                        const loadingAlert = setTimeout(() => {
+                            alert('Preparing WhatsApp message...');
+                        }, 100);
+                        
+                        // Automatically redirect to WhatsApp with receipt
+                        const whatsappSuccess = sendWhatsAppReceipt(selectedUser.phoneNo, receiptText);
+                        
+                        clearTimeout(loadingAlert);
+                        
+                        if (whatsappSuccess !== false) {
+                            showSuccess(`✅ Monthly Fee Payment Added Successfully!\n\n📱 WhatsApp is opening with the receipt ready to send to:\n${selectedUser.ownerName}\n${selectedUser.phoneNo}\n\nJust click "Send" in WhatsApp to deliver the receipt!`);
+                        } else {
+                            // Fallback - show receipt in alert if WhatsApp fails
+                            showSuccess(`✅ Monthly Fee Payment Added Successfully!\n\n📄 Receipt (copy and send manually):\n\n${receiptText}`);
+                        }
+                        
+                    } catch (receiptError) {
+                        console.error('Error generating receipt:', receiptError);
+                        showSuccess('✅ Monthly fee payment added successfully!\n\n⚠️ There was an issue generating the receipt. Please create a manual receipt if needed.');
+                    }
+                } else if (recordData.type === 'Income' && (recordData.category === 'Charity' || recordData.category === 'Contribution')) {
+                    // Success message for charity or contribution - no receipts needed
+                    const categoryDisplayName = recordData.category === 'Charity' ? 'Charity Donation' : 'Contribution';
+                    const emoji = recordData.category === 'Charity' ? '💝' : '🤝';
+                    const donorLabel = recordData.category === 'Charity' ? 'Donor' : 'Contributor';
+                    
+                    showSuccess(`✅ ${categoryDisplayName} Recorded Successfully!\n\n${emoji} ${donorLabel}: ${recordData.description}\n💰 Amount: PKR ${recordData.amount}\n\nNote: This ${recordData.category.toLowerCase()} does not affect any user account balances.`);
+                } else {
+                    showSuccess('✅ Financial record added successfully!');
+                }
+                
+                hideModal();
+                fetchAndDisplayRecords(); // Refresh the table with new data
+                
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                showError(`❌ Failed to add financial record: ${error.message}`);
+            }
+        
+        } catch (error) {
+            console.error('💥 Error in form submission:', error);
+            submitButton.innerHTML = '💥 Submission Failed';
+            submitButton.style.backgroundColor = '#dc3545';
+            
+            setTimeout(() => {
+                submitButton.innerHTML = originalText;
+                submitButton.style.backgroundColor = '';
+                submitButton.disabled = false;
+            }, 3000);
+        } finally {
+            // Reset button state after successful submission
+            setTimeout(() => {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }, 1000);
+        }
+    }
+
+    async function deleteRecord(id) {
+        // AGGRESSIVE SECURITY CHECK - Block immediately for non-Finance Secretary
+        const currentUser = await getCurrentUser();
+        if (!currentUser || (currentUser.role !== 'Finance-Secretary' && currentUser.role !== 'Finance_Secretary' && currentUser.role !== 'FINANCE_SECRETARY')) {
+            console.log('Role Security: BLOCKED deleteRecord - Finance Secretary access required');
+            return false; // Silent blocking - no error messages
+        }
+        
+        // Check permission before allowing delete
+        if (window.rolePermissions && !window.rolePermissions.hasPermission('FINANCIALS_ADD')) {
+            console.log('Access denied: Only Finance Secretary can delete financial records');
+            return false;
+        }
+        
+        if (!confirm('Are you sure you want to delete this financial record?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) throw new Error('Failed to delete the record from the server.');
+
+            fetchAndDisplayRecords(); // Refresh the table
+            showSuccess('✅ Financial record deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting record:', error);
+            showError(`❌ Failed to delete financial record: ${error.message}`);
+        }
+    }
+    
+    function editRecord(id) {
+        // AGGRESSIVE SECURITY CHECK - Block immediately for non-Finance Secretary
+        const currentUser = getCurrentUser();
+        if (!currentUser || (currentUser.role !== 'Finance-Secretary' && currentUser.role !== 'Finance_Secretary' && currentUser.role !== 'FINANCE_SECRETARY')) {
+            console.log('Role Security: BLOCKED editRecord - Finance Secretary access required');
+            return false; // Silent blocking - no error messages
+        }
+        
+        // Check permission before allowing edit
+        if (window.rolePermissions && !window.rolePermissions.hasPermission('FINANCIALS_ADD')) {
+            console.log('Access denied: Only Finance Secretary can edit financial records');
+            return false;
+        }
+        
+        alert(`Editing record with ID: ${id}. \n(Full edit functionality requires building an edit form and PUT endpoint logic.)`);
+    }
+
+    // --- SEARCH FUNCTIONALITY ---
+    function searchRecords() {
+        const input = document.getElementById("search");
+        const filter = input.value.toLowerCase();
+        
+        if (!filter) {
+            // If search is empty, show all records with current sorting
+            applySorting();
+            return;
+        }
+        
+        // Filter records based on search term
+        const filteredRecords = allRecords.filter(record => {
+            return (
+                (record.id?.toString() || '').toLowerCase().includes(filter) ||
+                (record.date?.toString() || '').toLowerCase().includes(filter) ||
+                (record.month?.toString() || '').toLowerCase().includes(filter) ||
+                (record.type?.toString() || '').toLowerCase().includes(filter) ||
+                (record.description?.toString() || '').toLowerCase().includes(filter) ||
+                (record.category?.toString() || '').toLowerCase().includes(filter) ||
+                (record.amount?.toString() || '').toLowerCase().includes(filter) ||
+                (record.paymentMethod?.toString() || '').toLowerCase().includes(filter) ||
+                (record.plotNo?.toString() || '').toLowerCase().includes(filter) ||
+                (record.phoneNo?.toString() || '').toLowerCase().includes(filter)
+            );
+        });
+        
+        // Display filtered records with current sorting
+        const sortBy = document.getElementById('sortBy').value;
+        let sortedFiltered = [...filteredRecords];
+        
+        switch(sortBy) {
+            case 'date-desc':
+                sortedFiltered.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
+                break;
+            case 'date-asc':
+                sortedFiltered.sort((a, b) => new Date(a.date) - new Date(b.date) || a.id - b.id);
+                break;
+            case 'amount-desc':
+                sortedFiltered.sort((a, b) => b.amount - a.amount);
+                break;
+            case 'amount-asc':
+                sortedFiltered.sort((a, b) => a.amount - b.amount);
+                break;
+            case 'type-asc':
+                sortedFiltered.sort((a, b) => (a.type || '').localeCompare(b.type || ''));
+                break;
+            case 'category-asc':
+                sortedFiltered.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+                break;
+        }
+        
+        displayRecords(sortedFiltered);
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Populate year dropdown with last 10 years
+        populateYearDropdown();
+        
+        // Check page access with view-only permissions for other admin roles
+        const accessResult = await checkPageAccess(
+            ['President', 'Finance-Secretary', 'General-Secretary'], // Full access roles
+            ['Vice-President', 'Information-Secretary'] // View-only roles
+        );
+        
+        if (!accessResult.hasAccess) return; // Page will redirect if no access
+        
+        // Set up view-only mode if user has limited permissions
+        if (accessResult.isViewOnly) {
+            setViewOnlyMode();
+        }
+        
+        // Initialize button disabling with debug info
+        await disableUnauthorizedButtons();
+        
+        // Load shared HTML components
+        fetch('header.html').then(r => r.text()).then(data => {
+            document.getElementById('header').innerHTML = data;
+            // Initialize header functions after loading
+            if (typeof setActive === 'function') {
+                setActive();
+            }
+            if (typeof loadUserProfileImage === 'function') {
+                loadUserProfileImage();
+            }
+            
+            // Initialize hamburger menu functionality
+            setTimeout(() => {
+                if (typeof window.initializeHamburgerMenu === 'function') {
+                    window.initializeHamburgerMenu();
+                }
+            }, 100);
+        });
+        fetch('President Console.html').then(r => r.text()).then(data => document.getElementById('president_console').innerHTML = data);
+
+        // Fetch and display initial data
+        fetchAndDisplayRecords();
+        
+        // Load all users for search functionality
+        loadAllUsers();
+
+        // Attach event listener to the form for new records
+        document.getElementById('newRecordForm').addEventListener('submit', handleFormSubmit);
+
+        // Initialize form field states
+        document.getElementById('type').addEventListener('change', handleTypeChange);
+        document.getElementById('category').addEventListener('change', handleCategoryChange);
+        
+        // Set initial state
+        handleTypeChange();
+
+        // Close modal if clicked outside
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('newRecordModal')) {
+                hideModal();
+            }
+        };
+
+        // Initialize monthly payment button visibility based on user role
+        initializeMonthlyPaymentButton();
+    });
+
+    // Function to initialize monthly payment button visibility
+    function initializeMonthlyPaymentButton() {
+        // Keep button visible but check access when clicked
+        const monthlyPaymentBtn = document.getElementById('monthlyPaymentBtn');
+        monthlyPaymentBtn.style.display = 'inline-block';
+        
+        // Check if user is Finance Secretary for styling
+        getCurrentUser().then(currentUser => {
+            const role = currentUser ? currentUser.role : null;
+            // Check for multiple possible role formats
+            const isFinanceSecretary = role === 'Finance Secretary' || 
+                                     role === 'Finance-Secretary' || 
+                                     role === 'finance secretary' ||
+                                     role === 'FINANCE_SECRETARY';
+            
+            if (!isFinanceSecretary) {
+                // Add visual indicator that button requires special access
+                monthlyPaymentBtn.title = 'Finance Secretary access required';
+                monthlyPaymentBtn.style.opacity = '0.8';
+            } else {
+                monthlyPaymentBtn.title = 'Manage monthly payments and dues';
+                monthlyPaymentBtn.style.opacity = '1';
+            }
+        }).catch(error => {
+            console.error('Error checking user role:', error);
+            // Still show button but add indication
+            monthlyPaymentBtn.title = 'Monthly Payment Management';
+            monthlyPaymentBtn.style.opacity = '0.9';
+        });
+    }
+
+    // Function to navigate to monthly payment page
+    function openMonthlyPaymentPage() {
+        // Check user role before navigation
+        getCurrentUser().then(currentUser => {
+            const role = currentUser ? currentUser.role : null;
+            // Check for multiple possible role formats
+            const isFinanceSecretary = role === 'Finance Secretary' || 
+                                     role === 'Finance-Secretary' || 
+                                     role === 'finance secretary' ||
+                                     role === 'FINANCE_SECRETARY';
+            
+            if (isFinanceSecretary) {
+                window.location.href = '/Monthly-Payment-Management.html';
+            } else {
+                alert('⛔ Access Denied\n\nOnly Finance Secretary can access Monthly Payment Management.\n\nYour current role: ' + (role || 'Not logged in') + '\n\nPlease contact your administrator if you need access.');
+            }
+        }).catch(error => {
+            console.error('Error checking user role:', error);
+            alert('⚠️ Unable to verify access permissions.\n\nPlease try again or contact your administrator.');
+        });
+    }
+
+    // Function to navigate to monthly analysis page
+    function openMonthlyAnalysisPage() {
+        // Check user role before navigation
+        getCurrentUser().then(currentUser => {
+            const role = currentUser ? currentUser.role : null;
+            // Check for multiple possible role formats
+            const isFinanceSecretary = role === 'Finance Secretary' || 
+                                     role === 'Finance-Secretary' || 
+                                     role === 'finance secretary' ||
+                                     role === 'FINANCE_SECRETARY';
+            
+            if (isFinanceSecretary) {
+                window.location.href = '/Monthly-Analysis.html';
+            } else {
+                alert('⛔ Access Denied\n\nOnly Finance Secretary can access Monthly Analysis.\n\nYour current role: ' + (role || 'Not logged in') + '\n\nPlease contact your administrator if you need access.');
+            }
+        }).catch(error => {
+            console.error('Error checking user role:', error);
+            alert('⚠️ Unable to verify access permissions.\n\nPlease try again or contact your administrator.');
+        });
+    }
+</script>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js?v=3"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js?v=3"></script>
+<!-- Include role-based security script -->
+<script src="/js/role-security.js?v=12"></script>
+<!-- Include header menu script for hamburger functionality -->
+<script src="/js/header-menu.js"></script>
+
+</body>
+</html>

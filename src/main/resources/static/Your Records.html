@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Records - Jeewan Avenue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f5f5f5;
+        }
+        
+        .excel-section { 
+            margin: 20px; 
+            padding: 25px; 
+            background: white; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+            border-radius: 12px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        .table-heading { 
+            text-align: center; 
+            font-size: 28px; 
+            font-weight: 600; 
+            margin-bottom: 20px; 
+            color: #1abc9c;
+        }
+        
+        .search-filter-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        #search-bar { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #e1e8ed; 
+            border-radius: 8px; 
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        
+        #search-bar:focus {
+            outline: none;
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+        
+        .filter-group label {
+            font-weight: 500;
+            color: #1abc9c;
+            white-space: nowrap;
+        }
+        
+        .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            min-width: 80px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .filter-group select:focus {
+            outline: none;
+            border-color: #1abc9c;
+        }
+        
+        .total-amount {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #1abc9c);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Amount Display Containers */
+        .amount-display-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .amount-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid;
+            background: white;
+        }
+
+        .due-amount-card {
+            border-left-color: #e74c3c;
+        }
+
+        .advance-amount-card {
+            border-left-color: #27ae60;
+        }
+
+        .amount-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .amount-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .due-amount-card .amount-value {
+            color: #e74c3c;
+        }
+
+        .advance-amount-card .amount-value {
+            color: #27ae60;
+        }
+
+        .excel-section {
+            position: relative; /* Make excel-section a positioning context */
+        }
+        
+        .table-container { 
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: white;
+            min-width: 600px; /* Ensure minimum width for horizontal scroll */
+        }
+        
+        th, td { 
+            border: 1px solid #e1e8ed; 
+            padding: 12px 16px; 
+            text-align: left; 
+            font-size: 14px;
+        }
+        
+        th { 
+            background: linear-gradient(135deg, #1abc9c); 
+            color: white; 
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            vertical-align: middle;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8fafe;
+        }
+        
+        tr:hover {
+            background-color: #ebf3fd;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .excel-section {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .table-heading {
+                font-size: 22px;
+                margin-bottom: 15px;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+                min-width: unset;
+            }
+            
+            .filter-group select {
+                width: 100%;
+            }
+            
+            .total-amount {
+                font-size: 18px;
+                padding: 12px;
+            }
+
+            .amount-display-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .amount-card {
+                min-width: unset;
+                padding: 15px;
+            }
+
+            .amount-value {
+                font-size: 20px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .excel-section {
+                margin: 5px;
+                padding: 10px;
+            }
+            
+            .table-heading {
+                font-size: 20px;
+            }
+            
+            #search-bar {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+            
+            .total-amount {
+                font-size: 16px;
+                padding: 10px;
+            }
+
+            .amount-display-container {
+                gap: 10px;
+            }
+
+            .amount-card {
+                padding: 12px;
+            }
+
+            .amount-value {
+                font-size: 18px;
+            }
+            
+            th, td {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            
+            .table-container {
+                margin-top: 15px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .excel-section {
+                margin: 3px;
+                padding: 8px;
+            }
+            
+            .table-heading {
+                font-size: 18px;
+            }
+            
+            th, td {
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+
+            .amount-card {
+                padding: 10px;
+            }
+
+            .amount-value {
+                font-size: 16px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .excel-section {
+                margin: 0;
+                padding: 10px;
+                box-shadow: none;
+            }
+            
+            .table-container {
+                overflow: visible;
+            }
+            
+            table {
+                min-width: auto;
+            }
+        }
+    </style>
+    <script src="/js/header-loader.js"></script>
+    <script src="/js/header-menu.js"></script>
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="excel-section">
+        <h2 class="table-heading">Complete Transaction History</h2>
+        
+        <div class="search-filter-container">
+            <input type="text" id="search-bar" placeholder="Search transactions by date, type, description, or amount..." onkeyup="filterTable()">
+            
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="transaction-type-filter">Type:</label>
+                    <select id="transaction-type-filter" onchange="filterTable()">
+                        <option value="">All Transactions</option>
+                        <option value="INCOME_PAYMENT">Income Payments</option>
+                        <option value="MONTHLY_PAYMENT_DUE">Monthly Dues</option>
+                        <option value="CUSTOM_DUE_ADDED">Custom Dues</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="month-filter">Month:</label>
+                    <select id="month-filter" onchange="filterTable()">
+                        <option value="">All</option>
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                        <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                        <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="year-filter">Year:</label>
+                    <select id="year-filter" onchange="filterTable()">
+                        <option value="">All</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Due Amount and Advance Amount Display -->
+        <div class="amount-display-container">
+            <div class="amount-card due-amount-card" id="due-amount-container">
+                <div class="amount-label">Due Amount</div>
+                <div class="amount-value" id="user-due-amount">PKR 0.00</div>
+            </div>
+            <div class="amount-card advance-amount-card" id="advance-amount-container">
+                <div class="amount-label">Debit Amount</div>
+                <div class="amount-value" id="user-advance-amount">PKR 0.00</div>
+            </div>
+        </div>
+
+        <div class="total-amount">
+            <span>Total Payment Amount: </span><span id="total-amount">PKR 0.00</span>
+        </div>
+        
+        <div class="table-container">
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>Sr. No</th>
+                        <th>Date</th>
+                        <th>Transaction Type</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="records-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js"></script>
+<script>
+    let myRecords = []; // Store the user's records globally
+
+    // --- DUE AMOUNT FETCHING ---
+    async function fetchUserDueAmount() {
+        try {
+            const response = await fetch('/api/dues/my-total-due');
+            if (!response.ok) {
+                // If not logged in or error, show 0 amounts
+                displayAmounts(0);
+                return;
+            }
+            const totalDue = await response.json();
+            console.log('Received totalDue value:', totalDue, 'Type:', typeof totalDue);
+            
+            displayAmounts(totalDue);
+            
+        } catch (error) {
+            console.error('Error fetching user due amount:', error);
+            // Show 0 amounts on error
+            displayAmounts(0);
+        }
+    }
+
+    function displayAmounts(totalDue) {
+        const dueAmountElement = document.getElementById('user-due-amount');
+        const advanceAmountElement = document.getElementById('user-advance-amount');
+        const dueContainer = document.getElementById('due-amount-container');
+        const advanceContainer = document.getElementById('advance-amount-container');
+        
+        let dueAmount = 0;
+        let debitAmount = 0;
+        
+        if (totalDue > 0) {
+            // User has due amount (positive balance)
+            dueAmount = totalDue;
+            debitAmount = 0;
+        } else if (totalDue < 0) {
+            // User has debit amount (negative balance means they have paid extra)
+            dueAmount = 0;
+            debitAmount = Math.abs(totalDue);
+        } else {
+            // Zero balance
+            dueAmount = 0;
+            debitAmount = 0;
+        }
+        
+        // Format amounts with proper currency formatting
+        const formattedDue = `PKR ${dueAmount.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const formattedDebit = `PKR ${debitAmount.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        
+        // Update display
+        dueAmountElement.textContent = formattedDue;
+        advanceAmountElement.textContent = formattedDebit;
+        
+        // Show both containers
+        dueContainer.style.display = 'block';
+        advanceContainer.style.display = 'block';
+        
+        console.log('Displaying - Due Amount:', formattedDue, 'Debit Amount:', formattedDebit);
+    }
+
+    // --- DATA FETCHING AND RENDERING ---
+    async function fetchMyRecords() {
+        try {
+            const response = await fetch('/api/account-transactions/my-transactions');
+            if (!response.ok) {
+                // If not logged in, server returns 401/403, redirect to login
+                window.location.href = '/Login Page.html';
+                return;
+            }
+            const transactionData = await response.json();
+            myRecords = transactionData.transactions || [];
+            populateYearFilter();
+            filterTable(); // Initial display of all records
+            
+            // Update account status info if available
+            if (transactionData.totalTransactions !== undefined) {
+                console.log(`Loaded ${transactionData.totalTransactions} complete transaction records`);
+            }
+        } catch (error) {
+            console.error('Error fetching your transaction records:', error);
+            alert('Could not load your transaction records. Please log in.');
+        }
+    }
+
+    function renderTable(records) {
+        const tableBody = document.getElementById('records-table-body');
+        tableBody.innerHTML = '';
+        let totalAmount = 0;
+
+        if (records.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 20px; color: #7f8c8d; font-style: italic;">
+                        No transaction records found matching your criteria.
+                    </td>
+                </tr>
+            `;
+            document.getElementById('total-amount').textContent = 'PKR 0.00';
+            return;
+        }
+
+        records.forEach((record, index) => {
+            // Format amount with proper currency formatting
+            const formattedAmount = `PKR ${Math.abs(record.amount).toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            
+            // Format date for better readability  
+            const formattedDate = new Date(record.transactionDate).toLocaleDateString('en-PK', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit'
+            });
+
+            // Get user-friendly transaction type
+            const transactionType = getTransactionTypeDisplay(record.transactionType, record.description);
+            
+            // Get transaction status and styling
+            const statusInfo = getTransactionStatus(record.transactionType, record.amount);
+            
+            // Color-code amounts based on transaction type
+            const amountStyle = getAmountStyle(record.transactionType, record.amount);
+
+            const row = `
+                <tr>
+                    <td style="font-weight: 600;">${index + 1}</td>
+                    <td>${formattedDate}</td>
+                    <td><span style="background: ${transactionType.color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">${transactionType.display}</span></td>
+                    <td style="max-width: 250px; word-wrap: break-word;">${record.description}</td>
+                    <td style="font-weight: 600; color: ${amountStyle.color};">${amountStyle.prefix}${formattedAmount}</td>
+                    <td><span style="background: ${statusInfo.color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">${statusInfo.text}</span></td>
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+            
+            // Calculate filtered total based on current filter
+            totalAmount += calculateFilteredAmount(record);
+        });
+
+        // Format total amount with proper currency formatting and show filter context
+        const filterContext = getFilteredTotalContext();
+        const formattedTotal = `PKR ${totalAmount.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        document.getElementById('total-amount').innerHTML = `<span>Total ${filterContext}: </span><span>${formattedTotal}</span>`;
+    }
+
+    // Helper function to get user-friendly transaction type display
+    function getTransactionTypeDisplay(transactionType, description = '') {
+        const types = {
+            'MONTHLY_PAYMENT_DUE': { display: 'Monthly Due', color: '#e74c3c' },
+            'CUSTOM_DUE_ADDED': { display: 'Custom Due', color: '#e67e22' },
+            'CUSTOM_DUE_PAID': { display: 'Due Payment', color: '#27ae60' },
+            'INCOME_PAYMENT': { display: 'Payment Received', color: '#3498db' },
+            'INCOME_PAYMENT_EDIT': { display: 'Payment Edited', color: '#9b59b6' },
+            'INCOME_PAYMENT_DELETED': { display: 'Payment Deleted', color: '#95a5a6' }
+        };
+        
+        // For income payments, check if it's charity or monthly fees
+        if (transactionType === 'INCOME_PAYMENT' || transactionType === 'INCOME_PAYMENT_EDIT' || transactionType === 'INCOME_PAYMENT_DELETED') {
+            const lowerDesc = description.toLowerCase();
+            if (lowerDesc.includes('charity') || lowerDesc.includes('donation') || lowerDesc.includes('zakat')) {
+                return { display: 'Charity Donation', color: '#e91e63' };
+            } else if (lowerDesc.includes('monthly') || lowerDesc.includes('membership') || lowerDesc.includes('fee')) {
+                return { display: 'Monthly Fee Payment', color: '#00bcd4' };
+            }
+        }
+        
+        return types[transactionType] || { display: transactionType, color: '#7f8c8d' };
+    }
+
+    // Helper function to get transaction status
+    function getTransactionStatus(transactionType, amount) {
+        if (transactionType === 'MONTHLY_PAYMENT_DUE' || transactionType === 'CUSTOM_DUE_ADDED') {
+            return { text: 'Outstanding', color: '#e74c3c' };
+        } else if (transactionType === 'CUSTOM_DUE_PAID') {
+            return { text: 'Paid', color: '#27ae60' };
+        } else if (transactionType === 'INCOME_PAYMENT') {
+            return { text: 'Received', color: '#3498db' };
+        } else if (transactionType === 'INCOME_PAYMENT_EDIT') {
+            return { text: 'Modified', color: '#9b59b6' };
+        } else if (transactionType === 'INCOME_PAYMENT_DELETED') {
+            return { text: 'Cancelled', color: '#95a5a6' };
+        }
+        return { text: 'Processed', color: '#7f8c8d' };
+    }
+
+    // Helper function to get amount styling
+    function getAmountStyle(transactionType, amount) {
+        if (transactionType === 'MONTHLY_PAYMENT_DUE' || transactionType === 'CUSTOM_DUE_ADDED') {
+            return { color: '#e74c3c', prefix: '+' }; // Due amounts are positive (what user owes)
+        } else if (transactionType === 'CUSTOM_DUE_PAID' || transactionType === 'INCOME_PAYMENT') {
+            return { color: '#27ae60', prefix: '-' }; // Payments reduce the due amount
+        } else if (transactionType === 'INCOME_PAYMENT_DELETED') {
+            return { color: '#e74c3c', prefix: '+' }; // Deleted payments increase due again
+        }
+        return { color: '#3498db', prefix: '' }; // Default styling
+    }
+
+    // Helper function to check if transaction is income-related
+    function isIncomeTransaction(transactionType) {
+        return transactionType === 'INCOME_PAYMENT';
+    }
+
+    // Helper function to calculate filtered amounts based on current filter
+    function calculateFilteredAmount(record) {
+        const transactionTypeFilter = document.getElementById('transaction-type-filter').value;
+        
+        // Default behavior: show income amounts only
+        if (!transactionTypeFilter || transactionTypeFilter === 'INCOME_PAYMENT') {
+            if (isIncomeTransaction(record.transactionType)) {
+                return Math.abs(record.amount);
+            }
+        } else if (transactionTypeFilter === 'CHARITY') {
+            const lowerDesc = record.description.toLowerCase();
+            if (isIncomeTransaction(record.transactionType) && 
+                (lowerDesc.includes('charity') || lowerDesc.includes('donation') || lowerDesc.includes('zakat'))) {
+                return Math.abs(record.amount);
+            }
+        } else if (transactionTypeFilter === 'MONTHLY_FEES') {
+            const lowerDesc = record.description.toLowerCase();
+            if (isIncomeTransaction(record.transactionType) && 
+                (lowerDesc.includes('monthly') || lowerDesc.includes('membership') || lowerDesc.includes('fee'))) {
+                return Math.abs(record.amount);
+            }
+        } else if (transactionTypeFilter === 'MONTHLY_PAYMENT_DUE' || transactionTypeFilter === 'CUSTOM_DUE_ADDED') {
+            // For dues, show positive amounts (what user owes)
+            if (record.transactionType === transactionTypeFilter) {
+                return Math.abs(record.amount);
+            }
+        } else if (transactionTypeFilter === 'CUSTOM_DUE_PAID') {
+            // For payments made, show positive amounts
+            if (record.transactionType === transactionTypeFilter) {
+                return Math.abs(record.amount);
+            }
+        }
+        
+        return 0; // Don't include in total if doesn't match filter
+    }
+
+    // Helper function to get context for filtered total display
+    function getFilteredTotalContext() {
+        const transactionTypeFilter = document.getElementById('transaction-type-filter').value;
+        
+        const contexts = {
+            '': 'Income Amount',
+            'INCOME_PAYMENT': 'Income Amount',
+            'CHARITY': 'Charity Donations',
+            'MONTHLY_FEES': 'Monthly Fees',
+            'MONTHLY_PAYMENT_DUE': 'Monthly Dues',
+            'CUSTOM_DUE_ADDED': 'Custom Dues',
+            'CUSTOM_DUE_PAID': 'Due Payments'
+        };
+        
+        return contexts[transactionTypeFilter] || 'Transaction Amount';
+    }
+
+    // --- FILTERING LOGIC ---
+    function filterTable() {
+        const searchInput = document.getElementById('search-bar').value.toLowerCase();
+        const transactionTypeFilter = document.getElementById('transaction-type-filter').value;
+        const monthFilter = document.getElementById('month-filter').value;
+        const yearFilter = document.getElementById('year-filter').value;
+
+        const filteredRecords = myRecords.filter(record => {
+            const recordDate = new Date(record.transactionDate);
+            
+            // Enhanced search that includes transaction type and description
+            const transactionTypeDisplay = getTransactionTypeDisplay(record.transactionType, record.description);
+            const searchableFields = [
+                record.description,
+                record.transactionType,
+                transactionTypeDisplay.display,
+                record.amount.toString(),
+                recordDate.toLocaleDateString()
+            ];
+            const matchesSearch = searchableFields.some(field => 
+                String(field).toLowerCase().includes(searchInput)
+            );
+            
+            // Transaction type filter logic
+            let matchesTransactionType = true;
+            if (transactionTypeFilter) {
+                if (transactionTypeFilter === 'CHARITY') {
+                    const lowerDesc = record.description.toLowerCase();
+                    matchesTransactionType = (record.transactionType === 'INCOME_PAYMENT' || 
+                                           record.transactionType === 'INCOME_PAYMENT_EDIT' || 
+                                           record.transactionType === 'INCOME_PAYMENT_DELETED') &&
+                                          (lowerDesc.includes('charity') || lowerDesc.includes('donation') || lowerDesc.includes('zakat'));
+                } else if (transactionTypeFilter === 'MONTHLY_FEES') {
+                    const lowerDesc = record.description.toLowerCase();
+                    matchesTransactionType = (record.transactionType === 'INCOME_PAYMENT' || 
+                                           record.transactionType === 'INCOME_PAYMENT_EDIT' || 
+                                           record.transactionType === 'INCOME_PAYMENT_DELETED') &&
+                                          (lowerDesc.includes('monthly') || lowerDesc.includes('membership') || lowerDesc.includes('fee'));
+                } else {
+                    matchesTransactionType = record.transactionType === transactionTypeFilter;
+                }
+            }
+            
+            const matchesMonth = !monthFilter || recordDate.getMonth() + 1 == monthFilter;
+            const matchesYear = !yearFilter || recordDate.getFullYear() == yearFilter;
+            
+            return matchesSearch && matchesTransactionType && matchesMonth && matchesYear;
+        });
+
+        renderTable(filteredRecords);
+    }
+
+    function populateYearFilter() {
+        const yearFilter = document.getElementById('year-filter');
+        // Clear existing options except the first "All" option
+        yearFilter.innerHTML = '<option value="">All</option>';
+        
+        const years = [...new Set(myRecords.map(record => new Date(record.transactionDate).getFullYear()))];
+        years.sort((a, b) => b - a); // Sort years in descending order
+        years.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearFilter.appendChild(option);
+        });
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+                // Initialize hamburger menu
+                if (typeof initializeHamburgerMenu === 'function') {
+                    initializeHamburgerMenu();
+                }
+            });
+        fetchMyRecords();
+        fetchUserDueAmount();
+    });
+</script>
+
+</body>
+</html>

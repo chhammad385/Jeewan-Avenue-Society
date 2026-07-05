@@ -1,0 +1,2496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Payment Management - Jeewan Avenue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 2vw;
+            border-radius: 15px;
+            margin: 2vw auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            overflow-x: auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .payment-form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* User search input styling */
+        #customDueUserSearch {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            color: #495057;
+            font-style: italic;
+        }
+
+        #customDueUserSearch:focus {
+            background: white;
+            border-color: #80bdff;
+            font-style: normal;
+        }
+
+        .calculated-field {
+            background: #e8f4fd;
+            border: 1px solid #3498db;
+            color: #2980b9;
+            font-weight: 600;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .total-due-section {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .total-due-amount {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .filter-section {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .users-section {
+            margin-top: 30px;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .users-table th {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .users-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .users-table tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .users-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .debit-amount {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .due-amount {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #aaa;
+            font-weight: bold;
+        }
+
+        .close:hover {
+            color: #e74c3c;
+        }
+
+        .success-msg, .error-msg, .warning-msg, .info-msg {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        .success-msg {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .warning-msg {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .info-msg {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #b8daff;
+        }
+
+        .info-panel {
+            background: #e8f4fd;
+            border: 1px solid #3498db;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .info-panel h4 {
+            color: #2980b9;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+
+        .info-panel p {
+            margin: 8px 0;
+            color: #34495e;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1vw;
+                padding: 15px;
+            }
+
+            .form-grid, .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .users-table {
+                font-size: 12px;
+            }
+
+            .users-table th, .users-table td {
+                padding: 8px 6px;
+            }
+        }
+
+        /* Transaction History Styles */
+        .transaction-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .transaction-type {
+            font-weight: 600;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .transaction-amount.positive {
+            color: #dc3545;
+        }
+
+        .transaction-amount.negative {
+            color: #28a745;
+        }
+
+        .transaction-description {
+            color: #6c757d;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .transaction-date {
+            color: #8c9194;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div id="president_console"></div>
+
+    <div class="container">
+        <h2>📊 Monthly Payment Management</h2>
+
+        <!-- Information Panel -->
+        <div class="info-panel">
+            <h4>💡 Monthly Payment System Overview</h4>
+            <p>
+                <strong>🏠 Rate per Marla:</strong> Set the rate that will be multiplied by each user's plot size<br>
+                <strong>🏗️ Built Status Filter:</strong> Select specific built status (Built/Under Construction/Not Built) to target payment to specific property types<br>
+                <strong>📅 Payment Schedule:</strong> Choose month/year and set issue date with grace period<br>
+                <strong>⚡ Selective Processing:</strong> System applies payment only to users with the selected built status<br>
+                <strong>� Multiple Rates:</strong> You can set different rates for each built status group separately
+            </p>
+        </div>
+
+        <!-- Rate Calculator Preview Panel -->
+        <div class="info-panel" style="background: #f0f8ff; border-color: #3498db;">
+            <h4 style="color: #2980b9;">🧮 Rate Calculator & Plot Analysis</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 15px;">
+                <!-- Completed Properties -->
+                <div class="built-status-card" data-status="Completed" style="background: #e8f5e8; border: 2px solid #27ae60; border-radius: 10px; padding: 15px;">
+                    <h5 style="margin: 0 0 10px 0; color: #27ae60; font-size: 16px;">🏡 Completed Properties</h5>
+                    <div class="status-details">
+                        <div>📊 <strong>Total Plots:</strong> <span class="plot-count">-</span></div>
+                        <div>📐 <strong>Total Plot Size:</strong> <span class="total-size">-</span> marla</div>
+                        <div style="margin: 8px 0;">
+                            <label style="display: block; margin-bottom: 5px; color: #27ae60; font-weight: bold;">💵 Rate (PKR/marla):</label>
+                            <input type="number" class="rate-input" data-status="Completed" 
+                                   style="width: 100%; padding: 6px; border: 2px solid #27ae60; border-radius: 5px; font-size: 14px;"
+                                   placeholder="Enter rate..." min="0" step="100">
+                        </div>
+                        <div style="background: #d4edda; padding: 8px; border-radius: 5px; margin-top: 8px;">
+                            💰 <strong>Potential Amount:</strong> PKR <span class="potential-amount">0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Under-Construction Properties -->
+                <div class="built-status-card" data-status="Under-Construction" style="background: #fff8e1; border: 2px solid #f39c12; border-radius: 10px; padding: 15px;">
+                    <h5 style="margin: 0 0 10px 0; color: #f39c12; font-size: 16px;">🚧 Under-Construction</h5>
+                    <div class="status-details">
+                        <div>📊 <strong>Total Plots:</strong> <span class="plot-count">-</span></div>
+                        <div>📐 <strong>Total Plot Size:</strong> <span class="total-size">-</span> marla</div>
+                        <div style="margin: 8px 0;">
+                            <label style="display: block; margin-bottom: 5px; color: #f39c12; font-weight: bold;">💵 Rate (PKR/marla):</label>
+                            <input type="number" class="rate-input" data-status="Under-Construction" 
+                                   style="width: 100%; padding: 6px; border: 2px solid #f39c12; border-radius: 5px; font-size: 14px;"
+                                   placeholder="Enter rate..." min="0" step="100">
+                        </div>
+                        <div style="background: #ffeaa7; padding: 8px; border-radius: 5px; margin-top: 8px;">
+                            💰 <strong>Potential Amount:</strong> PKR <span class="potential-amount">0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vacant Properties -->
+                <div class="built-status-card" data-status="Vacant" style="background: #ffeaea; border: 2px solid #e74c3c; border-radius: 10px; padding: 15px;">
+                    <h5 style="margin: 0 0 10px 0; color: #e74c3c; font-size: 16px;">🏞️ Vacant Plots</h5>
+                    <div class="status-details">
+                        <div>📊 <strong>Total Plots:</strong> <span class="plot-count">-</span></div>
+                        <div>📐 <strong>Total Plot Size:</strong> <span class="total-size">-</span> marla</div>
+                        <div style="margin: 8px 0;">
+                            <label style="display: block; margin-bottom: 5px; color: #e74c3c; font-weight: bold;">💵 Rate (PKR/marla):</label>
+                            <input type="number" class="rate-input" data-status="Vacant" 
+                                   style="width: 100%; padding: 6px; border: 2px solid #e74c3c; border-radius: 5px; font-size: 14px;"
+                                   placeholder="Enter rate..." min="0" step="100">
+                        </div>
+                        <div style="background: #f8d7da; padding: 8px; border-radius: 5px; margin-top: 8px;">
+                            💰 <strong>Potential Amount:</strong> PKR <span class="potential-amount">0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Residential Properties -->
+                <div class="built-status-card" data-status="Residential" style="background: #e3f2fd; border: 2px solid #3498db; border-radius: 10px; padding: 15px;">
+                    <h5 style="margin: 0 0 10px 0; color: #3498db; font-size: 16px;">🏘️ Residential</h5>
+                    <div class="status-details">
+                        <div>📊 <strong>Total Plots:</strong> <span class="plot-count">-</span></div>
+                        <div>📐 <strong>Total Plot Size:</strong> <span class="total-size">-</span> marla</div>
+                        <div style="margin: 8px 0;">
+                            <label style="display: block; margin-bottom: 5px; color: #3498db; font-weight: bold;">💵 Rate (PKR/marla):</label>
+                            <input type="number" class="rate-input" data-status="Residential" 
+                                   style="width: 100%; padding: 6px; border: 2px solid #3498db; border-radius: 5px; font-size: 14px;"
+                                   placeholder="Enter rate..." min="0" step="100">
+                        </div>
+                        <div style="background: #bbdefb; padding: 8px; border-radius: 5px; margin-top: 8px;">
+                            💰 <strong>Potential Amount:</strong> PKR <span class="potential-amount">0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Grand Total Section -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-top: 20px; text-align: center;">
+                <h4 style="margin: 0 0 10px 0; font-size: 20px;">🎯 Grand Total Calculation</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                    <div>
+                        <strong>Total Properties:</strong>
+                        <div style="font-size: 24px; font-weight: 700;" id="grandTotalPlots">-</div>
+                    </div>
+                    <div>
+                        <strong>Total Plot Size:</strong>
+                        <div style="font-size: 24px; font-weight: 700;" id="grandTotalSize">- marla</div>
+                    </div>
+                    <div>
+                        <strong>Total Potential Revenue:</strong>
+                        <div style="font-size: 28px; font-weight: 700;" id="grandTotalAmount">PKR 0.00</div>
+                    </div>
+                </div>
+                <button onclick="refreshPlotAnalysis()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px;">
+                    🔄 Refresh Analysis
+                </button>
+            </div>
+        </div>
+
+
+
+        <!-- Important Information -->
+        <div class="info-panel" style="background: #fff3cd; border-color: #ffc107;">
+            <h4 style="color: #856404;">⚠️ Built Status Targeted Payments</h4>
+            <p style="color: #856404; margin: 0;">
+                <strong>🏗️ NEW FEATURE: Built Status Filtering</strong><br>
+                You can now set different payment rates for different property development stages:<br>
+                • <strong>Completed:</strong> Fully constructed and finished properties<br>
+                • <strong>Under-Construction:</strong> Properties currently being built<br>
+                • <strong>Vacant:</strong> Empty undeveloped plots<br>
+                • <strong>Residential:</strong> Properties designated for residential use<br><br>
+                <strong>Example Usage:</strong><br>
+                1. Set PKR 1000/marla for "Completed" properties<br>
+                2. Set PKR 500/marla for "Under-Construction" properties<br>
+                3. Set PKR 200/marla for "Vacant" plots<br>
+                4. Set PKR 800/marla for "Residential" properties<br><br>
+                <strong>Note:</strong> Payments are only applied to users matching the selected built status AND having valid plot sizes.
+            </p>
+            <button id="debugUsersBtn" style="margin-top: 10px; padding: 8px 16px; background: #ffc107; border: none; border-radius: 5px; cursor: pointer;">
+                🔍 Check User Plot Sizes
+            </button>
+        </div>
+
+        <!-- Finance Secretary Details Form -->
+        <div class="payment-form-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h3 style="color: white; margin-bottom: 20px;">👤 Finance Secretary Details (For Bill Messages)</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="fsName" style="color: white;">Finance Secretary Name</label>
+                    <input type="text" id="fsName" name="fsName" value="Muhammad Raza" placeholder="Enter name" style="background: white; color: #2c3e50;">
+                </div>
+                <div class="form-group">
+                    <label for="fsPlotNo" style="color: white;">Plot/House Number</label>
+                    <input type="text" id="fsPlotNo" name="fsPlotNo" value="H-248" placeholder="e.g., H-248" style="background: white; color: #2c3e50;">
+                </div>
+                <div class="form-group">
+                    <label for="fsPhone" style="color: white;">Phone Number</label>
+                    <input type="tel" id="fsPhone" name="fsPhone" value="03006913494" placeholder="e.g., 03001234567" style="background: white; color: #2c3e50;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Set Monthly Payment Form -->
+        <div class="payment-form-section">
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">🔧 Set Monthly Payment</h3>
+            <form id="monthlyPaymentForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="ratePerMarla">Rate per Marla (PKR)</label>
+                        <input type="number" id="ratePerMarla" name="ratePerMarla" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="propertyType">Property Type</label>
+                        <select id="propertyType" name="propertyType" required>
+                            <option value="">Select Property Type</option>
+                            <option value="House">House</option>
+                            <option value="Shop">Shop</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="builtStatus">Built Status</label>
+                        <select id="builtStatus" name="builtStatus" required>
+                            <option value="">Select Built Status</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Under-Construction">Under-Construction</option>
+                            <option value="Vacant">Vacant</option>
+                            <option value="Residential">Residential</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="month">Month</label>
+                        <select id="month" name="month" required>
+                            <option value="">Select Month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Year</label>
+                        <select id="year" name="year" required>
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="issueDate">Issue Date</label>
+                        <input type="date" id="issueDate" name="issueDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gapDays">Gap Days (Grace Period)</label>
+                        <input type="number" id="gapDays" name="gapDays" min="1" value="30" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastDate">Last Date (Auto-calculated)</label>
+                        <input type="text" id="lastDate" name="lastDate" class="calculated-field" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="lateCharges">Late Charges (PKR)</label>
+                        <input type="number" id="lateCharges" name="lateCharges" step="0.01" min="0" value="100" required>
+                    </div>
+                </div>
+
+                <!-- User Selection Section -->
+                <div id="userSelectionSection" style="display: none; margin-top: 25px; padding: 20px; background: #f8f9fa; border-radius: 12px; border: 1px solid #dee2e6;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4 style="color: #2c3e50; margin: 0;">👥 Select Users for Payment</h4>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: #3498db;">
+                                <input type="checkbox" id="selectAllUsers" style="width: 18px; height: 18px; cursor: pointer;">
+                                <span>Select All (<span id="totalUsersCount">0</span> users)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="userCheckboxList" style="max-height: 300px; overflow-y: auto; background: white; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
+                        <p style="color: #6c757d; text-align: center; margin: 20px 0;">Select Property Type and Built Status to see users</p>
+                    </div>
+                    <div id="selectedUsersInfo" style="margin-top: 15px; padding: 12px; background: #e8f4fd; border-radius: 8px; border: 1px solid #3498db;">
+                        <span style="font-weight: 600; color: #2980b9;">Selected: <span id="selectedUsersCount">0</span> user(s)</span>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 25px;">
+                    <button type="submit" class="btn" id="setPaymentBtn">
+                        💾 Set Monthly Payment & Send WhatsApp Messages
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- WhatsApp Sending Progress Modal -->
+        <div id="whatsappModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;">
+            <div style="background: white; padding: 30px; border-radius: 15px; max-width: 600px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                <h3 style="color: #2c3e50; margin-bottom: 20px; text-align: center;">📱 Sending WhatsApp Messages</h3>
+                
+                <div id="currentUserInfo" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 style="color: #3498db; margin-bottom: 10px;">Current User:</h4>
+                    <p style="margin: 5px 0;"><strong>Name:</strong> <span id="modalUserName"></span></p>
+                    <p style="margin: 5px 0;"><strong>Plot/Shop:</strong> <span id="modalPlotNo"></span></p>
+                    <p style="margin: 5px 0;"><strong>Phone:</strong> <span id="modalPhone"></span></p>
+                    <p style="margin: 5px 0;"><strong>Amount:</strong> PKR <span id="modalAmount"></span></p>
+                </div>
+
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="margin: 0; color: #2e7d32; font-weight: 600;">📊 Progress: <span id="progressText">1 of 5</span></p>
+                </div>
+
+                <div style="text-align: center;">
+                    <p style="color: #7f8c8d; margin-bottom: 20px;">WhatsApp will open automatically. After sending the message, click Next User to continue.</p>
+                    <button id="nextUserBtn" class="btn" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); margin-right: 10px;">
+                        ➡️ Next User
+                    </button>
+                    <button id="skipUserBtn" class="btn" style="background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);">
+                        ⏭️ Skip User
+                    </button>
+                    <button id="cancelSendingBtn" class="btn" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); margin-top: 10px;">
+                        ❌ Cancel Remaining
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Due Management Form -->
+        <div class="payment-form-section">
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">➕ Add Custom Due</h3>
+            <form id="customDueForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="customDueUserId">Select User</label>
+                        <div style="position: relative;">
+                            <input type="text" id="customDueUserSearch" placeholder="Search by name or plot number..." 
+                                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 5px;">
+                            <select id="customDueUserId" name="customDueUserId" required 
+                                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                <option value="">Select User</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="customDueAmount">Amount (PKR)</label>
+                        <input type="number" id="customDueAmount" name="customDueAmount" step="0.01" min="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customDueReason">Reason</label>
+                        <input type="text" id="customDueReason" name="customDueReason" placeholder="e.g., Late payment fine" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customDueCategory">Category</label>
+                        <select id="customDueCategory" name="customDueCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="FINE">Fine</option>
+                            <option value="PENALTY">Penalty</option>
+                            <option value="SPECIAL_ASSESSMENT">Special Assessment</option>
+                            <option value="MAINTENANCE">Maintenance</option>
+                            <option value="UTILITY">Utility</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="customDueDueDate">Due Date (Optional)</label>
+                        <input type="datetime-local" id="customDueDueDate" name="customDueDueDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="customDueNotes">Notes (Optional)</label>
+                        <input type="text" id="customDueNotes" name="customDueNotes" placeholder="Additional information">
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 25px;">
+                    <button type="submit" class="btn" id="addCustomDueBtn">
+                        ➕ Add Custom Due
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Total Due Amount Display -->
+        <div class="total-due-section">
+            <h3 id="totalAmountTitle" style="margin: 0 0 10px 0;">💰 Total Due Amount</h3>
+            <div class="total-due-amount" id="totalDueDisplay">PKR 0.00</div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                <span id="totalUsersCount">0 users</span> • 
+                <span>Average: PKR <span id="averageDue">0.00</span></span>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h4 style="color: #2c3e50; margin: 0 0 15px 0;">🔍 Filter User Accounts</h4>
+            <div class="filter-grid">
+                <div class="form-group">
+                    <label for="searchUser">Search User</label>
+                    <input type="text" id="searchUser" placeholder="Search by name or plot number...">
+                </div>
+                <div class="form-group">
+                    <label for="filterBuiltStatus">Filter by Built Status</label>
+                    <select id="filterBuiltStatus">
+                        <option value="all">All Built Status</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Under-Construction">Under-Construction</option>
+                        <option value="Vacant">Vacant</option>
+                        <option value="Residential">Residential</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filterDebitBalance">Filter by Debit Balance</label>
+                    <select id="filterDebitBalance">
+                        <option value="all">All Users</option>
+                        <option value="positive">Users with Debit Balance</option>
+                        <option value="zero">Users with Zero Debit</option>
+                        <option value="negative">Users with Negative Balance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filterDueAmount">Filter by Due Amount</label>
+                    <select id="filterDueAmount">
+                        <option value="all">All Amounts</option>
+                        <option value="positive">Users with Dues</option>
+                        <option value="zero">Users with No Dues</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button class="btn" onclick="applyFilters()">🔄 Apply Filters</button>
+                </div>
+                <div class="form-group">
+                    <button class="btn" onclick="downloadPDF()" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">📄 Download PDF</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Accounts Section -->
+        <div class="users-section">
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">👥 User Accounts</h3>
+            <table class="users-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Plot No</th>
+                        <th>Property Type</th>
+                        <th>Size/Shops</th>
+                        <th>Built Status</th>
+                        <th>Debit Balance</th>
+                        <th>Total Due</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- User data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="userDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUserDetailsModal()">&times;</span>
+            <div id="userDetailsContent">
+                <!-- User details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Include common scripts -->
+    <script src="/js/common.js"></script>
+    <script src="/js/header-loader.js"></script>
+    <script src="/js/role-permissions.js"></script>
+    <script>
+        let allUsers = [];
+        let filteredUsers = [];
+        let monthlyPayments = []; // Store monthly payments data
+        let plotAnalysisData = {}; // Store plot analysis by built status
+        let rateHistory = {}; // Store rate history for each built status
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Page loading started...');
+            
+            // Check user access before initializing
+            checkUserAccess().then(hasAccess => {
+                if (!hasAccess) {
+                    // Redirect back to financial console with error message
+                    alert('⛔ Access Denied\n\nOnly Finance Secretary can access Monthly Payment Management.\n\nRedirecting to Financial Console...');
+                    window.location.href = '/Financials-President%20Console.html';
+                    return;
+                }
+                
+                // User has access, initialize the page
+                console.log('✓ User has access to Monthly Payment Management');
+                console.log('📋 Initializing page components...');
+                
+                initializePage();
+                
+                // Load user data with improved error handling
+                console.log('📥 Starting to load users data...');
+                loadUsersData().then(success => {
+                    if (success) {
+                        console.log('✅ Users data loaded successfully');
+                    } else {
+                        console.warn('⚠️ No users data loaded - check API endpoints');
+                        showMessage('Unable to load user data. Please refresh the page.', 'warning');
+                    }
+                }).catch(err => {
+                    console.error('❌ Error in loadUsersData:', err);
+                    showMessage('Error loading user data: ' + err.message, 'error');
+                });
+                
+                loadTotalDueAmount();
+                
+                // Set up form event listeners
+                console.log('🎯 Setting up form event listeners...');
+                setupFormEventListeners();
+                
+                // Load plot analysis
+                console.log('📊 Loading plot analysis...');
+                loadPlotAnalysis();
+                
+                console.log('✅ Page initialization complete');
+            }).catch(error => {
+                console.error('❌ Error checking user access:', error);
+                alert('⚠️ Unable to verify access permissions.\n\nRedirecting to Financial Console...');
+                window.location.href = '/Financials-President%20Console.html';
+            });
+        });
+
+        // Function to check if user has access to this page
+        async function checkUserAccess() {
+            try {
+                const response = await fetch('/api/auth/current-user');
+                if (response.ok) {
+                    const userInfo = await response.json();
+                    const role = userInfo.role;
+                    // Check for multiple possible role formats
+                    return role === 'Finance Secretary' || 
+                           role === 'Finance-Secretary' || 
+                           role === 'finance secretary' ||
+                           role === 'FINANCE_SECRETARY';
+                } else {
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error checking user access:', error);
+                return false;
+            }
+        }
+
+        function initializePage() {
+            // Populate year dropdown
+            const yearSelect = document.getElementById('year');
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear; year <= currentYear + 5; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+
+            // Set default values
+            document.getElementById('month').value = new Date().getMonth() + 1;
+            document.getElementById('year').value = currentYear;
+            document.getElementById('issueDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        function setupFormEventListeners() {
+            // Calculate last date when issue date or gap days change
+            document.getElementById('issueDate').addEventListener('change', calculateLastDate);
+            document.getElementById('gapDays').addEventListener('input', calculateLastDate);
+
+            // Property Type and Built Status change listeners to load users
+            document.getElementById('propertyType').addEventListener('change', loadFilteredUsers);
+            document.getElementById('builtStatus').addEventListener('change', loadFilteredUsers);
+
+            // Select All checkbox listener
+            document.getElementById('selectAllUsers').addEventListener('change', function() {
+                const isChecked = this.checked;
+                const checkboxes = document.querySelectorAll('.user-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                updateSelectedUsersCount();
+            });
+
+            // Monthly payment form submission
+            document.getElementById('monthlyPaymentForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await submitMonthlyPayment();
+            });
+
+            // Custom due form submission
+            document.getElementById('customDueForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await submitCustomDue();
+            });
+
+            // Filter event listeners
+            document.getElementById('searchUser').addEventListener('input', debounce(applyClientSideFilters, 300));
+            document.getElementById('filterBuiltStatus').addEventListener('change', applyFilters);
+            document.getElementById('filterDebitBalance').addEventListener('change', applyClientSideFilters);
+            document.getElementById('filterDueAmount').addEventListener('change', applyClientSideFilters);
+            document.getElementById('filterDueAmount').addEventListener('change', applyFilters);
+
+            // Load users for custom due form
+            loadUsersForCustomDue();
+            
+            // Load monthly payments for month filter
+            loadMonthlyPaymentsForFilter();
+            
+            // Update rate when user changes rate input
+            document.getElementById('ratePerMarla').addEventListener('input', updateRatePreview);
+            document.getElementById('builtStatus').addEventListener('change', updateRatePreview);
+            
+            // Add event listeners for rate calculator inputs
+            document.querySelectorAll('.rate-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const status = this.getAttribute('data-status');
+                    const rate = parseFloat(this.value) || 0;
+                    updatePlotCalculation(status, rate);
+                    updateGrandTotal();
+                });
+            });
+        }
+
+        // Load filtered users based on property type and built status
+        async function loadFilteredUsers() {
+            const propertyType = document.getElementById('propertyType').value;
+            const builtStatus = document.getElementById('builtStatus').value;
+            const userSelectionSection = document.getElementById('userSelectionSection');
+            const userCheckboxList = document.getElementById('userCheckboxList');
+
+            // Hide section if either field is not selected
+            if (!propertyType || !builtStatus) {
+                userSelectionSection.style.display = 'none';
+                return;
+            }
+
+            // Show section and load users
+            userSelectionSection.style.display = 'block';
+            userCheckboxList.innerHTML = '<p style=\"color: #6c757d; text-align: center; margin: 20px 0;\"><i class=\"fas fa-spinner fa-spin\"></i> Loading users...</p>';
+
+            try {
+                const response = await fetch('/api/users/all');
+                if (!response.ok) throw new Error('Failed to load users');
+                
+                const users = await response.json();
+                
+                // Filter users by property type and built status
+                const filteredUsers = users.filter(user => {
+                    const matchesPropertyType = user.propertyType === propertyType;
+                    const matchesBuiltStatus = user.builtStatus === builtStatus;
+                    const hasPlotSize = user.plotSizeMarla && user.plotSizeMarla.trim() !== '';
+                    return matchesPropertyType && matchesBuiltStatus && hasPlotSize;
+                });
+
+                if (filteredUsers.length === 0) {
+                    userCheckboxList.innerHTML = '<p style=\"color: #e74c3c; text-align: center; margin: 20px 0;\">⚠️ No users found with Property Type: <strong>' + propertyType + '</strong> and Built Status: <strong>' + builtStatus + '</strong></p>';
+                    document.getElementById('totalUsersCount').textContent = '0';
+                    document.getElementById('selectAllUsers').checked = false;
+                    updateSelectedUsersCount();
+                    return;
+                }
+
+                // Display users as checkboxes
+                let html = '<div style=\"display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;\">';
+                filteredUsers.forEach(user => {
+                    html += `
+                        <label style=\"display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;\" onmouseover=\"this.style.background='#e3f2fd'\" onmouseout=\"this.style.background='#f8f9fa'\">
+                            <input type=\"checkbox\" class=\"user-checkbox\" value=\"${user.id}\" onchange=\"updateSelectedUsersCount()\" style=\"width: 16px; height: 16px; cursor: pointer;\">
+                            <div style=\"flex: 1;\">
+                                <div style=\"font-weight: 600; color: #2c3e50; font-size: 14px;\">${user.ownerName}</div>
+                                <div style=\"font-size: 12px; color: #6c757d;\">Plot ${user.plotNo} • ${user.plotSizeMarla} Marla</div>
+                            </div>
+                        </label>
+                    `;
+                });
+                html += '</div>';
+                
+                userCheckboxList.innerHTML = html;
+                document.getElementById('totalUsersCount').textContent = filteredUsers.length;
+                document.getElementById('selectAllUsers').checked = false;
+                updateSelectedUsersCount();
+
+            } catch (error) {
+                console.error('Error loading users:', error);
+                userCheckboxList.innerHTML = '<p style=\"color: #e74c3c; text-align: center; margin: 20px 0;\">❌ Error loading users. Please try again.</p>';
+            }
+        }
+
+        // Update selected users count
+        function updateSelectedUsersCount() {
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            document.getElementById('selectedUsersCount').textContent = selectedCount;
+            
+            // Update Select All checkbox state
+            const selectAllCheckbox = document.getElementById('selectAllUsers');
+            if (checkboxes.length > 0) {
+                selectAllCheckbox.checked = selectedCount === checkboxes.length;
+            }
+        }
+
+        function calculateLastDate() {
+            const issueDate = document.getElementById('issueDate').value;
+            const gapDays = parseInt(document.getElementById('gapDays').value) || 0;
+            
+            if (issueDate) {
+                const issue = new Date(issueDate);
+                const lastDate = new Date(issue.getTime() + (gapDays * 24 * 60 * 60 * 1000));
+                document.getElementById('lastDate').value = lastDate.toLocaleDateString();
+            }
+        }
+
+        async function submitMonthlyPayment() {
+            // Get selected user IDs
+            const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+            const selectedUserIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+
+            // Validate that at least one user is selected
+            if (selectedUserIds.length === 0) {
+                showMessage('Please select at least one user to apply the monthly payment', 'error');
+                return;
+            }
+
+            // Get Finance Secretary details
+            const fsName = document.getElementById('fsName').value.trim() || 'Muhammad Raza';
+            const fsPlotNo = document.getElementById('fsPlotNo').value.trim() || 'H-248';
+            const fsPhone = document.getElementById('fsPhone').value.trim() || '03006913494';
+
+            const formData = new FormData(document.getElementById('monthlyPaymentForm'));
+            
+            // Store payment data globally for processing
+            window.paymentData = {
+                ratePerMarla: parseFloat(formData.get('ratePerMarla')),
+                propertyType: formData.get('propertyType'),
+                builtStatus: formData.get('builtStatus'),
+                month: parseInt(formData.get('month')),
+                year: parseInt(formData.get('year')),
+                issueDate: formData.get('issueDate'),
+                gapDays: parseInt(formData.get('gapDays')),
+                lateCharges: parseFloat(formData.get('lateCharges')),
+                fsName: fsName,
+                fsPlotNo: fsPlotNo,
+                fsPhone: fsPhone
+            };
+
+            // Store selected user IDs
+            window.selectedUserIds = selectedUserIds;
+            window.currentUserIndex = 0;
+
+            // Disable submit button
+            const submitBtn = document.getElementById('setPaymentBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ Processing Users...';
+
+            // Start processing first user
+            processNextUser();
+        }
+
+        async function loadUsersData() {
+            try {
+                console.log('Loading users data...');
+                
+                // Use monthly-payments endpoint which properly maps all user data
+                let response = await fetch('/api/monthly-payments/users-accounts');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    allUsers = data.users || data || [];
+                    console.log('✓ Users loaded from monthly payments endpoint:', allUsers.length);
+                    
+                    // If plotSize is missing, fetch from raw users endpoint as fallback
+                    const hasEmptyPlotSize = allUsers.some(u => !u.plotSize || u.plotSize === 'marla');
+                    
+                    if (hasEmptyPlotSize) {
+                        console.log('⚠️ Some users have empty plot size, fetching raw user data...');
+                        const rawResponse = await fetch('/api/users');
+                        if (rawResponse.ok) {
+                            const rawUsers = await rawResponse.json();
+                            console.log('Raw users fetched:', rawUsers.length);
+                            
+                            // Merge raw user data with existing data
+                            allUsers = allUsers.map(user => {
+                                const rawUser = rawUsers.find(r => r.id === user.userId);
+                                if (rawUser) {
+                                    if (rawUser.propertyType === 'Shop') {
+                                        console.log(`Shop ${user.userName}: rawUser.plotSizeMarla = "${rawUser.plotSizeMarla}"`);
+                                    }
+                                    if (rawUser.plotSizeMarla && rawUser.plotSizeMarla.trim() !== '' && rawUser.plotSizeMarla !== 'N/A marla') {
+                                        console.log(`Fixing ${user.userName}: ${rawUser.plotSizeMarla}`);
+                                        return {
+                                            ...user,
+                                            plotSize: rawUser.plotSizeMarla,
+                                            propertyType: rawUser.propertyType || user.propertyType
+                                        };
+                                    }
+                                }
+                                return user;
+                            });
+                        }
+                    }
+                    
+                    // Debug log for shop users
+                    allUsers.forEach(user => {
+                        if (user.propertyType === 'Shop') {
+                            console.log('Shop user:', user.userName, 'plotSize:', user.plotSize);
+                        }
+                    });
+                    
+                    filteredUsers = [...allUsers];
+                    updateUsersTable();
+                    updateTotalDisplayFromFiltered();
+                    
+                    return allUsers.length > 0;
+                } else {
+                    console.error('❌ Failed to load users. Status:', response.status);
+                    showMessage('Failed to load user data. Please refresh the page.', 'error');
+                    allUsers = [];
+                    filteredUsers = [];
+                    updateUsersTable();
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Error loading users:', error);
+                showMessage('Network error loading users. Please check your connection.', 'error');
+                allUsers = [];
+                filteredUsers = [];
+                updateUsersTable();
+                updateTotalDisplayFromFiltered();
+                return false;
+            }
+        }
+
+        // Load monthly payments for month filter dropdown
+        async function loadMonthlyPaymentsForFilter() {
+            try {
+                console.log('Loading monthly payments data...');
+                const response = await fetch('/api/monthly-payments');
+                if (response.ok) {
+                    monthlyPayments = await response.json();
+                    console.log('Monthly payments loaded:', monthlyPayments.length);
+                    
+                    // Load initial user accounts data
+                    console.log('Loading user accounts...');
+                    await loadAllUsersAndApplyFilters();
+                } else {
+                    console.error('Failed to load monthly payments, trying to load users anyway...');
+                    await loadAllUsersAndApplyFilters();
+                }
+            } catch (error) {
+                console.error('Error loading monthly payments:', error);
+                await loadAllUsersAndApplyFilters();
+            }
+        }
+
+        // Load user accounts with filtering options
+        async function loadUserAccountsWithFilter(month, year, builtStatus) {
+            try {
+                // Always load all users first, then apply client-side filtering
+                await loadAllUsersAndApplyFilters();
+            } catch (error) {
+                console.error('Error loading user accounts:', error);
+            }
+        }
+
+        // Fallback function to load all users and apply client-side filtering
+        async function loadAllUsersAndApplyFilters() {
+            try {
+                // Try different endpoints to get user data
+                let response = await fetch('/api/monthly-payments/users-accounts');
+                
+                if (!response.ok) {
+                    // Try alternative endpoint
+                    response = await fetch('/api/users');
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch user data from any endpoint');
+                    }
+                }
+                
+                let data;
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    throw new Error('Response is not JSON');
+                }
+                
+                // Handle different response formats
+                if (data.users) {
+                    allUsers = data.users;
+                } else if (Array.isArray(data)) {
+                    allUsers = data;
+                } else {
+                    allUsers = [];
+                }
+                
+                filteredUsers = [...allUsers];
+                applyClientSideFilters(); // Apply all filters client-side
+                
+                console.log('Loaded users:', allUsers.length);
+            } catch (error) {
+                console.error('Error loading user accounts:', error);
+                allUsers = [];
+                filteredUsers = [];
+                updateUsersTable();
+                updateTotalDisplayFromFiltered();
+            }
+        }
+
+        // Function to update total display based on current filtered users
+        function updateTotalDisplayFromFiltered() {
+            // Check current filter types
+            const searchTerm = document.getElementById('searchUser')?.value || '';
+            const builtStatusFilter = document.getElementById('filterBuiltStatus')?.value || '';
+            const debitFilter = document.getElementById('filterDebitBalance')?.value || 'all';
+            const dueFilter = document.getElementById('filterDueAmount')?.value || 'all';
+            const hasFilters = searchTerm || builtStatusFilter || debitFilter !== 'all' || dueFilter !== 'all';
+            
+            // Determine what to calculate based on active filters
+            let filteredTotal = 0;
+            let totalLabel = 'Total Due Amount';
+            let fieldName = 'due';
+            
+            if (debitFilter !== 'all' && dueFilter === 'all') {
+                // If only debit filter is active, show debit balance total
+                filteredTotal = filteredUsers.reduce((sum, user) => sum + (user.debitBalance || 0), 0);
+                totalLabel = 'Total Debit Balance';
+                fieldName = 'debit';
+            } else if (dueFilter !== 'all' && debitFilter === 'all') {
+                // If only due filter is active, show due amount total
+                filteredTotal = filteredUsers.reduce((sum, user) => sum + (user.totalDue || 0), 0);
+                totalLabel = 'Total Due Amount';
+                fieldName = 'due';
+            } else if (debitFilter !== 'all' && dueFilter !== 'all') {
+                // If both filters are active, show combined total (debit + due)
+                const debitTotal = filteredUsers.reduce((sum, user) => sum + (user.debitBalance || 0), 0);
+                const dueTotal = filteredUsers.reduce((sum, user) => sum + (user.totalDue || 0), 0);
+                filteredTotal = debitTotal + dueTotal;
+                totalLabel = 'Total Combined Amount';
+                fieldName = 'combined';
+            } else {
+                // Default: show due amount total
+                filteredTotal = filteredUsers.reduce((sum, user) => sum + (user.totalDue || 0), 0);
+                totalLabel = 'Total Due Amount';
+                fieldName = 'due';
+            }
+            
+            // Add built status context to title if filter is active
+            if (builtStatusFilter) {
+                totalLabel += ` (${builtStatusFilter})`;
+            }
+            
+            const filteredCount = filteredUsers.length;
+            const filteredAverage = filteredCount > 0 ? filteredTotal / filteredCount : 0;
+            
+            // Update display with appropriate context
+            document.getElementById('totalDueDisplay').textContent = `PKR ${filteredTotal.toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+            document.getElementById('totalUsersCount').textContent = hasFilters ? 
+                `${filteredCount} users (filtered)` : `${filteredCount} users`;
+            document.getElementById('averageDue').textContent = filteredAverage.toLocaleString('en-PK', {minimumFractionDigits: 2});
+            
+            // Update the title to reflect what's being calculated
+            const titleElement = document.getElementById('totalAmountTitle');
+            if (titleElement) {
+                titleElement.textContent = `💰 ${totalLabel}`;
+            }
+        }
+
+        // Legacy function - kept for backward compatibility but now uses filtered data
+        async function loadTotalDueAmount() {
+            // This function now just calls updateTotalDisplayFromFiltered to maintain consistency
+            updateTotalDisplayFromFiltered();
+        }
+
+        function updateUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 30px; color: #7f8c8d;">
+                            <div style="font-size: 18px; margin-bottom: 10px;">📭</div>
+                            <div>No users found matching the current filter criteria</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.onclick = () => showUserDetails(user.userId);
+                
+                // Determine how to display plot size based on property type
+                let plotSizeDisplay = 'N/A';
+                if (user.plotSize && user.plotSize.trim() !== '' && user.plotSize !== 'N/A marla') {
+                    plotSizeDisplay = user.plotSize;
+                }
+                
+                // Property type display with colors
+                const propertyType = user.propertyType || 'N/A';
+                let propertyColor = '#95a5a6'; // Default gray
+                if (propertyType === 'House') {
+                    propertyColor = '#27ae60'; // Green for House
+                } else if (propertyType === 'Shop') {
+                    propertyColor = '#e67e22'; // Orange for Shop
+                }
+                
+                row.innerHTML = `
+                    <td style="font-weight: 600;">${user.userName || 'N/A'}</td>
+                    <td>${user.plotNo || 'N/A'}</td>
+                    <td><span style="background: ${propertyColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">${propertyType}</span></td>
+                    <td>${plotSizeDisplay}</td>
+                    <td><span style="background: ${getBuiltStatusColor(user.builtStatus)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">${user.builtStatus || 'Not Set'}</span></td>
+                    <td class="debit-amount">PKR ${(user.debitBalance || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}</td>
+                    <td class="due-amount">PKR ${(user.totalDue || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}</td>
+                    <td>${user.email || 'N/A'}</td>
+                    <td>${user.phoneNo || 'N/A'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function applyFilters() {
+            const builtStatusFilter = document.getElementById('filterBuiltStatus').value;
+            
+            // First load data with built status filter (server-side)
+            await loadUserAccountsWithFilter(null, null, builtStatusFilter === 'all' ? null : builtStatusFilter);
+            
+            // Then apply client-side filters (including built status as backup)
+            applyClientSideFilters();
+        }
+
+        // Apply client-side filtering on the loaded data
+        function applyClientSideFilters() {
+            const searchTerm = document.getElementById('searchUser')?.value?.toLowerCase() || '';
+            const builtStatusFilter = document.getElementById('filterBuiltStatus')?.value || 'all';
+            const debitFilter = document.getElementById('filterDebitBalance')?.value || 'all';
+            const dueFilter = document.getElementById('filterDueAmount')?.value || 'all';
+            
+            // Start with all loaded users
+            filteredUsers = [...allUsers];
+            
+            // Apply built status filter as backup (in case server-side filtering fails)
+            if (builtStatusFilter !== 'all') {
+                filteredUsers = filteredUsers.filter(user => user.builtStatus === builtStatusFilter);
+            }
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredUsers = filteredUsers.filter(user => {
+                    const searchString = [
+                        user.ownerName,
+                        user.plotNo,
+                        user.email,
+                        user.phoneNo,
+                        user.cnic
+                    ].join(' ').toLowerCase();
+                    return searchString.includes(searchTerm);
+                });
+            }
+            
+            // Apply debit balance filter
+            if (debitFilter !== 'all') {
+                filteredUsers = filteredUsers.filter(user => {
+                    const debitBalance = user.debitBalance || 0;
+                    switch (debitFilter) {
+                        case 'positive':
+                            return debitBalance > 0;
+                        case 'zero':
+                            return debitBalance === 0;
+                        case 'negative':
+                            return debitBalance < 0;
+                        default:
+                            return true;
+                    }
+                });
+            }
+            
+            // Apply due amount filter
+            if (dueFilter !== 'all') {
+                filteredUsers = filteredUsers.filter(user => {
+                    const dueAmount = user.totalDue || 0;
+                    switch (dueFilter) {
+                        case 'positive':
+                            return dueAmount > 0;
+                        case 'zero':
+                            return dueAmount === 0;
+                        default:
+                            return true;
+                    }
+                });
+            }
+            
+            // Update the table display and totals
+            updateUsersTable();
+            updateTotalDisplayFromFiltered();
+        }
+
+        // Function to get color for built status badge
+        function getBuiltStatusColor(builtStatus) {
+            switch (builtStatus) {
+                case 'Completed':
+                    return '#27ae60'; // Green
+                case 'Under-Construction':
+                    return '#f39c12'; // Orange
+                case 'Vacant':
+                    return '#e74c3c'; // Red
+                case 'Residential':
+                    return '#3498db'; // Blue
+                default:
+                    return '#95a5a6'; // Gray
+            }
+        }
+
+        // Download PDF function with current filters applied
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4'); // landscape orientation
+
+            let yPos = 20;
+
+            // Modern Header with Gradient Effect
+            doc.setFillColor(41, 128, 185);
+            doc.rect(0, 0, 297, 40, 'F');
+            
+            // Add decorative line
+            doc.setFillColor(52, 152, 219);
+            doc.rect(0, 35, 297, 5, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.text('JEEWAN AVENUE', 148.5, 18, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'normal');
+            doc.text('Monthly Payment Management - User Accounts Report', 148.5, 27, { align: 'center' });
+            
+            doc.setFontSize(9);
+            doc.text(`Generated: ${new Date().toLocaleString('en-PK', { dateStyle: 'medium', timeStyle: 'short' })}`, 148.5, 33, { align: 'center' });
+            
+            doc.setTextColor(0, 0, 0);
+            yPos = 50;
+
+            // Summary Cards Section
+            const totalDue = filteredUsers.reduce((sum, user) => sum + (user.totalDue || 0), 0);
+            const totalDebit = filteredUsers.reduce((sum, user) => sum + (user.debitBalance || 0), 0);
+            const avgDue = filteredUsers.length > 0 ? totalDue / filteredUsers.length : 0;
+
+            // Summary Header
+            doc.setFillColor(46, 204, 113);
+            doc.rect(14, yPos - 5, 269, 10, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(13);
+            doc.setFont(undefined, 'bold');
+            doc.text('Summary Statistics', 18, yPos + 1);
+            doc.setTextColor(0, 0, 0);
+            yPos += 12;
+
+            // Modern summary cards with icons
+            const summaryCards = [
+                { label: 'Total Users', value: filteredUsers.length.toString(), color: [52, 152, 219] },
+                { label: 'Total Due Amount', value: `PKR ${totalDue.toLocaleString('en-PK', {minimumFractionDigits: 2})}`, color: [231, 76, 60] },
+                { label: 'Total Debit Balance', value: `PKR ${totalDebit.toLocaleString('en-PK', {minimumFractionDigits: 2})}`, color: [46, 204, 113] },
+                { label: 'Average Due/User', value: `PKR ${avgDue.toLocaleString('en-PK', {minimumFractionDigits: 2})}`, color: [155, 89, 182] }
+            ];
+
+            let cardX = 14;
+            summaryCards.forEach((card, index) => {
+                // Card background
+                doc.setFillColor(248, 249, 250);
+                doc.roundedRect(cardX, yPos, 65, 20, 2, 2, 'F');
+                
+                // Colored left border
+                doc.setFillColor(...card.color);
+                doc.rect(cardX, yPos, 3, 20, 'F');
+                
+                // Label
+                doc.setFontSize(8);
+                doc.setTextColor(108, 117, 125);
+                doc.setFont(undefined, 'normal');
+                doc.text(card.label, cardX + 5, yPos + 7);
+                
+                // Value
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont(undefined, 'bold');
+                doc.text(card.value, cardX + 5, yPos + 15);
+                
+                cardX += 67;
+            });
+
+            yPos += 28;
+
+            // Applied Filters Section (if any)
+            const searchTerm = document.getElementById('searchUser')?.value || '';
+            const builtStatusFilter = document.getElementById('filterBuiltStatus')?.value || 'all';
+            const debitFilter = document.getElementById('filterDebitBalance')?.value || 'all';
+            const dueFilter = document.getElementById('filterDueAmount')?.value || 'all';
+
+            if (searchTerm || builtStatusFilter !== 'all' || debitFilter !== 'all' || dueFilter !== 'all') {
+                doc.setFillColor(255, 243, 205);
+                doc.roundedRect(14, yPos, 269, 15, 2, 2, 'F');
+                
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(133, 100, 4);
+                doc.text('Applied Filters:', 18, yPos + 6);
+                
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(9);
+                let filterText = [];
+                if (searchTerm) filterText.push(`Search: "${searchTerm}"`);
+                if (builtStatusFilter !== 'all') filterText.push(`Status: ${builtStatusFilter}`);
+                if (debitFilter !== 'all') filterText.push(`Debit: ${debitFilter}`);
+                if (dueFilter !== 'all') filterText.push(`Due: ${dueFilter}`);
+                
+                doc.text(filterText.join(' • '), 18, yPos + 11);
+                doc.setTextColor(0, 0, 0);
+                yPos += 20;
+            }
+
+            // User Accounts Table Header
+            doc.setFillColor(52, 73, 94);
+            doc.rect(14, yPos, 269, 10, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('User Accounts Details', 18, yPos + 6);
+            doc.setTextColor(0, 0, 0);
+            yPos += 15;
+
+            // Prepare table data with proper field mapping
+            const userTableData = filteredUsers.map(user => {
+                // Get the user name properly
+                const userName = user.userName || user.ownerName || 'N/A';
+                const plotNo = user.plotNo || 'N/A';
+                const propertyType = user.propertyType || 'N/A';
+                const builtStatus = user.builtStatus || 'N/A';
+                
+                // Format size/shops properly
+                let sizeDisplay = 'N/A';
+                if (user.plotSize && user.plotSize !== 'N/A' && user.plotSize !== 'N/A marla') {
+                    if (propertyType === 'Shop') {
+                        sizeDisplay = user.plotSize;
+                    } else {
+                        sizeDisplay = user.plotSize;
+                    }
+                }
+                
+                const debit = (user.debitBalance || 0).toLocaleString('en-PK', {minimumFractionDigits: 0});
+                const totalDue = (user.totalDue || 0).toLocaleString('en-PK', {minimumFractionDigits: 0});
+                const email = user.email || 'N/A';
+                const phone = user.phoneNo || 'N/A';
+                
+                return [userName, plotNo, propertyType, builtStatus, sizeDisplay, debit, totalDue, email, phone];
+            });
+
+            // Modern table with better styling
+            doc.autoTable({
+                startY: yPos,
+                head: [['User Name', 'Plot No', 'Type', 'Status', 'Size/Shops', 'Debit', 'Total Due', 'Email', 'Phone']],
+                body: userTableData,
+                theme: 'grid',
+                headStyles: { 
+                    fillColor: [52, 73, 94], 
+                    fontSize: 9, 
+                    fontStyle: 'bold',
+                    halign: 'center',
+                    textColor: [255, 255, 255]
+                },
+                styles: { 
+                    fontSize: 8, 
+                    cellPadding: 3,
+                    lineColor: [200, 200, 200],
+                    lineWidth: 0.1
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 247, 250]
+                },
+                columnStyles: {
+                    0: { cellWidth: 40, fontStyle: 'bold' },
+                    1: { cellWidth: 18, halign: 'center' },
+                    2: { cellWidth: 20, halign: 'center' },
+                    3: { cellWidth: 25, halign: 'center' },
+                    4: { cellWidth: 25, halign: 'center' },
+                    5: { cellWidth: 22, halign: 'right' },
+                    6: { cellWidth: 25, halign: 'right', fontStyle: 'bold' },
+                    7: { cellWidth: 55 },
+                    8: { cellWidth: 30 }
+                },
+                didDrawCell: function(data) {
+                    // Add subtle border to cells
+                    if (data.section === 'body') {
+                        doc.setDrawColor(230, 230, 230);
+                    }
+                }
+            });
+
+            // Footer with page numbers and timestamp
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                
+                // Footer background
+                doc.setFillColor(52, 73, 94);
+                doc.rect(0, 195, 297, 10, 'F');
+                
+                doc.setFontSize(8);
+                doc.setTextColor(255, 255, 255);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Jeewan Avenue Management System`, 14, 200);
+                doc.text(`Page ${i} of ${pageCount}`, 283, 200, { align: 'right' });
+            }
+
+            doc.save(`Jeewan_Avenue_User_Accounts_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        async function showUserDetails(userId) {
+            try {
+                const response = await fetch(`/api/monthly-payments/user-details/${userId}`);
+                if (response.ok) {
+                    const details = await response.json();
+                    displayUserDetailsModal(details);
+                } else {
+                    showMessage('Failed to load user details', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading user details:', error);
+                showMessage('Error loading user details', 'error');
+            }
+        }
+
+        function displayUserDetailsModal(details) {
+            const modal = document.getElementById('userDetailsModal');
+            const content = document.getElementById('userDetailsContent');
+            
+            const user = details.user;
+            const debitAmount = details.debitAmount || 0;
+            
+            // Determine plot size display based on property type
+            let plotSizeDisplay;
+            if (user.propertyType === 'Shop') {
+                plotSizeDisplay = user.plotSizeMarla ? `${user.plotSizeMarla} Shop(s)` : 'N/A';
+            } else {
+                plotSizeDisplay = user.plotSizeMarla ? `${user.plotSizeMarla} marla` : 'N/A';
+            }
+            
+            content.innerHTML = `
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">👤 ${user.ownerName} - Account Transaction History</h3>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>Plot Number:</strong> ${user.plotNo}</div>
+                        <div><strong>Property Type:</strong> ${user.propertyType || 'N/A'}</div>
+                        <div><strong>Plot Size:</strong> ${plotSizeDisplay}</div>
+                        <div><strong>Email:</strong> ${user.email}</div>
+                        <div><strong>Phone:</strong> ${user.phoneNo || 'N/A'}</div>
+                        <div><strong>Account Balance:</strong> 
+                            <span style="color: ${user.accountBalance >= 0 ? '#e74c3c' : '#27ae60'}; font-weight: 600;">
+                                PKR ${Math.abs(user.accountBalance || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}
+                                ${user.accountBalance >= 0 ? ' (Due)' : ' (Debit)'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #2c3e50;">📋 Account Transaction History</h4>
+                    <div id="transactionHistoryContainer" style="max-height: 400px; overflow-y: auto;">
+                        <div style="text-align: center; padding: 20px; color: #666;">
+                            Loading transaction history...
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 25px;">
+                    <button onclick="refreshTransactionHistory('${user.id}')" class="btn" style="background: #1abc9c; margin-right: 10px;">
+                        🔄 Refresh
+                    </button>
+                    <button onclick="closeUserDetailsModal()" class="btn" style="background: #95a5a6;">
+                        ✖️ Close
+                    </button>
+                </div>
+            `;
+            
+            // Load transaction history for this user
+            loadUserTransactionHistory(user.id);
+            
+            modal.style.display = 'block';
+        }
+
+        function closeUserDetailsModal() {
+            document.getElementById('userDetailsModal').style.display = 'none';
+        }
+
+        async function deleteDueRecord(dueId) {
+            if (!confirm('Are you sure you want to delete this due record? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/dues/${dueId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showMessage('Due record deleted successfully', 'success');
+                    closeUserDetailsModal();
+                    loadUsersData(); // Refresh the data
+                    loadTotalDueAmount();
+                } else {
+                    showMessage('Failed to delete due record', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting due record:', error);
+                showMessage('Error deleting due record', 'error');
+            }
+        }
+
+        // Utility functions
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function getMonthName(month) {
+            const months = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+            return months[month] || 'Unknown';
+        }
+
+        // Debug function to check user plot sizes
+        async function debugUserPlotSizes() {
+            try {
+                const response = await fetch('/api/monthly-payments/debug/users');
+                if (response.ok) {
+                    const users = await response.json();
+                    
+                    console.log('=== USER PLOT SIZE DEBUG ===');
+                    console.log('Total users:', users.length);
+                    
+                    const validUsers = [];
+                    const invalidUsers = [];
+                    
+                    users.forEach(user => {
+                        console.log(`User: ${user.name}, Plot: ${user.plotNo}, Size: "${user.plotSize}", Valid: ${user.hasPlotSize}`);
+                        
+                        if (user.hasPlotSize) {
+                            validUsers.push(user);
+                        } else {
+                            invalidUsers.push(user);
+                        }
+                    });
+                    
+                    console.log(`Valid users with plot sizes: ${validUsers.length}`);
+                    console.log(`Invalid users: ${invalidUsers.length}`);
+                    
+                    if (invalidUsers.length > 0) {
+                        console.log('Users with invalid plot sizes:', invalidUsers.map(u => `${u.name}: "${u.plotSize}"`));
+                    }
+                    
+                    // Show summary message
+                    const message = `Debug Results:\n• Total users: ${users.length}\n• Valid plot sizes: ${validUsers.length}\n• Invalid plot sizes: ${invalidUsers.length}\n\nCheck console for detailed information.`;
+                    alert(message);
+                } else {
+                    showMessage('Failed to load debug information', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading debug info:', error);
+                showMessage('Error loading debug information', 'error');
+            }
+        }
+
+        // Add event listener for debug button
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('debugUsersBtn').addEventListener('click', debugUserPlotSizes);
+        });
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-PK');
+        }
+
+        function formatDateTime(dateString) {
+            return new Date(dateString).toLocaleString('en-PK');
+        }
+
+        // Custom Due Management Functions
+        async function submitCustomDue() {
+            const form = document.getElementById('customDueForm');
+            const formData = new FormData(form);
+            
+            const customDueData = {
+                userId: parseInt(formData.get('customDueUserId')),
+                amount: parseFloat(formData.get('customDueAmount')),
+                reason: formData.get('customDueReason'),
+                category: formData.get('customDueCategory'),
+                dueDate: formData.get('customDueDueDate') || null,
+                notes: formData.get('customDueNotes') || null
+            };
+
+            try {
+                const response = await fetch('/api/custom-dues', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(customDueData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showMessage('Custom due added successfully!', 'success');
+                    form.reset();
+                    // Refresh users data to show updated due amounts
+                    await loadUsersData();
+                    await loadTotalDueAmount();
+                } else {
+                    const error = await response.json();
+                    showMessage(error.error || 'Failed to add custom due', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding custom due:', error);
+                showMessage('Error adding custom due', 'error');
+            }
+        }
+
+        async function markCustomDueAsPaid(customDueId) {
+            if (!confirm('Are you sure you want to mark this custom due as paid?')) {
+                return;
+            }
+
+            try {
+                console.log('Attempting to mark custom due as paid with ID:', customDueId);
+                
+                const response = await fetch(`/api/custom-dues/${customDueId}/mark-paid`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('Mark paid response status:', response.status);
+
+                if (response.ok) {
+                    showMessage('Custom due marked as paid successfully!', 'success');
+                    // Refresh user details if modal is open
+                    const modal = document.getElementById('userDetailsModal');
+                    if (modal.style.display === 'block') {
+                        // Extract user ID from the modal content and reload
+                        const userIdMatch = modal.innerHTML.match(/showUserDetails\((\d+)\)/);
+                        if (userIdMatch) {
+                            console.log('Refreshing user details for user ID:', userIdMatch[1]);
+                            await showUserDetails(parseInt(userIdMatch[1]));
+                        }
+                    }
+                    // Refresh users data
+                    await loadUsersData();
+                    await loadTotalDueAmount();
+                } else {
+                    const responseText = await response.text();
+                    console.error('Mark paid failed with response:', responseText);
+                    
+                    let errorMessage = 'Failed to mark custom due as paid';
+                    try {
+                        const errorJson = JSON.parse(responseText);
+                        errorMessage = errorJson.error || errorMessage;
+                    } catch (e) {
+                        errorMessage = `Failed to mark custom due as paid (Status: ${response.status})`;
+                    }
+                    
+                    showMessage(errorMessage, 'error');
+                }
+            } catch (error) {
+                console.error('Error marking custom due as paid:', error);
+                showMessage('Network error while marking custom due as paid. Please check your connection.', 'error');
+            }
+        }
+
+        async function deleteCustomDue(customDueId) {
+            if (!confirm('Are you sure you want to delete this custom due? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                console.log('Attempting to delete custom due with ID:', customDueId);
+                
+                const response = await fetch(`/api/custom-dues/${customDueId}`, {
+                    method: 'DELETE'
+                });
+
+                console.log('Delete response status:', response.status);
+
+                if (response.ok) {
+                    showMessage('Custom due deleted successfully!', 'success');
+                    // Refresh user details if modal is open
+                    const modal = document.getElementById('userDetailsModal');
+                    if (modal.style.display === 'block') {
+                        // Extract user ID from the modal content and reload
+                        const userIdMatch = modal.innerHTML.match(/showUserDetails\((\d+)\)/);
+                        if (userIdMatch) {
+                            console.log('Refreshing user details for user ID:', userIdMatch[1]);
+                            await showUserDetails(parseInt(userIdMatch[1]));
+                        }
+                    }
+                    // Refresh users data
+                    await loadUsersData();
+                    await loadTotalDueAmount();
+                } else {
+                    const responseText = await response.text();
+                    console.error('Delete failed with response:', responseText);
+                    
+                    let errorMessage = 'Failed to delete custom due';
+                    try {
+                        const errorJson = JSON.parse(responseText);
+                        errorMessage = errorJson.error || errorMessage;
+                    } catch (e) {
+                        errorMessage = `Failed to delete custom due (Status: ${response.status})`;
+                    }
+                    
+                    showMessage(errorMessage, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting custom due:', error);
+                showMessage('Network error while deleting custom due. Please check your connection.', 'error');
+            }
+        }
+
+        async function loadUsersForCustomDue() {
+            try {
+                const response = await fetch('/api/users');
+                if (response.ok) {
+                    const users = await response.json();
+                    window.allUsersForCustomDue = users.filter(user => user.plotNo && user.plotNo.trim() !== '');
+                    populateUserDropdown(window.allUsersForCustomDue);
+                    setupUserSearch();
+                } else {
+                    console.error('Failed to load users for custom due form');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        function populateUserDropdown(users) {
+            const userSelect = document.getElementById('customDueUserId');
+            
+            // Clear existing options except the first one
+            userSelect.innerHTML = '<option value="">Select User</option>';
+            
+            // Add user options
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = `${user.ownerName} - Plot ${user.plotNo}`;
+                userSelect.appendChild(option);
+            });
+        }
+
+        function setupUserSearch() {
+            const searchInput = document.getElementById('customDueUserSearch');
+            const userSelect = document.getElementById('customDueUserId');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    // Show all users if search is empty
+                    populateUserDropdown(window.allUsersForCustomDue);
+                } else {
+                    // Filter users based on search term
+                    const filteredUsers = window.allUsersForCustomDue.filter(user => {
+                        const ownerName = user.ownerName.toLowerCase();
+                        const plotNo = user.plotNo.toLowerCase();
+                        return ownerName.includes(searchTerm) || plotNo.includes(searchTerm);
+                    });
+                    populateUserDropdown(filteredUsers);
+                }
+                
+                // Reset selection when search changes
+                userSelect.value = '';
+            });
+
+            // Clear search when a user is selected
+            userSelect.addEventListener('change', function() {
+                if (this.value) {
+                    const selectedOption = this.options[this.selectedIndex];
+                    searchInput.value = selectedOption.textContent;
+                }
+            });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('userDetailsModal');
+            if (event.target === modal) {
+                closeUserDetailsModal();
+            }
+        }
+
+        // Load President Console
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load header first
+            fetch('header.html').then(r => r.text()).then(data => {
+                document.getElementById('header').innerHTML = data;
+                // Initialize header functions after loading
+                if (typeof initializeHeader === 'function') {
+                    initializeHeader();
+                }
+                if (typeof initializeAnnouncementPopup === 'function') {
+                    initializeAnnouncementPopup();
+                }
+                if (typeof initializeNotificationPopup === 'function') {
+                    initializeNotificationPopup();
+                }
+                if (typeof initializeAnnouncementManagement === 'function') {
+                    initializeAnnouncementManagement();
+                }
+            }).catch(error => {
+                console.error('Error loading header:', error);
+            });
+
+            // Load President Console
+            fetch('President Console.html').then(r => r.text()).then(data => {
+                document.getElementById('president_console').innerHTML = data;
+            }).catch(error => {
+                console.error('Error loading president console:', error);
+            });
+        });
+
+        // Load user transaction history
+        async function loadUserTransactionHistory(userId) {
+            const container = document.getElementById('transactionHistoryContainer');
+            
+            if (!userId) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #e74c3c;">User ID not available</div>';
+                return;
+            }
+            
+            try {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Loading transaction history...</div>';
+                
+                // Try user-specific endpoint first (admin only)
+                let response = await fetch(`/api/account-transactions/user/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    // If admin endpoint fails, try current user's transactions as fallback
+                    console.log(`Admin endpoint failed with status: ${response.status}. Trying user endpoint...`);
+                    response = await fetch('/api/account-transactions/my-transactions', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    });
+                }
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error:', response.status, errorText);
+                    throw new Error(`API Error: ${response.status} - ${errorText}`);
+                }
+                
+                const data = await response.json();
+                const transactions = data.transactions || [];
+                
+                if (transactions.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No transaction history found</div>';
+                    return;
+                }
+                
+                // Display transactions
+                container.innerHTML = `
+                    <div style="margin-bottom: 15px; background: #e8f5e8; padding: 12px; border-radius: 8px;">
+                        <strong>Total Transactions: ${transactions.length}</strong> | 
+                        <strong>Current Balance: 
+                            <span style="color: ${data.user.accountBalance >= 0 ? '#e74c3c' : '#27ae60'};">
+                                PKR ${Math.abs(data.user.accountBalance || 0).toLocaleString('en-PK', {minimumFractionDigits: 2})}
+                                ${data.user.accountBalance >= 0 ? ' (Due)' : ' (Debit)'}
+                            </span>
+                        </strong>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        ${transactions.map(transaction => {
+                            const amount = parseFloat(transaction.amount);
+                            const isPositive = amount > 0;
+                            const amountClass = isPositive ? 'positive' : 'negative';
+                            const amountColor = isPositive ? '#e74c3c' : '#27ae60';
+                            const formattedAmount = (isPositive ? '+' : '') + amount.toFixed(2);
+                            
+                            // Format transaction date
+                            const transactionDate = new Date(transaction.transactionDate);
+                            const formattedDate = transactionDate.toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                            
+                            // Get transaction type display name
+                            const typeDisplayName = transaction.transactionType.displayName || transaction.transactionType;
+                            
+                            return `
+                                <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 12px; transition: all 0.3s ease;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <div style="font-weight: 600; font-size: 14px; color: #495057;">${typeDisplayName}</div>
+                                        <div style="font-weight: 700; font-size: 14px; color: ${amountColor};">PKR ${formattedAmount}</div>
+                                    </div>
+                                    <div style="color: #6c757d; font-size: 13px; margin-bottom: 4px;">${transaction.description}</div>
+                                    <div style="color: #8c9194; font-size: 12px;">${formattedDate}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error fetching transaction history:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #e74c3c;">
+                        <div style="margin-bottom: 10px;">⚠️ Error loading transaction history</div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 15px;">${error.message}</div>
+                        <button onclick="refreshTransactionHistory('${userId}')" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                            🔄 Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Refresh transaction history
+        function refreshTransactionHistory(userId) {
+            loadUserTransactionHistory(userId);
+        }
+
+        // Plot Analysis Functions
+        async function loadPlotAnalysis() {
+            try {
+                const response = await fetch('/api/monthly-payments/users-accounts');
+                if (response.ok) {
+                    const users = await response.json();
+                    calculatePlotAnalysis(users);
+                    updatePlotAnalysisDisplay();
+                } else {
+                    console.error('Failed to load users for plot analysis');
+                }
+            } catch (error) {
+                console.error('Error loading plot analysis:', error);
+            }
+        }
+
+        function calculatePlotAnalysis(users) {
+            // Initialize analysis data
+            plotAnalysisData = {
+                'Completed': { count: 0, totalSize: 0, users: [] },
+                'Under-Construction': { count: 0, totalSize: 0, users: [] },
+                'Vacant': { count: 0, totalSize: 0, users: [] },
+                'Residential': { count: 0, totalSize: 0, users: [] }
+            };
+
+            // Process each user
+            users.forEach(user => {
+                const builtStatus = user.builtStatus || 'Not Set';
+                const plotSize = parseFloat(user.plotSize) || 0;
+
+                if (plotSize > 0 && plotAnalysisData[builtStatus]) {
+                    plotAnalysisData[builtStatus].count++;
+                    plotAnalysisData[builtStatus].totalSize += plotSize;
+                    plotAnalysisData[builtStatus].users.push({
+                        name: user.userName,
+                        plotNo: user.plotNo,
+                        plotSize: plotSize
+                    });
+                }
+            });
+        }
+
+        function updatePlotAnalysisDisplay() {
+            const builtStatuses = ['Completed', 'Under-Construction', 'Vacant', 'Residential'];
+            let grandTotalPlots = 0;
+            let grandTotalSize = 0;
+            let grandTotalAmount = 0;
+
+            builtStatuses.forEach(status => {
+                const card = document.querySelector(`.built-status-card[data-status="${status}"]`);
+                if (card && plotAnalysisData[status]) {
+                    const data = plotAnalysisData[status];
+                    const rateInput = card.querySelector('.rate-input');
+                    const currentRate = rateInput ? parseFloat(rateInput.value) || 0 : 0;
+                    const potentialAmount = data.totalSize * currentRate;
+
+                    // Update card content
+                    card.querySelector('.plot-count').textContent = data.count;
+                    card.querySelector('.total-size').textContent = data.totalSize.toFixed(1);
+                    card.querySelector('.potential-amount').textContent = potentialAmount.toLocaleString('en-PK', {minimumFractionDigits: 2});
+
+                    // Add to grand totals
+                    grandTotalPlots += data.count;
+                    grandTotalSize += data.totalSize;
+                    grandTotalAmount += potentialAmount;
+                }
+            });
+
+            // Update grand totals
+            document.getElementById('grandTotalPlots').textContent = grandTotalPlots;
+            document.getElementById('grandTotalSize').textContent = grandTotalSize.toFixed(1);
+            document.getElementById('grandTotalAmount').textContent = `PKR ${grandTotalAmount.toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+        }
+
+        // New function to update individual plot calculation
+        function updatePlotCalculation(status, rate) {
+            const card = document.querySelector(`.built-status-card[data-status="${status}"]`);
+            if (card && plotAnalysisData[status]) {
+                const data = plotAnalysisData[status];
+                const potentialAmount = data.totalSize * rate;
+                card.querySelector('.potential-amount').textContent = potentialAmount.toLocaleString('en-PK', {minimumFractionDigits: 2});
+            }
+        }
+
+        // New function to update grand total
+        function updateGrandTotal() {
+            const builtStatuses = ['Completed', 'Under-Construction', 'Vacant', 'Residential'];
+            let grandTotalPlots = 0;
+            let grandTotalSize = 0;
+            let grandTotalAmount = 0;
+
+            builtStatuses.forEach(status => {
+                const card = document.querySelector(`.built-status-card[data-status="${status}"]`);
+                if (card && plotAnalysisData[status]) {
+                    const data = plotAnalysisData[status];
+                    const rateInput = card.querySelector('.rate-input');
+                    const currentRate = rateInput ? parseFloat(rateInput.value) || 0 : 0;
+                    const potentialAmount = data.totalSize * currentRate;
+
+                    grandTotalPlots += data.count;
+                    grandTotalSize += data.totalSize;
+                    grandTotalAmount += potentialAmount;
+                }
+            });
+
+            // Update grand totals
+            document.getElementById('grandTotalPlots').textContent = grandTotalPlots;
+            document.getElementById('grandTotalSize').textContent = grandTotalSize.toFixed(1);
+            document.getElementById('grandTotalAmount').textContent = `PKR ${grandTotalAmount.toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+        }
+
+        function updateRatePreview() {
+            const rateInput = document.getElementById('ratePerMarla');
+            const builtStatusInput = document.getElementById('builtStatus');
+            
+            const rate = parseFloat(rateInput.value) || 0;
+            const builtStatus = builtStatusInput.value;
+
+            if (builtStatus && rate > 0) {
+                // Store the rate for this built status
+                rateHistory[builtStatus] = rate;
+                
+                // Update the display
+                updatePlotAnalysisDisplay();
+                
+                // Highlight the current selection
+                const cards = document.querySelectorAll('.built-status-card');
+                cards.forEach(card => {
+                    if (card.getAttribute('data-status') === builtStatus) {
+                        card.style.transform = 'scale(1.02)';
+                        card.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
+                    } else {
+                        card.style.transform = 'scale(1)';
+                        card.style.boxShadow = 'none';
+                    }
+                });
+            }
+        }
+
+        function refreshPlotAnalysis() {
+            showMessage('🔄 Refreshing plot analysis...', 'info');
+            loadPlotAnalysis();
+        }
+
+        // Enhanced show message function to support info type
+        function showMessage(message, type) {
+            const msgDiv = document.createElement('div');
+            let className = 'success-msg';
+            
+            switch(type) {
+                case 'error':
+                    className = 'error-msg';
+                    break;
+                case 'warning':
+                    className = 'warning-msg';
+                    break;
+                case 'info':
+                    className = 'info-msg';
+                    break;
+                default:
+                    className = 'success-msg';
+            }
+            
+            msgDiv.className = className;
+            msgDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(msgDiv, container.firstChild);
+            
+            setTimeout(() => {
+                msgDiv.remove();
+            }, 3000);
+        }
+
+        // ============= WhatsApp Sending Functions =============
+
+        async function processNextUser() {
+            if (window.currentUserIndex >= window.selectedUserIds.length) {
+                // All users processed
+                completePaymentProcess();
+                return;
+            }
+
+            const userId = window.selectedUserIds[window.currentUserIndex];
+            const data = {
+                userId: userId,
+                ...window.paymentData
+            };
+
+            try {
+                const response = await fetch('/api/monthly-payments/process-single-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Show modal with user info
+                    showWhatsAppModal(result);
+                } else {
+                    console.error('Error processing user:', result.error);
+                    // Skip to next user on error
+                    window.currentUserIndex++;
+                    processNextUser();
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                // Skip to next user on error
+                window.currentUserIndex++;
+                processNextUser();
+            }
+        }
+
+        function showWhatsAppModal(userData) {
+            // Update modal content
+            document.getElementById('modalUserName').textContent = userData.userName || 'N/A';
+            document.getElementById('modalPlotNo').textContent = userData.plotNo || 'N/A';
+            document.getElementById('modalPhone').textContent = userData.phoneNo || 'N/A';
+            document.getElementById('modalAmount').textContent = userData.dueAmount ? userData.dueAmount.toLocaleString('en-PK', {minimumFractionDigits: 2}) : '0.00';
+            
+            const currentIndex = window.currentUserIndex + 1;
+            const totalUsers = window.selectedUserIds.length;
+            document.getElementById('progressText').textContent = `${currentIndex} of ${totalUsers}`;
+
+            // Show modal
+            document.getElementById('whatsappModal').style.display = 'flex';
+
+            // Open WhatsApp with pre-filled message
+            const phoneNo = userData.phoneNo;
+            const message = userData.message;
+            
+            if (phoneNo && message) {
+                // Format phone number (remove any non-digit characters)
+                let cleanPhone = phoneNo.replace(/\\D/g, '');
+                
+                // Ensure Pakistani number format (add 92 if needed)
+                if (cleanPhone.startsWith('0')) {
+                    cleanPhone = '92' + cleanPhone.substring(1);
+                } else if (!cleanPhone.startsWith('92')) {
+                    cleanPhone = '92' + cleanPhone;
+                }
+
+                // URL encode the message
+                const encodedMessage = encodeURIComponent(message);
+                
+                // Open WhatsApp Web
+                const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+                window.open(whatsappUrl, '_blank');
+            }
+        }
+
+        function nextUser() {
+            // Close modal
+            document.getElementById('whatsappModal').style.display = 'none';
+            
+            // Move to next user
+            window.currentUserIndex++;
+            processNextUser();
+        }
+
+        function skipUser() {
+            // Same as next user for now
+            nextUser();
+        }
+
+        function cancelSending() {
+            // Close modal
+            document.getElementById('whatsappModal').style.display = 'none';
+            
+            // Complete process
+            completePaymentProcess();
+        }
+
+        function completePaymentProcess() {
+            // Re-enable submit button
+            const submitBtn = document.getElementById('setPaymentBtn');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '💾 Set Monthly Payment & Send WhatsApp Messages';
+
+            // Reset form and reload data
+            document.getElementById('monthlyPaymentForm').reset();
+            document.getElementById('userSelectionSection').style.display = 'none';
+            
+            // Set default values
+            document.getElementById('month').value = new Date().getMonth() + 1;
+            document.getElementById('year').value = new Date().getFullYear();
+            document.getElementById('issueDate').value = new Date().toISOString().split('T')[0];
+            
+            // Show success message
+            showMessage(`✅ Successfully processed ${window.currentUserIndex} user(s) and sent WhatsApp messages!`, 'success');
+            
+            // Reload data
+            initializePage();
+            loadUsersData();
+            loadTotalDueAmount();
+        }
+
+        // Add event listeners for modal buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const nextBtn = document.getElementById('nextUserBtn');
+            const skipBtn = document.getElementById('skipUserBtn');
+            const cancelBtn = document.getElementById('cancelSendingBtn');
+            
+            if (nextBtn) nextBtn.addEventListener('click', nextUser);
+            if (skipBtn) skipBtn.addEventListener('click', skipUser);
+            if (cancelBtn) cancelBtn.addEventListener('click', cancelSending);
+        });
+    </script>
+
+    <!-- Include additional scripts for header functionality -->
+    <script src="/js/announcement-popup.js?v=3"></script>
+    <script src="/js/role-security.js?v=12"></script>
+    <script src="/js/header-menu.js"></script>
+</body>
+</html>

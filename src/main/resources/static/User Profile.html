@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>User Profile - Jeewan Avenue</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+        .info-section { padding: 20px; max-width: 600px; margin: 40px auto; background: #1a2b49; border-radius: 10px; box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.2); }
+        .info-section h3 { text-align: center; margin-bottom: 25px; color: white; }
+        .form-group { margin-bottom: 15px; color: white; }
+        .form-group label { font-weight: 500; }
+        .form-group input:disabled { background-color: #f1f1f1; color: #a1a1a1; }
+        .editable { background-color: #fff; color: #000; border: 2px solid #1abc9c; }
+        .edit-btn, .save-btn { display: block; margin: 10px auto; text-align: center; }
+        
+        /* Give Suggestion Button Styles */
+        .give-suggestion-container {
+            text-align: center;
+            padding: 15px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-bottom: 1px solid rgba(26, 188, 156, 0.2);
+        }
+        
+        .give-suggestion-btn {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(26, 188, 156, 0.3);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .give-suggestion-btn:hover {
+            background: linear-gradient(135deg, #16a085 0%, #138d75 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 188, 156, 0.4);
+            color: white;
+        }
+        
+        .give-suggestion-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(26, 188, 156, 0.5);
+        }
+
+    
+        
+        /* Suggestion Modal Styles */
+        .suggestion-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .suggestion-modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .suggestion-modal-header {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            position: relative;
+        }
+        
+        .suggestion-modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .suggestion-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+        
+        .suggestion-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .suggestion-modal-body {
+            padding: 30px;
+        }
+        
+        .suggestion-form-group {
+            margin-bottom: 20px;
+        }
+        
+        .suggestion-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .suggestion-form-group input,
+        .suggestion-form-group textarea,
+        .suggestion-form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .suggestion-form-group input:focus,
+        .suggestion-form-group textarea:focus,
+        .suggestion-form-group select:focus {
+            outline: none;
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+        }
+        
+        .suggestion-form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .suggestion-submit-btn {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .suggestion-submit-btn:hover {
+            background: linear-gradient(135deg, #16a085 0%, #138d75 100%);
+            transform: translateY(-1px);
+        }
+        
+        .suggestion-submit-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .suggestion-limit-info {
+            background: #e8f5e8;
+            border: 1px solid #27ae60;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #2d5a2d;
+            font-size: 14px;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .suggestion-modal-content {
+                margin: 15px;
+                max-width: calc(100% - 30px);
+            }
+            
+            .suggestion-modal-header {
+                padding: 15px 20px;
+            }
+            
+            .suggestion-modal-header h2 {
+                font-size: 20px;
+            }
+            
+            .suggestion-modal-body {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .suggestion-modal-header {
+                padding: 12px 15px;
+            }
+            
+            .suggestion-modal-header h2 {
+                font-size: 18px;
+            }
+            
+            .suggestion-modal-body {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .suggestion-modal-content {
+                margin: 8px;
+                max-width: calc(100% - 16px);
+            }
+            
+            .suggestion-modal-header {
+                padding: 10px 12px;
+            }
+            
+            .suggestion-modal-header h2 {
+                font-size: 16px;
+            }
+            
+            .suggestion-modal-body {
+                padding: 12px;
+            }
+        }
+        
+        /* Enhanced positioning for larger screens */
+        @media (min-width: 1200px) {
+        }
+        
+        @media (max-width: 1199px) and (min-width: 992px) {
+        }
+        
+        /* Handle landscape orientation on mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+        }
+        
+        /* Ensure button doesn't overlap with important content */
+        @media (max-width: 768px) {
+            .info-section {
+                margin-right: 20px; /* Add some margin to avoid button overlap */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .info-section {
+                margin-right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="feedback-modal" style="display:none; position:fixed; z-index:2147483647; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
+        <div id="feedback-modal-content" tabindex="0" style="background:#fff; border-radius:12px; max-width:700px; width:95vw; max-height:90vh; overflow-y:auto; padding:30px; position:relative; box-shadow:0 8px 32px rgba(0,0,0,0.25); outline:none;">
+            <h2 style="text-align:center; color:#1abc9c; margin-bottom:20px;">We Value Your Feedback</h2>
+            <div id="feedback-form-container" style="min-height:200px;">Loading feedback form...</div>
+        </div>
+        <div id="feedback-modal-blocker" style="position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:2147483646; background:rgba(0,0,0,0.01); pointer-events:auto;"></div>
+    </div>
+
+    <div style="width: 100%;"><div id="header"></div></div>
+
+    <!-- Give Suggestion Button Section -->
+    <div class="give-suggestion-container">
+        <button class="give-suggestion-btn" onclick="openSuggestionModal()">
+            💡 Give Suggestion/Complains
+        </button>
+    </div>
+
+    <!-- Suggestion Modal -->
+    <div id="suggestionModal" class="suggestion-modal">
+        <div class="suggestion-modal-content">
+            <div class="suggestion-modal-header">
+                <h2>Share Your Suggestion</h2>
+                <button class="suggestion-close" onclick="closeSuggestionModal()">&times;</button>
+            </div>
+            <div class="suggestion-modal-body">
+                <div id="suggestionLimitInfo" class="suggestion-limit-info" style="display: none;">
+                    <strong>📝 Monthly Suggestion Limit:</strong> You can submit <span id="remainingSuggestions">0</span> more suggestions this month.
+                </div>
+                
+                <form id="suggestionForm">
+                    <div class="suggestion-form-group">
+                        <label for="suggestionCategory">Category *</label>
+                        <select id="suggestionCategory" required>
+                            <option value="">Select a category</option>
+                            <option value="facility">Facility Management</option>
+                            <option value="security">Security & Safety</option>
+                            <option value="maintenance">Maintenance & Repairs</option>
+                            <option value="communication">Communication & Information</option>
+                            <option value="financial">Financial & Billing</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="suggestion-form-group">
+                        <label for="suggestionTitle">Title *</label>
+                        <input type="text" id="suggestionTitle" placeholder="Brief title for your suggestion" maxlength="100" required>
+                    </div>
+                    
+                    <div class="suggestion-form-group">
+                        <label for="suggestionDescription">Description *</label>
+                        <textarea id="suggestionDescription" placeholder="Please describe your suggestion in detail..." maxlength="1000" required></textarea>
+                    </div>
+                    
+                    <div class="suggestion-form-group">
+                        <label for="suggestionPriority">Priority Level</label>
+                        <select id="suggestionPriority">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="suggestion-submit-btn" id="suggestionSubmitBtn">
+                        Submit Suggestion
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <h3>Profile Information</h3>
+        <div id="profile-debug-info" style="background: #f0f8ff; padding: 10px; margin-bottom: 15px; border-radius: 5px; font-size: 12px; color: #333;">🔧 Checking permissions...</div>
+        <form id="profileForm">
+            <div class="form-group"><label for="name">Owner Name:</label><input type="text" class="form-control" id="name" disabled></div>
+            <div class="form-group"><label for="father">Father Name:</label><input type="text" class="form-control" id="father" disabled></div>
+            <div class="form-group"><label for="plot">Plot No:</label><input type="text" class="form-control" id="plot" disabled></div>
+            
+            <!-- Property Type Field -->
+            <div class="form-group">
+                <label for="property-type">Property Type:</label>
+                <input type="text" class="form-control" id="property-type" disabled>
+            </div>
+            
+            <!-- Plot Size (shown if Property Type is House) -->
+            <div class="form-group" id="plot-size-container" style="display: none;">
+                <label for="plot-size">Plot Size (Marla):</label>
+                <input type="text" class="form-control" id="plot-size" disabled>
+            </div>
+            
+            <!-- No of Shops (shown if Property Type is Shop) -->
+            <div class="form-group" id="no-of-shops-container" style="display: none;">
+                <label for="no-of-shops">No of Shops:</label>
+                <input type="text" class="form-control" id="no-of-shops" disabled>
+            </div>
+            
+            <div class="form-group"><label for="status">Residence Status:</label><input type="text" class="form-control" id="status" disabled></div>
+            <div class="form-group"><label for="prev-address">Previous Address (Owner):</label><input type="text" class="form-control" id="prev-address" disabled></div>
+            <div class="form-group"><label for="cnic">Owner CNIC:</label><input type="text" class="form-control" id="cnic" disabled></div>
+            
+            <!-- Renter Details (shown if status is Rented or Both) -->
+            <div id="renter-details-container" style="display: none;">
+                <div class="form-group">
+                    <label for="renter-name">Renter Name:</label>
+                    <input type="text" class="form-control" id="renter-name" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="renter-phone">Renter Phone No:</label>
+                    <input type="text" class="form-control" id="renter-phone" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="renter-cnic">Renter CNIC:</label>
+                    <input type="text" class="form-control" id="renter-cnic" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="renter-prev-address">Renter Previous Address:</label>
+                    <input type="text" class="form-control" id="renter-prev-address" disabled>
+                </div>
+            </div>
+            
+            <div class="form-group"><label for="members">Number of Family Members:</label><input type="number" class="form-control" id="members" disabled></div>
+            <div class="form-group"><label for="phone">Phone No:</label><input type="text" class="form-control" id="phone" disabled></div>
+            <div class="form-group"><label for="built-status">Built Status:</label><input type="text" class="form-control" id="built-status" disabled></div>
+            <div class="form-group"><label for="blood-group">Blood Group:</label><input type="text" class="form-control" id="blood-group" disabled></div>
+            
+            <!-- Editable Fields -->
+            <div class="form-group"><label for="email">Email:</label><input type="email" class="form-control" id="email" disabled></div>
+            <div class="form-group"><label for="password">New Password (optional):</label><input type="password" class="form-control" id="password" placeholder="Enter new password to change" disabled></div>
+            <div class="form-group"><label for="picture">Profile Picture:</label><input type="file" class="form-control" id="picture" disabled></div>
+            <button type="button" class="btn btn-primary edit-btn" onclick="enableEdit()">Edit</button>
+            <button type="submit" class="btn btn-success save-btn" id="save-btn" style="display:none;">Save</button>
+        </form>
+    </div>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js"></script>
+<script>
+    let currentUser = null; 
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('header.html').then(r=>r.text()).then(data => {
+            document.getElementById('header').innerHTML = data;
+            
+            // Initialize hamburger menu after header is loaded
+            initializeHamburgerMenu();
+        });
+        populateUserProfile();
+        document.getElementById('profileForm').addEventListener('submit', saveProfile);
+        disableProfileEditIfUnauthorized();
+
+        // Feedback modal logic
+        // checkAndShowFeedbackModal(); // Removed immediate popup - monthly enforcement still active via common.js
+    });
+
+    // Function to initialize hamburger menu after dynamic loading
+    function initializeHamburgerMenu() {
+        // Backup function for inline onclick
+        window.toggleHamburgerMenu = function() {
+            const menuContainer = document.querySelector('.menu-container');
+            if (menuContainer) {
+                menuContainer.classList.toggle('active');
+                console.log('Hamburger menu toggled via inline onclick');
+            }
+        };
+
+        // Add event listeners for hamburger menu
+        const hamburger = document.querySelector('.hamburger');
+        const menuContainer = document.querySelector('.menu-container');
+        
+        if (hamburger && menuContainer) {
+            hamburger.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Hamburger clicked!'); // Debug log
+                menuContainer.classList.toggle('active');
+            });
+            
+            // Also handle touch events for mobile
+            hamburger.addEventListener('touchstart', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Hamburger touched!'); // Debug log
+                menuContainer.classList.toggle('active');
+            });
+            
+            console.log('Hamburger menu initialized successfully');
+        } else {
+            console.error('Hamburger or menu container not found after header load!');
+        }
+    }
+
+    // --- FEEDBACK MODAL LOGIC ---
+    async function checkAndShowFeedbackModal() {
+        try {
+            const response = await fetch('/api/feedback/check-required');
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Feedback check result:', result);
+                
+                // Check if no staff members are present
+                if (result.noStaffMembers === true) {
+                    console.log('No staff members present - feedback not required');
+                    showSuccess('✅ Welcome! No staff members are currently available, so feedback is optional.');
+                    return; // Don't show feedback modal
+                }
+                
+                // Check if staff are now available after previous "no staff" access
+                if (result.staffNowAvailable === true) {
+                    console.log('Staff now available - feedback required after previous no-staff access');
+                    showFeedbackModal(result.message || 'Staff members are now available. Please provide your feedback to continue using the portal.');
+                    return;
+                }
+                
+                if (result.isRequired) {
+                    showFeedbackModal(result.message);
+                } else {
+                    console.log('Feedback not required:', result.message);
+                }
+            }
+        } catch (error) {
+            console.error('Error checking feedback requirement:', error);
+        }
+    }
+
+    function showFeedbackModal(message) {
+        const modal = document.getElementById('feedback-modal');
+        const modalContent = document.getElementById('feedback-modal-content');
+        const container = document.getElementById('feedback-form-container');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        document.body.style.pointerEvents = 'none';
+        // Trap focus inside modal
+        setTimeout(() => { modalContent.focus(); }, 100);
+        // Load feedback form HTML via AJAX
+        fetch('Feedback.html').then(r => r.text()).then(html => {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            const feedbackSection = tempDiv.querySelector('.feedback-section');
+            if (feedbackSection) {
+                container.innerHTML = '';
+                container.appendChild(feedbackSection);
+                feedbackSection.style.boxShadow = 'none';
+                feedbackSection.style.margin = '0';
+                feedbackSection.style.background = 'none';
+                feedbackSection.querySelector('h2').style.textAlign = 'center';
+                // Remove any close buttons if present
+                const closeBtn = feedbackSection.querySelector('.close, .close-btn');
+                if (closeBtn) closeBtn.remove();
+                // Attach submit handler override
+                const submitBtn = feedbackSection.querySelector('.submit-btn');
+                if (submitBtn) {
+                    submitBtn.onclick = async function() {
+                        const feedbackForms = feedbackSection.querySelectorAll('.member-feedback');
+                        
+                        // Check if no staff members are present
+                        if (feedbackForms.length === 0) {
+                            showSuccess('✅ No staff members are available for feedback. Portal access granted!');
+                            // Close modal and allow access
+                            modal.style.display = 'none';
+                            document.body.style.overflow = '';
+                            document.body.style.pointerEvents = '';
+                            document.onkeydown = null;
+                            return;
+                        }
+                        
+                        let allFormsValid = true;
+                        const feedbackPayload = [];
+                        feedbackForms.forEach(form => {
+                            const personName = form.dataset.memberName;
+                            const category = form.dataset.category;
+                            const satisfactionRadio = form.querySelector('input[type="radio"]:checked');
+                            const comments = form.querySelector('textarea').value;
+                            if (!satisfactionRadio) {
+                                allFormsValid = false;
+                                return;
+                            }
+                            feedbackPayload.push({
+                                personName,
+                                category,
+                                isSatisfied: satisfactionRadio.value === 'yes',
+                                comments,
+                                submittedAt: new Date().toISOString(),
+                                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                            });
+                        });
+                        if (!allFormsValid || feedbackPayload.length === 0) {
+                            showError('❌ Please provide a satisfaction rating (Yes/No) for every member.');
+                            return;
+                        }
+                        submitBtn.textContent = 'Submitting...';
+                        submitBtn.disabled = true;
+                        try {
+                            const response = await fetch('/api/feedback', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                                body: JSON.stringify(feedbackPayload)
+                            });
+                            if (!response.ok) throw new Error('Server error');
+                            showSuccess('✅ Thank you! Your feedback has been submitted successfully.');
+                            // Remove the modal immediately after successful submission
+                            modal.style.display = 'none';
+                            document.body.style.overflow = '';
+                            document.body.style.pointerEvents = '';
+                            // Remove focus trap
+                            document.onkeydown = null;
+                            // Reload page to reflect updated feedback status
+                            window.location.reload();
+                        } catch (error) {
+                            showError('❌ An error occurred while submitting your feedback. Please try again.');
+                        } finally {
+                            submitBtn.textContent = 'Submit All Feedback';
+                            submitBtn.disabled = false;
+                        }
+                    };
+                }
+            } else {
+                container.innerHTML = '<div style="color:red;">Failed to load feedback form.</div>';
+            }
+        });
+        // Trap tab focus inside modal
+        document.onkeydown = function(e) {
+            if (modal.style.display === 'flex') {
+                // Prevent all keys except tab for focus trap
+                if (e.key !== 'Tab') {
+                    e.preventDefault();
+                    return false;
+                }
+                // Trap tab focus
+                const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey) {
+                    if (document.activeElement === first) {
+                        last.focus();
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        first.focus();
+                        e.preventDefault();
+                    }
+                }
+            }
+        };
+        // Prevent closing modal by clicking outside
+        modal.onclick = function(e) { e.stopPropagation(); };
+    }
+
+    async function populateUserProfile() {
+        try {
+            const response = await fetch('/api/users/me');
+            if (!response.ok) { window.location.href = '/Login Page.html'; return; }
+            currentUser = await response.json();
+            
+            console.log('Current user data:', currentUser);
+            
+            // Basic fields
+            document.getElementById('name').value = currentUser.ownerName || '';
+            document.getElementById('father').value = currentUser.fatherName || '';
+            document.getElementById('plot').value = currentUser.plotNo || '';
+            
+            // Property Type and conditional fields
+            const propertyType = currentUser.propertyType || 'House';
+            document.getElementById('property-type').value = propertyType;
+            
+            if (propertyType === 'House') {
+                document.getElementById('plot-size-container').style.display = 'block';
+                document.getElementById('plot-size').value = currentUser.plotSizeMarla || '';
+                document.getElementById('no-of-shops-container').style.display = 'none';
+            } else if (propertyType === 'Shop') {
+                document.getElementById('no-of-shops-container').style.display = 'block';
+                // For shops, plotSizeMarla contains the shop count
+                document.getElementById('no-of-shops').value = currentUser.plotSizeMarla || '';
+                document.getElementById('plot-size-container').style.display = 'none';
+            } else {
+                document.getElementById('plot-size-container').style.display = 'none';
+                document.getElementById('no-of-shops-container').style.display = 'none';
+            }
+            
+            // Residence Status and renter details
+            const residenceStatus = currentUser.status || '';
+            document.getElementById('status').value = residenceStatus;
+            document.getElementById('prev-address').value = currentUser.previousAddress || '';
+            document.getElementById('cnic').value = currentUser.cnic || '';
+            
+            // Show renter details if status is Rented or Both
+            if (residenceStatus === 'Rented' || residenceStatus === 'Both') {
+                document.getElementById('renter-details-container').style.display = 'block';
+                document.getElementById('renter-name').value = currentUser.renterName || '';
+                document.getElementById('renter-phone').value = currentUser.renterPhoneNo || '';
+                document.getElementById('renter-cnic').value = currentUser.renterCnic || '';
+                document.getElementById('renter-prev-address').value = currentUser.renterPreviousAddress || '';
+            } else {
+                document.getElementById('renter-details-container').style.display = 'none';
+            }
+            
+            // Other fields
+            document.getElementById('members').value = currentUser.familyMembers || '0';
+            document.getElementById('phone').value = currentUser.phoneNo || '';
+            document.getElementById('built-status').value = currentUser.builtStatus || '';
+            document.getElementById('blood-group').value = currentUser.bloodGroup || '';
+            document.getElementById('email').value = currentUser.email || '';
+            
+        } catch (error) {
+            console.error('Failed to load user profile:', error);
+        }
+    }
+
+    function setActive() { /* ... function remains the same ... */ }
+
+    function enableEdit() {
+        if (!window.canEditProfile) return;
+        // Only enable email, password, and picture - all other fields remain read-only
+        ['email', 'password', 'picture'].forEach(id => {
+            document.getElementById(id).disabled = false;
+            document.getElementById(id).classList.add('editable');
+        });
+        document.getElementById("save-btn").style.display = 'block';
+        document.querySelector(".edit-btn").style.display = 'none';
+    }
+
+    // Role-based disabling for profile management
+    async function disableProfileEditIfUnauthorized() {
+        const debugDiv = document.getElementById('profile-debug-info');
+        debugDiv.innerHTML = '🔧 Checking profile edit permissions...';
+        try {
+            const userRes = await fetch('/api/users/me');
+            if (!userRes.ok) {
+                debugDiv.innerHTML = '❌ Not logged in - cannot edit profile.';
+                disableProfileButtons();
+                return;
+            }
+            const currentUser = await userRes.json();
+            // Allow editing for the profile owner (self) and also for President/General-Secretary as admin override
+            // If this page is extended to edit other users, add a viewerId check here.
+            const allowedRoles = ['President', 'General-Secretary'];
+            // By default, the profile page shows the logged-in user's profile (self-edit allowed)
+            window.canEditProfile = true || allowedRoles.includes(currentUser.role);
+            if (!window.canEditProfile) {
+                debugDiv.innerHTML = `🚫 Only President or General Secretary can edit other users' profiles. Your role: ${currentUser.role}`;
+                disableProfileButtons();
+            } else {
+                debugDiv.innerHTML = `✅ You can edit your profile. Role: ${currentUser.role}`;
+            }
+        } catch (e) {
+            debugDiv.innerHTML = '💥 Error checking profile permissions.';
+            disableProfileButtons();
+        }
+    }
+
+    function disableProfileButtons() {
+        const editBtn = document.querySelector('.edit-btn');
+        const saveBtn = document.getElementById('save-btn');
+        if (editBtn) {
+            editBtn.disabled = true;
+            editBtn.style.backgroundColor = '#cccccc';
+            editBtn.style.color = '#666666';
+            editBtn.style.cursor = 'not-allowed';
+            editBtn.title = '🚫 Only President or General Secretary can edit profile.';
+            editBtn.innerHTML = '🚫 Edit (Unauthorized)';
+        }
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.style.backgroundColor = '#cccccc';
+            saveBtn.style.color = '#666666';
+            saveBtn.style.cursor = 'not-allowed';
+            saveBtn.title = '🚫 Only President or General Secretary can save profile.';
+            saveBtn.innerHTML = '🚫 Save (Unauthorized)';
+        }
+    }
+
+    async function saveProfile(event) {
+        event.preventDefault();
+        if (!currentUser || !currentUser.id) {
+            showError("❌ Could not identify user. Please log in again.");
+            return;
+        }
+
+        const formData = new FormData();
+        
+        // Create a clean user object - keep all existing fields, only update editable ones (email, password, picture)
+        const updatedUser = {
+            id: currentUser.id,
+            ownerName: currentUser.ownerName,
+            fatherName: currentUser.fatherName,
+            plotNo: currentUser.plotNo,
+            plotSizeMarla: currentUser.plotSizeMarla,
+            propertyType: currentUser.propertyType,
+            noOfShops: currentUser.noOfShops,
+            status: currentUser.status,
+            previousAddress: currentUser.previousAddress,
+            cnic: currentUser.cnic,
+            renterName: currentUser.renterName,
+            renterPhoneNo: currentUser.renterPhoneNo,
+            renterCnic: currentUser.renterCnic,
+            renterPreviousAddress: currentUser.renterPreviousAddress,
+            familyMembers: currentUser.familyMembers,
+            phoneNo: currentUser.phoneNo,
+            builtStatus: currentUser.builtStatus,
+            bloodGroup: currentUser.bloodGroup,
+            role: currentUser.role,
+            profilePicturePath: currentUser.profilePicturePath,
+            lastAccessWasNoStaff: currentUser.lastAccessWasNoStaff,
+            accountStatus: currentUser.accountStatus,
+            accountBalance: currentUser.accountBalance,
+            // Only update editable fields from the form
+            email: document.getElementById('email').value
+        };
+        
+        const newPassword = document.getElementById('password').value;
+        if (newPassword) {
+            updatedUser.password = newPassword;
+        }
+
+        // Explicitly remove fields that shouldn't be updated by users or don't exist in entity
+        delete updatedUser.lastFeedbackDate;
+        delete updatedUser.debitAmount;
+        delete updatedUser.dueAmount;
+
+        formData.append('user', new Blob([JSON.stringify(updatedUser)], { type: 'application/json' }));
+        
+        const profilePictureFile = document.getElementById('picture').files[0];
+        if (profilePictureFile) {
+            formData.append('profilePicture', profilePictureFile);
+        }
+
+        try {
+            const response = await fetch(`/api/users/${currentUser.id}`, {
+                method: 'PUT',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to save profile.");
+            }
+
+            // Check if email or password was changed
+            const originalEmail = currentUser.email;
+            const newEmail = document.getElementById('email').value;
+            const newPassword = document.getElementById('password').value;
+            
+            const emailChanged = originalEmail !== newEmail;
+            const passwordChanged = newPassword && newPassword.trim() !== '';
+
+            if (emailChanged || passwordChanged) {
+                let message = "✅ Profile saved successfully! ";
+                if (emailChanged && passwordChanged) {
+                    message += "Your email and password have been changed. Please log in again with your new credentials.";
+                } else if (emailChanged) {
+                    message += "Your email has been changed. Please log in again with your new email address.";
+                } else if (passwordChanged) {
+                    message += "Your password has been changed. Please log in again with your new password.";
+                }
+                
+                showSuccess(message);
+                
+                // Wait a moment, then redirect to login page
+                setTimeout(() => {
+                    // Clear any existing session
+                    fetch('/logout', { method: 'POST' })
+                        .finally(() => {
+                            window.location.href = '/Login Page.html';
+                        });
+                }, 4000); // 4 second delay to show the message
+            } else {
+                showSuccess("✅ Profile saved successfully! Reloading...");
+                // Only reload if no authentication-critical fields were changed
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }
+
+        } catch (error) {
+            console.error("Error saving profile:", error);
+            showError("❌ Error: Could not save profile.");
+        }
+    }
+
+    // --- SUGGESTION MODAL FUNCTIONALITY ---
+    let suggestionLimits = { monthly: 5, remaining: 5 };
+
+    async function openSuggestionModal() {
+        try {
+            // Load user's suggestion limits
+            await loadSuggestionLimits();
+            
+            // Check if user can submit more suggestions
+            if (suggestionLimits.remaining <= 0) {
+                showError('❌ You have reached your monthly suggestion limit. Please try again next month.');
+                return;
+            }
+            
+            // Show remaining suggestions info
+            document.getElementById('remainingSuggestions').textContent = suggestionLimits.remaining;
+            document.getElementById('suggestionLimitInfo').style.display = 'block';
+            
+            // Show modal
+            document.getElementById('suggestionModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+        } catch (error) {
+            console.error('Error opening suggestion modal:', error);
+            showError('❌ Error loading suggestion form. Please try again.');
+        }
+    }
+
+    function closeSuggestionModal() {
+        document.getElementById('suggestionModal').style.display = 'none';
+        document.body.style.overflow = '';
+        
+        // Reset form
+        document.getElementById('suggestionForm').reset();
+    }
+
+    async function loadSuggestionLimits() {
+        try {
+            const response = await fetch('/api/suggestions/limits');
+            if (response.ok) {
+                suggestionLimits = await response.json();
+            }
+        } catch (error) {
+            console.error('Error loading suggestion limits:', error);
+            // Use default values if API fails
+            suggestionLimits = { monthly: 5, remaining: 5 };
+        }
+    }
+
+    function updateRemainingCount() {
+        const remainingElement = document.getElementById('remainingCount');
+        if (remainingElement && suggestionLimits) {
+            remainingElement.textContent = suggestionLimits.remaining;
+        }
+    }
+
+    async function submitSuggestion(event) {
+        event.preventDefault();
+        
+        const submitBtn = document.getElementById('suggestionSubmitBtn');
+        const originalText = submitBtn.textContent;
+        
+        // Disable button and show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Submitting...';
+        
+        try {
+            const formData = {
+                category: document.getElementById('suggestionCategory').value,
+                title: document.getElementById('suggestionTitle').value,
+                description: document.getElementById('suggestionDescription').value,
+                priority: document.getElementById('suggestionPriority').value
+            };
+            
+            const response = await fetch('/api/suggestions/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to submit suggestion');
+            }
+            
+            const result = await response.json();
+            
+            showSuccess('✅ Thank you! Your suggestion has been submitted successfully.');
+            closeSuggestionModal();
+            
+            // Update remaining suggestions count if available
+            if (result.limitInfo) {
+                suggestionLimits.remaining = result.limitInfo.remaining;
+                suggestionLimits.suggestionCount = result.limitInfo.suggestionCount;
+                updateRemainingCount();
+            }
+            
+        } catch (error) {
+            console.error('Error submitting suggestion:', error);
+            showError('❌ Error: ' + error.message);
+        } finally {
+            // Restore button state
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('suggestionModal');
+        if (event.target === modal) {
+            closeSuggestionModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeSuggestionModal();
+        }
+    });
+
+    /* COMMENTED OUT - Button hiding on scroll (user chahta hai button wahi rahe)
+    // Hide suggestion button when scrolling
+    let scrollTimeout;
+    window.addEventListener('scroll', function() {
+        const suggestionContainer = document.querySelector('.suggestion-button-container');
+        if (suggestionContainer) {
+            // Hide button immediately when scrolling starts
+            suggestionContainer.classList.add('hidden');
+            
+            // Clear previous timeout
+            clearTimeout(scrollTimeout);
+            
+            // Show button again after scroll ends (only if at top of page)
+            scrollTimeout = setTimeout(() => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollTop <= 50) { // Show button only when near top of page
+                    suggestionContainer.classList.remove('hidden');
+                }
+            }, 300);
+        }
+    });
+    */
+
+    // Initialize suggestion form when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('suggestionForm').addEventListener('submit', submitSuggestion);
+    });
+</script>
+</body>
+</html>

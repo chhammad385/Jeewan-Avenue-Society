@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masjid Al-Huda - Prayer Times</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=Poppins:wght@300;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1abc9c;
+            --accent: #D4AF37;
+            --bg: #f8f8f8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .time-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .prayer-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+
+        .prayer-card.current-prayer {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .prayer-name {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .current-prayer .prayer-name {
+            color: white;
+        }
+
+        .prayer-time {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 1rem 0;
+            color: var(--primary);
+        }
+
+        .current-prayer .prayer-time {
+            color: var(--accent);
+        }
+
+        .countdown {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin: 2rem 0;
+        }
+
+        .progress-container {
+            height: 4px;
+            background: rgba(46, 139, 87, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .time-display {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header"></div>
+
+    <div class="container">
+        <header>
+            <h1>Jeewan Avenue - Masjid</h1>
+            <div class="countdown" id="countdown">Detecting your location...</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+        </header>
+
+        <div class="time-display" id="prayerTimes"></div>
+    </div>
+    <script>
+        // Function to add active class to the clicked menu item
+        function setActive() {
+            let currentPage = window.location.pathname;
+            let menuItems = document.querySelectorAll('.menu-block');
+
+            // Loop through each menu item
+            menuItems.forEach(item => {
+                if (currentPage.includes(item.href.split("/").pop())) {
+                    item.classList.add('active'); // Add the active class to the current page's menu item
+                } else {
+                    item.classList.remove('active'); // Remove the active class from others
+                }
+            });
+        }
+
+        // Call the setActive function when the page loads
+        window.onload = setActive;
+    </script>
+
+    <script>
+        // DOM Elements
+        const prayerContainer = document.getElementById('prayerTimes');
+        const countdownEl = document.getElementById('countdown');
+        const progressBar = document.getElementById('progress');
+
+        // Convert 24h time to 12h format
+        function formatTime12h(time24) {
+            const [hours, minutes] = time24.split(':');
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const hours12 = hours % 12 || 12;
+            return `${hours12}:${minutes} ${period}`;
+        }
+
+        // Fetch prayer times from API
+        async function getPrayerTimes(lat, lng) {
+            try {
+                const response = await fetch(
+                    `http://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=2`
+                );
+                const data = await response.json();
+                return data.data.timings;
+            } catch (error) {
+                console.error('Error fetching prayer times:', error);
+                return null;
+            }
+        }
+
+        // Update prayer cards
+        function createPrayerCards(timings) {
+            const prayerKeys = {
+                Fajr: '🌅 Fajr',
+                Dhuhr: '☀️ Dhuhr',
+                Asr: '⛅ Asr',
+                Maghrib: '🌇 Maghrib',
+                Isha: '🌙 Isha'
+            };
+
+            prayerContainer.innerHTML = Object.entries(prayerKeys)
+                .map(([key, name]) => `
+                    <div class="prayer-card">
+                        <div class="prayer-name">${name.split(' ')[1]}</div>
+                        <div class="prayer-time">${formatTime12h(timings[key])}</div>
+                        <div>${name.split(' ')[0]}</div>
+                    </div>
+                `).join('');
+        }
+
+        // Update current prayer and countdown
+        function updatePrayerStatus(timings) {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+
+            const prayerMinutes = Object.entries(timings).reduce((acc, [key, time]) => {
+                const [h, m] = time.split(':').map(Number);
+                acc[key] = h * 60 + m;
+                return acc;
+            }, {});
+
+            const prayersOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+            let currentPrayer = 'Isha'; // Default to last prayer
+
+            for (let i = 0; i < prayersOrder.length; i++) {
+                if (currentTime < prayerMinutes[prayersOrder[i]]) {
+                    currentPrayer = prayersOrder[i - 1] || 'Isha';
+                    break;
+                }
+            }
+
+            const nextPrayerIndex = prayersOrder.indexOf(currentPrayer) + 1;
+            const nextPrayer = prayersOrder[nextPrayerIndex] || 'Fajr';
+
+            const timeRemaining = prayerMinutes[nextPrayer] - currentTime;
+            const hours = Math.floor(timeRemaining / 60);
+            const minutes = timeRemaining % 60;
+
+            // Update UI
+            document.querySelectorAll('.prayer-card').forEach(card => {
+                card.classList.remove('current-prayer');
+                if (card.querySelector('.prayer-name').textContent === currentPrayer) {
+                    card.classList.add('current-prayer');
+                }
+            });
+
+            countdownEl.innerHTML = `Next: ${nextPrayer} in ${hours}h ${minutes}m`;
+
+            // Update progress bar
+            const totalTime = prayerMinutes[nextPrayer] - prayerMinutes[currentPrayer];
+            const elapsed = currentTime - prayerMinutes[currentPrayer];
+            const progress = (elapsed / totalTime) * 100;
+            progressBar.style.width = `${Math.min(progress, 100)}%`;
+        }
+
+        // Get user location and initialize
+        navigator.geolocation.getCurrentPosition(
+            async position => {
+                const { latitude, longitude } = position.coords;
+                const timings = await getPrayerTimes(latitude, longitude);
+
+                if (timings) {
+                    createPrayerCards(timings);
+                    updatePrayerStatus(timings);
+                    setInterval(() => updatePrayerStatus(timings), 60000);
+                } else {
+                    countdownEl.textContent = 'Failed to load prayer times';
+                }
+            },
+            error => {
+                console.error('Geolocation error:', error);
+                countdownEl.textContent = 'Please enable location access to view prayer times';
+            }
+        );
+    </script>
+    
+    <!-- Include common JavaScript functions -->
+    <script src="/js/common.js"></script>
+    <!-- Include announcement popup script for header button -->
+    <script src="/js/announcement-popup.js"></script>
+    
+    <script>
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+                // Initialize hamburger menu after header loads
+                if (window.initializeHamburgerMenu) {
+                    initializeHamburgerMenu();
+                }
+                // Call common.js functions after header is loaded
+                if (typeof setActive === 'function') {
+                    setActive();
+                }
+                if (typeof loadUserProfileImage === 'function') {
+                    loadUserProfileImage();
+                }
+            });
+    </script>
+    
+    <script src="/js/header-menu.js"></script>
+</body>
+
+</html>

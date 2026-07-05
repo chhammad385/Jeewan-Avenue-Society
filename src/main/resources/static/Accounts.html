@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts - Jeewan Avenue</title>
+    <!-- Google Fonts Import -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* New Section Styling */
+        .section-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        .btn {
+            background: white;
+            color: black;
+            text-align: center;
+            border-radius: 8px;
+            width: 120px;
+            height: 80px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            font-weight: bold;
+            font-size: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #1abc9c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+        <script>
+            fetch('header.html')
+              .then(response => response.text())
+              .then(data => {
+                document.getElementById('header').innerHTML = data;
+                // Initialize hamburger menu after header loads
+                if (window.initializeHamburgerMenu) {
+                    initializeHamburgerMenu();
+                }
+              });
+        </script>    
+
+    <!-- New Section with Two Buttons -->
+    <div class="section-container">
+        <button class="btn" onclick="window.location.href='Income-Accounts.html'">🐖<br/>Income</button>
+        <button class="btn" onclick="window.location.href='Expense-Accounts.html'">🛒<br/>Expense</button>
+    </div>
+
+    <!-- Property Statistics Section -->
+    <div style="max-width: 900px; margin: 30px auto; padding: 25px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <h2 style="text-align: center; color: #2c3e50; margin-bottom: 25px;">🏘️ Property & Payment Statistics</h2>
+        
+        <!-- House Statistics -->
+        <div style="background: #90e8f5; color: #2b2b2b; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin: 0 0 15px 0; font-size: 18px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">🏠 Property Type: House</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #22a522;">
+                    <strong>Total Completed Users:</strong> <span id="houseCompletedTotal">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #22a522;">
+                    <strong>Paid Users:</strong> <span id="houseCompletedPaid">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #c35d5b;">
+                    <strong>Total Vacant Users:</strong> <span id="houseVacantTotal">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #c35d5b;">
+                    <strong>Paid Users:</strong> <span id="houseVacantPaid">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #fb0606;">
+                    <strong>Total Residential Users:</strong> <span id="houseResidentialTotal">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #fb0606;">
+                    <strong>Paid Users:</strong> <span id="houseResidentialPaid">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #3b5dcc;">
+                    <strong>Total Under-Construction Users:</strong> <span id="houseUnderConstructionTotal">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #3b5dcc;">
+                    <strong>Paid Users:</strong> <span id="houseUnderConstructionPaid">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Statistics -->
+        <div style="background: #f6a855; color: #2b2b2b; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="margin: 0 0 15px 0; font-size: 18px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">🏪 Property Type: Shop</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #22a522;">
+                    <strong>Total Completed Users:</strong> <span id="shopCompletedTotal">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #22a522;">
+                    <strong>Paid Users:</strong> <span id="shopCompletedPaid">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #c35d5b;">
+                    <strong>Total Vacant Users:</strong> <span id="shopVacantTotal">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #c35d5b;">
+                    <strong>Paid Users:</strong> <span id="shopVacantPaid">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #fb0606;">
+                    <strong>Total Residential Users:</strong> <span id="shopResidentialTotal">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #fb0606;">
+                    <strong>Paid Users:</strong> <span id="shopResidentialPaid">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #3b5dcc;">
+                    <strong>Total Under-Construction Users:</strong> <span id="shopUnderConstructionTotal">0</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid #3b5dcc;">
+                    <strong>Paid Users:</strong> <span id="shopUnderConstructionPaid">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Summary Panel -->
+    <div style="max-width: 800px; margin: 30px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <h2 style="text-align: center; color: #2c3e50; margin-bottom: 25px;">📊 Financial Summary</h2>
+        
+        <!-- Month/Year Filter Section -->
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+            <h4 style="color: #2c3e50; margin: 0 0 15px 0;">🔍 Filter by Date</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
+                <div>
+                    <label style="font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Month</label>
+                    <select id="monthFilter" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="">All Months</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Year</label>
+                    <select id="yearFilter" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="">All Years</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-weight: 600; color: #2c3e50; display: block; margin-bottom: 5px;">Category</label>
+                    <select id="categoryFilter" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="">All Categories</option>
+                        <option value="Monthly-Payment">Monthly Payment</option>
+                        <option value="Charity">Charity</option>
+                        <option value="Expense">Expense</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Security">Security</option>
+                        <option value="Cleaning">Cleaning</option>
+                    </select>
+                </div>
+                <div>
+                    <button onclick="calculateTotals()" style="background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                        📊 Calculate
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Totals Display -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                <h3 style="margin: 0 0 10px 0; font-size: 16px;">💰 Total Income</h3>
+                <div id="totalIncome" style="font-size: 24px; font-weight: bold;">PKR 0.00</div>
+                <div id="incomeCount" style="font-size: 14px; opacity: 0.9; margin-top: 5px;">0 transactions</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                <h3 style="margin: 0 0 10px 0; font-size: 16px;">💸 Total Expense</h3>
+                <div id="totalExpense" style="font-size: 24px; font-weight: bold;">PKR 0.00</div>
+                <div id="expenseCount" style="font-size: 14px; opacity: 0.9; margin-top: 5px;">0 transactions</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                <h3 style="margin: 0 0 10px 0; font-size: 16px;">📈 Outstanding Amount</h3>
+                <div id="outstandingAmount" style="font-size: 24px; font-weight: bold;">PKR 0.00</div>
+                <div id="outstandingStatus" style="font-size: 14px; opacity: 0.9; margin-top: 5px;">-</div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions Preview -->
+        <div style="margin-top: 25px;">
+            <h4 style="color: #2c3e50; margin-bottom: 15px;">📋 Recent Filtered Transactions</h4>
+            <div id="transactionsList" style="max-height: 300px; overflow-y: auto; background: #f8f9fa; border-radius: 8px; padding: 15px;">
+                <div style="text-align: center; color: #666; padding: 20px;">
+                    Click "Calculate" to view transactions
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include common JavaScript functions -->
+    <script src="/js/common.js"></script>
+    <!-- Include announcement popup script for header button -->
+    <script src="/js/announcement-popup.js"></script>
+    <script>
+        // Global variables
+        let allFinancials = [];
+        let filteredFinancials = [];
+
+        // Global variables for property statistics
+        let allUsers = [];
+        let allMonthlyPayments = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            populateYearDropdown();
+            loadFinancialData();
+            loadUsersAndPayments();
+            
+            // Set current month and year as default
+            const now = new Date();
+            document.getElementById('monthFilter').value = now.getMonth() + 1;
+            document.getElementById('yearFilter').value = now.getFullYear();
+        });
+
+        // Populate year dropdown with available years
+        function populateYearDropdown() {
+            const yearSelect = document.getElementById('yearFilter');
+            const currentYear = new Date().getFullYear();
+            
+            // Add years from 2020 to current year + 2
+            for (let year = 2020; year <= currentYear + 2; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        // Load users and monthly payments data
+        async function loadUsersAndPayments() {
+            try {
+                console.log('Loading users and payments data...');
+                
+                // Load users
+                const usersResponse = await fetch('/api/users');
+                if (usersResponse.ok) {
+                    allUsers = await usersResponse.json();
+                    console.log('Loaded users:', allUsers.length);
+                }
+                
+                // Load monthly payments
+                const paymentsResponse = await fetch('/api/monthly-payments');
+                if (paymentsResponse.ok) {
+                    allMonthlyPayments = await paymentsResponse.json();
+                    console.log('Loaded monthly payments:', allMonthlyPayments.length);
+                }
+                
+                // Calculate property statistics with current filters
+                updatePropertyStatistics();
+                
+            } catch (error) {
+                console.error('Error loading users and payments data:', error);
+            }
+        }
+
+        // Update property statistics based on current filter
+        function updatePropertyStatistics() {
+            const monthFilter = parseInt(document.getElementById('monthFilter').value);
+            const yearFilter = parseInt(document.getElementById('yearFilter').value);
+            
+            // Build target month string in format "Month Year" or just "Month"
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            const targetMonth = monthNames[monthFilter - 1]; // Just month name
+            const targetMonthYear = `${monthNames[monthFilter - 1]} ${yearFilter}`; // Month Year format
+            
+            console.log('Updating property statistics for:', { monthFilter, yearFilter, targetMonth, targetMonthYear });
+            console.log('All financials:', allFinancials);
+            console.log('All users:', allUsers);
+            
+            // Initialize counters for House
+            const houseStats = {
+                completed: { total: 0, paid: 0 },
+                vacant: { total: 0, paid: 0 },
+                residential: { total: 0, paid: 0 },
+                underconstruction: { total: 0, paid: 0 }
+            };
+            
+            // Initialize counters for Shop
+            const shopStats = {
+                completed: { total: 0, paid: 0 },
+                vacant: { total: 0, paid: 0 },
+                residential: { total: 0, paid: 0 },
+                underconstruction: { total: 0, paid: 0 }
+            };
+            
+            // Process each user
+            allUsers.forEach(user => {
+                const propertyType = (user.propertyType || '').toLowerCase();
+                const builtStatus = (user.builtStatus || '').toLowerCase().replace('-', '').replace(' ', '');
+                
+                // Count total users by property type and built status
+                if (propertyType === 'house' && houseStats[builtStatus]) {
+                    houseStats[builtStatus].total++;
+                } else if (propertyType === 'shop' && shopStats[builtStatus]) {
+                    shopStats[builtStatus].total++;
+                }
+                
+                // Check if user paid for the selected month by finding income in financials
+                const userPayment = allFinancials.find(financial => {
+                    const isIncome = financial.type && financial.type.toLowerCase() === 'income';
+                    const plotMatches = financial.plotNo && user.plotNo && 
+                                      financial.plotNo.toString() === user.plotNo.toString();
+                    // Check both month formats: "January" or "January 2026"
+                    const monthMatches = financial.month && 
+                                       (financial.month === targetMonth || financial.month === targetMonthYear);
+                    const hasAmount = financial.amount && financial.amount > 0;
+                    
+                    if (plotMatches) {
+                        console.log('Checking financial for plot', user.plotNo, ':', {
+                            financialMonth: financial.month,
+                            targetMonth,
+                            targetMonthYear,
+                            monthMatches,
+                            isIncome,
+                            hasAmount,
+                            type: financial.type
+                        });
+                    }
+                    
+                    return isIncome && plotMatches && monthMatches && hasAmount;
+                });
+                
+                if (userPayment) {
+                    console.log('Found payment for user:', user.ownerName, 'Plot:', user.plotNo, propertyType, builtStatus);
+                    if (propertyType === 'house' && houseStats[builtStatus]) {
+                        houseStats[builtStatus].paid++;
+                    } else if (propertyType === 'shop' && shopStats[builtStatus]) {
+                        shopStats[builtStatus].paid++;
+                    }
+                }
+            });
+            
+            console.log('Final house stats:', houseStats);
+            console.log('Final shop stats:', shopStats);
+            
+            // Update House statistics in UI
+            document.getElementById('houseCompletedTotal').textContent = houseStats.completed.total;
+            document.getElementById('houseCompletedPaid').textContent = houseStats.completed.paid;
+            document.getElementById('houseVacantTotal').textContent = houseStats.vacant.total;
+            document.getElementById('houseVacantPaid').textContent = houseStats.vacant.paid;
+            document.getElementById('houseResidentialTotal').textContent = houseStats.residential.total;
+            document.getElementById('houseResidentialPaid').textContent = houseStats.residential.paid;
+            document.getElementById('houseUnderConstructionTotal').textContent = houseStats.underconstruction.total;
+            document.getElementById('houseUnderConstructionPaid').textContent = houseStats.underconstruction.paid;
+            
+            // Update Shop statistics in UI
+            document.getElementById('shopCompletedTotal').textContent = shopStats.completed.total;
+            document.getElementById('shopCompletedPaid').textContent = shopStats.completed.paid;
+            document.getElementById('shopVacantTotal').textContent = shopStats.vacant.total;
+            document.getElementById('shopVacantPaid').textContent = shopStats.vacant.paid;
+            document.getElementById('shopResidentialTotal').textContent = shopStats.residential.total;
+            document.getElementById('shopResidentialPaid').textContent = shopStats.residential.paid;
+            document.getElementById('shopUnderConstructionTotal').textContent = shopStats.underconstruction.total;
+            document.getElementById('shopUnderConstructionPaid').textContent = shopStats.underconstruction.paid;
+            
+            console.log('House stats:', houseStats);
+            console.log('Shop stats:', shopStats);
+        }
+
+        // Load financial data from API
+        async function loadFinancialData() {
+            try {
+                console.log('Loading financial data...');
+                const response = await fetch('/api/financials');
+                
+                if (response.ok) {
+                    allFinancials = await response.json();
+                    console.log('Loaded financials:', allFinancials.length);
+                    console.log('Sample financial transaction:', allFinancials[0]);
+                    console.log('All financial data:', allFinancials);
+                    
+                    // Check the structure of the data
+                    if (allFinancials.length > 0) {
+                        allFinancials.forEach((sample, index) => {
+                            console.log(`Transaction ${index + 1}:`, {
+                                id: sample.id,
+                                type: sample.type,
+                                category: sample.category,
+                                amount: sample.amount,
+                                date: sample.date,
+                                description: sample.description,
+                                plotNo: sample.plotNo
+                            });
+                        });
+                    }
+                    
+                    // Auto-calculate with current filters
+                    calculateTotals();
+                } else {
+                    console.error('Failed to load financial data, status:', response.status);
+                    showError('Failed to load financial data');
+                }
+            } catch (error) {
+                console.error('Error loading financial data:', error);
+                showError('Error loading financial data');
+            }
+        }
+
+        // Calculate totals based on current filters
+        function calculateTotals() {
+            const monthFilter = document.getElementById('monthFilter').value;
+            const yearFilter = document.getElementById('yearFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            
+            console.log('Calculating totals with filters:', { monthFilter, yearFilter, categoryFilter });
+            console.log('All financials:', allFinancials);
+            
+            // Build target month string for matching
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            const targetMonth = monthFilter ? monthNames[parseInt(monthFilter) - 1] : null;
+            const targetMonthYear = (targetMonth && yearFilter) ? `${targetMonth} ${yearFilter}` : null;
+            
+            // Filter financial data
+            filteredFinancials = allFinancials.filter(financial => {
+                const isIncome = financial.type && financial.type.toLowerCase() === 'income';
+                const isExpense = financial.type && financial.type.toLowerCase() === 'expense';
+                
+                let monthMatches = true;
+                let yearMatches = true;
+                
+                // For INCOME: Use month column
+                if (isIncome) {
+                    if (financial.month) {
+                        // Check month and year in month column
+                        if (monthFilter && yearFilter) {
+                            // Match "January 2026" format or just "January"
+                            monthMatches = financial.month === targetMonthYear || financial.month === targetMonth;
+                        } else if (monthFilter && !yearFilter) {
+                            // Only month selected (no year)
+                            monthMatches = financial.month.includes(targetMonth);
+                        } else if (!monthFilter && yearFilter) {
+                            // Only year selected (all months of that year)
+                            monthMatches = financial.month.includes(yearFilter);
+                        }
+                    } else {
+                        // Fall back to date if month column empty
+                        const transactionDate = new Date(financial.date);
+                        const transactionMonth = transactionDate.getMonth() + 1;
+                        const transactionYear = transactionDate.getFullYear();
+                        
+                        if (monthFilter) {
+                            monthMatches = transactionMonth == monthFilter;
+                        }
+                        if (yearFilter) {
+                            yearMatches = transactionYear == yearFilter;
+                        }
+                    }
+                }
+                
+                // For EXPENSE: Use date column only
+                if (isExpense) {
+                    const transactionDate = new Date(financial.date);
+                    const transactionMonth = transactionDate.getMonth() + 1;
+                    const transactionYear = transactionDate.getFullYear();
+                    
+                    if (monthFilter) {
+                        monthMatches = transactionMonth == monthFilter;
+                    }
+                    if (yearFilter) {
+                        yearMatches = transactionYear == yearFilter;
+                    }
+                }
+                
+                console.log('Checking transaction:', {
+                    date: financial.date,
+                    month: financial.month,
+                    type: financial.type,
+                    category: financial.category,
+                    amount: financial.amount,
+                    isIncome,
+                    isExpense,
+                    monthMatches,
+                    yearMatches
+                });
+                
+                if (!monthMatches || !yearMatches) {
+                    return false;
+                }
+                
+                // Apply category filter
+                if (categoryFilter && financial.category !== categoryFilter) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            console.log('Filtered financials:', filteredFinancials);
+            
+            // Separate income and expense transactions based on actual database structure
+            // Financial entity has 'type' field: "Income" or "Expense"
+            const incomeTransactions = filteredFinancials.filter(f => {
+                const type = (f.type || '').toLowerCase();
+                return type === 'income' || type === 'INCOME';
+            });
+            
+            const expenseTransactions = filteredFinancials.filter(f => {
+                const type = (f.type || '').toLowerCase();
+                return type === 'expense' || type === 'EXPENSE';
+            });
+            
+            console.log('Raw filtered transactions:', filteredFinancials);
+            console.log('Income transactions (filtered):', incomeTransactions);
+            console.log('Expense transactions (filtered):', expenseTransactions);
+            
+            console.log('Income transactions:', incomeTransactions);
+            console.log('Expense transactions:', expenseTransactions);
+            
+            // Calculate totals - use absolute values since amounts are stored as positive
+            const totalIncome = incomeTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+            const totalExpense = expenseTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+            const outstanding = totalIncome - totalExpense;
+            
+            console.log('Totals:', { totalIncome, totalExpense, outstanding });
+            
+            // Update UI
+            document.getElementById('totalIncome').textContent = `PKR ${totalIncome.toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+            document.getElementById('totalExpense').textContent = `PKR ${totalExpense.toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+            document.getElementById('outstandingAmount').textContent = `PKR ${Math.abs(outstanding).toLocaleString('en-PK', {minimumFractionDigits: 2})}`;
+            
+            // Update counts
+            document.getElementById('incomeCount').textContent = `${incomeTransactions.length} transactions`;
+            document.getElementById('expenseCount').textContent = `${expenseTransactions.length} transactions`;
+            
+            // Update outstanding status
+            const statusElement = document.getElementById('outstandingStatus');
+            if (outstanding > 0) {
+                statusElement.textContent = 'Surplus';
+                statusElement.style.color = '#2ecc71';
+            } else if (outstanding < 0) {
+                statusElement.textContent = 'Deficit';
+                statusElement.style.color = '#e74c3c';
+            } else {
+                statusElement.textContent = 'Balanced';
+                statusElement.style.color = '#f39c12';
+            }
+            
+            // Update transactions list
+            displayFilteredTransactions();
+            
+            // Update property statistics
+            updatePropertyStatistics();
+        }
+
+        // Display filtered transactions
+        function displayFilteredTransactions() {
+            const container = document.getElementById('transactionsList');
+            
+            if (filteredFinancials.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No transactions found for the selected filters</div>';
+                return;
+            }
+            
+            // Sort by date (most recent first)
+            const sortedTransactions = filteredFinancials.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Display up to 10 recent transactions
+            const recentTransactions = sortedTransactions.slice(0, 10);
+            
+            let html = '';
+            recentTransactions.forEach(transaction => {
+                // Determine if transaction is income based on the actual database 'type' field
+                const type = (transaction.type || '').toLowerCase();
+                let isIncome = type === 'income' || type === 'INCOME';
+                              
+                const amount = transaction.amount || 0;
+                const bgColor = isIncome ? '#e8f5e8' : '#ffeaea';
+                const textColor = isIncome ? '#27ae60' : '#e74c3c';
+                const icon = isIncome ? '💰' : '💸';
+                
+                console.log('Displaying transaction:', {
+                    description: transaction.description,
+                    type: transaction.type,
+                    isIncome: isIncome,
+                    amount: amount
+                });
+                
+                html += `
+                    <div style="background: ${bgColor}; border-left: 4px solid ${textColor}; padding: 12px; margin-bottom: 8px; border-radius: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #2c3e50;">${icon} ${transaction.description || transaction.category || 'No description'}</div>
+                                <div style="font-size: 12px; color: #666; margin-top: 2px;">
+                                    ${transaction.category || 'Unknown'} • ${new Date(transaction.date).toLocaleDateString('en-PK')} • Plot: ${transaction.plotNo || 'N/A'}
+                                </div>
+                            </div>
+                            <div style="font-weight: bold; color: ${textColor}; font-size: 16px;">
+                                ${isIncome ? '+' : '-'} PKR ${amount.toLocaleString('en-PK', {minimumFractionDigits: 2})}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (filteredFinancials.length > 10) {
+                html += `<div style="text-align: center; color: #666; padding: 10px; font-style: italic;">
+                    Showing 10 of ${filteredFinancials.length} transactions
+                </div>`;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Show error message
+        function showError(message) {
+            document.getElementById('totalIncome').textContent = 'Error';
+            document.getElementById('totalExpense').textContent = 'Error';
+            document.getElementById('outstandingAmount').textContent = 'Error';
+            document.getElementById('transactionsList').innerHTML = `
+                <div style="text-align: center; color: #e74c3c; padding: 20px;">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        // Function to add active class to the clicked menu item
+        function setActive() {
+            let currentPage = window.location.pathname;
+            let menuItems = document.querySelectorAll('.menu-block');
+
+            // Loop through each menu item
+            menuItems.forEach(item => {
+                if (currentPage.includes(item.href.split("/").pop())) {
+                    item.classList.add('active'); // Add the active class to the current page's menu item
+                } else {
+                    item.classList.remove('active'); // Remove the active class from others
+                }
+            });
+        }
+
+        // Call the setActive function when the page loads
+        window.onload = setActive;
+    </script>
+    
+    <script src="/js/header-menu.js"></script>
+</body>
+</html>

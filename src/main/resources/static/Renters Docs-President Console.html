@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renters Docs-President Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Your existing CSS styles remain unchanged */
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .page-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 25px; 
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            padding: 20px 25px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+        .page-header .stats { 
+            display: flex; 
+            gap: 30px;
+        }
+        .page-header .stats > div {
+            background: linear-gradient(135deg, #1abc9c);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 10px rgba(26, 188, 156, 0.3);
+            transition: all 0.3s ease;
+        }
+        .page-header .stats > div:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(26, 188, 156, 0.4);
+        }
+        .page-header .stats span {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .search-add { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; }
+        .search-add input { 
+            flex: 1;
+            padding: 12px 16px; 
+            border: 2px solid #e1e8ed; 
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .search-add input:focus {
+            outline: none;
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+        }
+        .search-add button { 
+            padding: 12px 25px; 
+            background: linear-gradient(135deg, #1abc9c);
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 180px;
+        }
+        .search-add button:hover {
+            background: linear-gradient(135deg, #1abc9c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 188, 156, 0.3);
+        }
+        .search-add button:disabled {
+            background: #cccccc !important;
+            color: #666666 !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: #ffffff; 
+            border-radius: 15px; 
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .table th, .table td { 
+            padding: 15px 20px; 
+            text-align: left; 
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .table th { 
+            background: linear-gradient(135deg, #1abc9c);
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .table td a { 
+            color: #1abc9c; 
+            text-decoration: none; 
+            margin-right: 10px; 
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
+        .table td a:hover {
+            background-color: #1abc9c;
+            color: white;
+            transform: translateY(-1px);
+        }
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.6); 
+            backdrop-filter: blur(8px);
+            justify-content: center; 
+            align-items: center; 
+            z-index: 10000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content { 
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.8);
+            position: relative;
+            transform: scale(0.9);
+            animation: modalSlideIn 0.3s ease-out forwards;
+        }
+
+        @keyframes modalSlideIn {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .modal-content h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .modal-content h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(135deg, #1abc9c);
+            border-radius: 2px;
+        }
+
+        .modal-content .form-group { 
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-content label { 
+            display: block; 
+            margin-bottom: 0.5rem;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .modal-content input, 
+        .modal-content textarea, 
+        .modal-content select { 
+            width: 100%; 
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+
+        .modal-content input:focus, 
+        .modal-content textarea:focus, 
+        .modal-content select:focus {
+            outline: none;
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .modal-content textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-content .dual-input { 
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .modal-content .dual-input > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e1e8ed;
+        }
+
+        .modal-content button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal-content button[type="submit"] {
+            background: linear-gradient(135deg, #1abc9c);
+            color: white;
+        }
+
+        .modal-content button[type="submit"]:hover {
+            background: linear-gradient(135deg, #1abc9c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 188, 156, 0.3);
+        }
+
+        .modal-content button[type="button"] {
+            background: #ecf0f1;
+            color: #34495e;
+            border: 2px solid #bdc3c7;
+        }
+
+        .modal-content button[type="button"]:hover {
+            background: #d5dbdb;
+            transform: translateY(-1px);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #e74c3c;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .modal-content {
+                padding: 1.5rem;
+                margin: 10px;
+                max-width: none;
+                width: calc(100% - 20px);
+            }
+
+            .modal-content .dual-input {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .form-buttons {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .modal-content button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div id="president_console"></div>
+    <div id="debug-info" style="background: #f0f8ff; padding: 10px; margin-bottom: 15px; border-radius: 5px; font-size: 12px; color: #333;">🔧 Checking permissions...</div>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="stats">
+                <div>Active Renters: <span id="activeRentersStat">0</span></div>
+                <div>Total Records: <span id="totalRecordsStat">0</span></div>
+            </div>
+        </div>
+        <div class="search-add">
+            <input type="text" id="searchInput" placeholder="Search by plot, name, or contact..." onkeyup="searchRenters()">
+            <button onclick="showModal()">Add New Renter</button>
+        </div>
+        <div class="table-container">
+            <table class="table" id="renterTable">
+                <thead>
+                    <tr>
+                        <th>Plot Number</th>
+                        <th>Renter Name</th>
+                        <th>Contact</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Document</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="renter-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <button type="button" class="close-btn" onclick="hideModal()">&times;</button>
+            <h2>Add New Renter Record</h2>
+            <form id="addRenterForm">
+                <div class="form-group dual-input">
+                    <div>
+                        <label>Plot Number *</label>
+                        <input type="text" name="plotNumber" required placeholder="Enter plot number">
+                    </div>
+                    <div>
+                        <label>Renter Name *</label>
+                        <input type="text" name="renterName" required placeholder="Enter renter name">
+                    </div>
+                </div>
+                
+                <div class="form-group dual-input">
+                    <div>
+                        <label>Contact Number *</label>
+                        <input type="text" name="contact" required placeholder="Enter contact number">
+                    </div>
+                    <div>
+                        <label>Email Address</label>
+                        <input type="email" name="email" placeholder="Enter email address">
+                    </div>
+                </div>
+                
+                <div class="form-group dual-input">
+                    <div>
+                        <label>Start Date *</label>
+                        <input type="date" name="startDate" required>
+                    </div>
+                    <div>
+                        <label>End Date</label>
+                        <input type="date" name="endDate">
+                    </div>
+                </div>
+                
+                <div class="form-group dual-input">
+                    <div>
+                        <label>Status *</label>
+                        <select name="status" required>
+                            <option value="">Select Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Lease Document (PDF) *</label>
+                        <input type="file" name="leaseDoc" accept="application/pdf" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea name="notes" placeholder="Enter any additional notes or comments..."></textarea>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="submit">Add Renter</button>
+                    <button type="button" onclick="hideModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+    const API_URL = '/api/renters';
+
+    // --- UTILITY FUNCTIONS ---
+    function showModal() { document.getElementById('addModal').style.display = 'flex'; }
+    async function disableUnauthorizedButtonsRenters() {
+        try {
+            const debugDiv = document.getElementById('debug-info');
+            debugDiv.innerHTML = '🔄 Loading user permissions...';
+            const currentUser = await getCurrentUser();
+            if (!currentUser) {
+                debugDiv.innerHTML = '❌ No user logged in - All functions disabled';
+                disableAllButtonsRenters();
+                return;
+            }
+            const userRole = currentUser.role;
+            if (userRole !== 'General-Secretary') {
+                debugDiv.innerHTML = `🚫 Access Restricted: Only General-Secretary can add or delete renter records (You: ${userRole})`;
+                debugDiv.style.backgroundColor = '#fff3cd';
+                debugDiv.style.color = '#856404';
+                // Disable Add button
+                const addBtn = document.querySelector('.search-add button');
+                if (addBtn) {
+                    addBtn.disabled = true;
+                    addBtn.style.backgroundColor = '#cccccc';
+                    addBtn.style.color = '#666666';
+                    addBtn.style.cursor = 'not-allowed';
+                    addBtn.innerHTML = '🚫 Add New Renter (Unauthorized)';
+                }
+                // Disable all delete links
+                const deleteLinks = document.querySelectorAll('a[onclick^="deleteRenter"]');
+                deleteLinks.forEach(link => {
+                    link.style.pointerEvents = 'none';
+                    link.style.color = '#999';
+                    link.style.textDecoration = 'line-through';
+                    link.title = '🚫 Only General-Secretary can delete renter records';
+                    link.innerHTML = '🚫 Delete (Unauthorized)';
+                });
+            } else {
+                debugDiv.innerHTML = `✅ Full Access: Welcome General-Secretary`;
+                debugDiv.style.backgroundColor = '#d4edda';
+                debugDiv.style.color = '#155724';
+                // Enable Add button
+                const addBtn = document.querySelector('.search-add button');
+                if (addBtn) {
+                    addBtn.disabled = false;
+                    addBtn.style.backgroundColor = '';
+                    addBtn.style.color = '';
+                    addBtn.style.cursor = '';
+                    addBtn.innerHTML = 'Add New Renter';
+                }
+                // Enable all delete links
+                const deleteLinks = document.querySelectorAll('a[onclick^="deleteRenter"]');
+                deleteLinks.forEach(link => {
+                    link.style.pointerEvents = '';
+                    link.style.color = '';
+                    link.style.textDecoration = '';
+                    link.title = '';
+                    link.innerHTML = 'Delete';
+                });
+            }
+        } catch (error) {
+            const debugDiv = document.getElementById('debug-info');
+            debugDiv.innerHTML = '💥 Error loading permissions - Functions may be limited';
+            disableAllButtonsRenters();
+        }
+    }
+
+    function disableAllButtonsRenters() {
+        const addBtn = document.querySelector('.search-add button');
+        if (addBtn) {
+            addBtn.disabled = true;
+            addBtn.style.backgroundColor = '#cccccc';
+            addBtn.style.color = '#666666';
+            addBtn.style.cursor = 'not-allowed';
+            addBtn.innerHTML = '🚫 Add New Renter (Unauthorized)';
+        }
+        const deleteLinks = document.querySelectorAll('a[onclick^="deleteRenter"]');
+        deleteLinks.forEach(link => {
+            link.style.pointerEvents = 'none';
+            link.style.color = '#999';
+            link.style.textDecoration = 'line-through';
+            link.title = '🚫 Unauthorized access';
+            link.innerHTML = '🚫 Delete (Unauthorized)';
+        });
+    }
+    function hideModal() { document.getElementById('addModal').style.display = 'none'; document.getElementById('addRenterForm').reset(); }
+
+    // --- DATA FETCHING AND RENDERING ---
+    async function fetchAndDisplayRenters() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('Failed to fetch renters');
+            const renters = await response.json();
+
+            const tableBody = document.getElementById('renter-table-body');
+            tableBody.innerHTML = ''; // Clear existing data
+
+            let activeRenters = 0;
+            renters.forEach(renter => {
+                if (renter.status.toLowerCase() === 'active') {
+                    activeRenters++;
+                }
+                const docLink = renter.documentPath ? `<a href="/api/documents/preview-file?path=${encodeURIComponent(renter.documentPath)}" target="_blank" style="background: #3498db; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; margin-right: 8px;">Preview Document</a>` : 'No Document';
+                const row = `
+                    <tr data-id="${renter.id}">
+                        <td>${renter.plotNumber}</td>
+                        <td>${renter.renterName}</td>
+                        <td>${renter.contact}</td>
+                        <td>${renter.startDate}</td>
+                        <td>${renter.endDate || '-'}</td>
+                        <td>${renter.status}</td>
+                        <td>${docLink}</td>
+                        <td>
+                            <a onclick="deleteRenter(${renter.id})">Delete</a>
+                        </td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+
+            // Update stats
+            document.getElementById('activeRentersStat').textContent = activeRenters;
+            document.getElementById('totalRecordsStat').textContent = renters.length;
+            // Disable unauthorized buttons after rendering
+            setTimeout(() => { disableUnauthorizedButtonsRenters(); }, 0);
+
+        } catch (error) {
+            console.error('Error fetching renters:', error);
+            showError('❌ Could not load renter data.');
+        }
+    }
+
+    // --- DATA MANIPULATION ---
+    async function handleFormSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData();
+
+        const renterData = {
+            plotNumber: form.plotNumber.value,
+            renterName: form.renterName.value,
+            contact: form.contact.value,
+            email: form.email.value,
+            startDate: form.startDate.value,
+            endDate: form.endDate.value,
+            status: form.status.value,
+            notes: form.notes.value
+        };
+
+        formData.append('renter', new Blob([JSON.stringify(renterData)], { type: 'application/json' }));
+        formData.append('leaseDoc', form.leaseDoc.files[0]);
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) throw new Error('Failed to add new renter');
+            
+            hideModal();
+            fetchAndDisplayRenters(); // Refresh the table
+            showSuccess('✅ Renter added successfully!');
+        } catch (error) {
+            console.error('Error:', error);
+            showError(`❌ Failed to add renter: ${error.message}`);
+        }
+    }
+
+    async function deleteRenter(id) {
+        if (!confirm('Are you sure you want to delete this renter record?')) return;
+        try {
+            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Failed to delete renter');
+            
+            fetchAndDisplayRenters(); // Refresh the table
+            showSuccess('✅ Renter record deleted successfully!');
+        } catch (error) {
+            console.error('Error:', error);
+            showError(`❌ Failed to delete renter record: ${error.message}`);
+        }
+    }
+
+    // --- SEARCH FUNCTIONALITY ---
+    function searchRenters() {
+        const filter = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.getElementById('renter-table-body').getElementsByTagName('tr');
+        Array.from(rows).forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+        });
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Check page access with view-only permissions for other admin roles
+        const accessResult = await checkPageAccess(
+            ['President', 'General-Secretary'], // Full access roles
+            ['Vice-President', 'Finance-Secretary', 'Information-Secretary'] // View-only roles
+        );
+        
+        if (!accessResult.hasAccess) return; // Page will redirect if no access
+        
+        // Set up view-only mode if user has limited permissions
+        if (accessResult.isViewOnly) {
+            setViewOnlyMode();
+        }
+        
+        fetch('header.html').then(r => r.text()).then(data => {
+            document.getElementById('header').innerHTML = data;
+            // Initialize header functions after loading
+            if (typeof setActive === 'function') {
+                setActive();
+            }
+            if (typeof loadUserProfileImage === 'function') {
+                loadUserProfileImage();
+            }
+            
+            // Initialize hamburger menu functionality
+            setTimeout(() => {
+                if (typeof window.initializeHamburgerMenu === 'function') {
+                    window.initializeHamburgerMenu();
+                }
+            }, 100);
+        });
+        fetch('President Console.html').then(r => r.text()).then(data => document.getElementById('president_console').innerHTML = data);
+        
+        fetchAndDisplayRenters();
+        // Also run on load in case no data
+        setTimeout(() => { disableUnauthorizedButtonsRenters(); }, 0);
+
+        document.getElementById('addRenterForm').addEventListener('submit', handleFormSubmit);
+        window.onclick = (event) => {
+            if (event.target == document.getElementById('addModal')) {
+                hideModal();
+            }
+        };
+    });
+</script>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js"></script>
+<!-- Include role-based security script -->
+<script src="/js/role-security.js?v=10"></script>
+<!-- Include header menu script for hamburger functionality -->
+<script src="/js/header-menu.js"></script>
+
+</body>
+</html>

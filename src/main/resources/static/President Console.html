@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>President Console - Jeewan Avenue</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+
+        .console-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+
+        .console-section {
+            width: 200px;
+            height: 100px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 25px;
+            text-decoration: none;
+            display: inline-block;
+            color: black;
+        }
+
+        .console-section:hover {
+            background-color: #13A89E;
+            color: white;
+        }
+
+        .console-section:link,
+        .console-section:visited {
+            color: black;
+            text-decoration: none;
+        }
+
+        .console-section h3 {
+            margin: 10px 0;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            max-width: 1200px;
+            margin: 20px auto;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header"></div>
+
+    <div class="console-container">
+        <a href="Manage Member-President Console.html" class="console-section">👥<br />Manage Members</a>
+        <a href="Financials-President Console.html" class="console-section">💰<br />Approve Financials</a>
+        <a href="Announcement-President Console.html" class="console-section">📢<br />Notices,Docs & Timings</a>
+        <a href="Review-President Console.html" class="console-section">📝<br />Review Feedback</a>
+        <a href="Manage User-President Console.html" class="console-section">👮<br />User profile manage</a>
+        <a href="Renters Docs-President Console.html" class="console-section">📂<br />Renters Docs</a>
+    </div>
+
+    <!-- Include common JavaScript functions -->
+    <script src="/js/common.js"></script>
+    <!-- Include announcement popup script for header button -->
+    <script src="/js/announcement-popup.js"></script>
+    <!-- Include role-based security system -->
+    <script src="/js/role-security.js"></script>
+    <!-- Include admin tab restriction system -->
+    <script src="/js/admin-tab-restrictions.js"></script>
+    <!-- Include header menu script for hamburger functionality -->
+    <script src="/js/header-menu.js"></script>
+    <script>
+        // Check access immediately when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user has permission to access President Console
+            const hasAccess = await checkPageAccess(['President', 'Vice-President', 'General-Secretary', 'Finance-Secretary', 'Information-Secretary']);
+            if (!hasAccess) return; // Page will redirect if no access
+            
+            // Load header only if user has access
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header').innerHTML = data;
+                    // Initialize header functions after loading
+                    if (typeof setActive === 'function') {
+                        setActive();
+                    }
+                    if (typeof loadUserProfileImage === 'function') {
+                        loadUserProfileImage();
+                    }
+                    
+                    // Initialize hamburger menu functionality
+                    setTimeout(() => {
+                        if (typeof window.initializeHamburgerMenu === 'function') {
+                            window.initializeHamburgerMenu();
+                        }
+                    }, 100);
+                    
+                    // Apply admin tab restrictions after header loads
+                    setTimeout(() => {
+                        if (typeof applyAdminTabRestrictions === 'function') {
+                            applyAdminTabRestrictions();
+                        }
+                    }, 300);
+                });
+        });
+    </script>
+</body>
+
+</html>

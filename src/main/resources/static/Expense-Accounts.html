@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense-Accounts - Jeewan Avenue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f5f5f5;
+        }
+        
+        .section-container { 
+            display: flex; 
+            justify-content: center; 
+            margin: 20px 0; 
+            gap: 20px; 
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: white; 
+            color: black; 
+            text-align: center; 
+            border-radius: 8px;
+            width: 120px; 
+            height: 80px; 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease; 
+            font-weight: bold; 
+            font-size: 18px; 
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            border: none; 
+            cursor: pointer; 
+            text-decoration: none;
+            min-width: 100px;
+        }
+        
+        .btn:hover, .btn.active { 
+            background: #1abc9c; 
+            color: white; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 188, 156, 0.3);
+        }
+        
+        .excel-section { 
+            margin: 20px; 
+            padding: 25px; 
+            background: white; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+            border-radius: 12px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        .table-heading { 
+            text-align: center; 
+            font-size: 28px; 
+            font-weight: 600; 
+            margin-bottom: 20px; 
+            color: #1abc9c;
+        }
+        
+        .search-filter-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        #search-bar { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #e1e8ed; 
+            border-radius: 8px; 
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        
+        #search-bar:focus {
+            outline: none;
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+        
+        .filter-group label {
+            font-weight: 500;
+            color: #1abc9c;
+            white-space: nowrap;
+        }
+        
+        .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            min-width: 80px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .filter-group select:focus {
+            outline: none;
+            border-color: #1abc9c;
+        }
+        
+        .total-amount {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #1abc9c);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.2);
+        }
+        
+        .table-container { 
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: white;
+            min-width: 700px; /* Ensure minimum width for horizontal scroll */
+        }
+        
+        th, td { 
+            border: 1px solid #e1e8ed; 
+            padding: 12px 16px; 
+            text-align: left; 
+            font-size: 14px;
+        }
+        
+        th { 
+            background: linear-gradient(135deg, #1abc9c); 
+            color: white; 
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            vertical-align: middle;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8fffe;
+        }
+        
+        tr:hover {
+            background-color: #e8f8f5;
+        }
+        
+        .receipt-img { 
+            max-width: 80px; 
+            max-height: 50px; 
+            object-fit: cover; 
+            cursor: pointer;
+            border-radius: 4px;
+            transition: transform 0.2s ease;
+        }
+        
+        .receipt-img:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Modal Styles */
+        #imageEnlargeModal {
+            display: none; 
+            position: fixed; 
+            z-index: 10000; 
+            left: 0; 
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.95);
+            padding: 0;
+            overflow: auto;
+        }
+        
+        #imageEnlargeModalContent { 
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        #enlargedImage { 
+            max-width: 95vw; 
+            max-height: 95vh; 
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            transition: transform 0.3s ease;
+        }
+        
+        #imageEnlargeModal .close { 
+            position: fixed; 
+            right: 25px; 
+            top: 25px; 
+            font-size: 40px; 
+            font-weight: bold; 
+            color: #fff; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10001;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        
+        #imageEnlargeModal .close:hover {
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .excel-section {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .table-heading {
+                font-size: 22px;
+                margin-bottom: 15px;
+            }
+            
+            .section-container {
+                gap: 15px;
+                margin: 15px 0;
+            }
+            
+            .btn {
+                width: 100px;
+                height: 70px;
+                font-size: 16px;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+                min-width: unset;
+            }
+            
+            .filter-group select {
+                width: 100%;
+            }
+            
+            .total-amount {
+                font-size: 18px;
+                padding: 12px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .receipt-img {
+                max-width: 60px;
+                max-height: 40px;
+            }
+            
+            #imageEnlargeModal .close {
+                right: 15px;
+                top: 15px;
+                font-size: 35px;
+                width: 45px;
+                height: 45px;
+            }
+            
+            #enlargedImage {
+                max-width: 98vw;
+                max-height: 92vh;
+                border-radius: 6px;
+            }
+            
+            #imageEnlargeModalContent {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .excel-section {
+                margin: 5px;
+                padding: 10px;
+            }
+            
+            .table-heading {
+                font-size: 20px;
+            }
+            
+            .btn {
+                width: 80px;
+                height: 60px;
+                font-size: 14px;
+            }
+            
+            .section-container {
+                gap: 10px;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .section-container .btn {
+                width: 120px;
+                height: 60px;
+            }
+            
+            #search-bar {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+            
+            .total-amount {
+                font-size: 16px;
+                padding: 10px;
+            }
+            
+            th, td {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            
+            .receipt-img {
+                max-width: 50px;
+                max-height: 35px;
+            }
+            
+            .table-container {
+                margin-top: 15px;
+            }
+            
+            #imageEnlargeModal {
+                padding: 0;
+            }
+            
+            #imageEnlargeModalContent {
+                margin: 0;
+                padding: 10px;
+                min-height: 100vh;
+            }
+            
+            #enlargedImage {
+                max-height: 95vh;
+                max-width: 95vw;
+                border-radius: 4px;
+            }
+            
+            #imageEnlargeModal .close {
+                right: 10px;
+                top: 10px;
+                font-size: 30px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .excel-section {
+                margin: 3px;
+                padding: 8px;
+            }
+            
+            .table-heading {
+                font-size: 18px;
+            }
+            
+            th, td {
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+            
+            .receipt-img {
+                max-width: 40px;
+                max-height: 30px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .section-container,
+            #imageEnlargeModal {
+                display: none;
+            }
+            
+            .excel-section {
+                margin: 0;
+                padding: 10px;
+                box-shadow: none;
+            }
+            
+            .table-container {
+                overflow: visible;
+            }
+            
+            table {
+                min-width: auto;
+            }
+        }
+    </style>
+    <script src="/js/header-loader.js"></script>
+    <script src="/js/header-menu.js"></script>
+</head>
+<body>
+    <div id="header"></div>
+
+    <div class="section-container">
+        <a href="Income-Accounts.html" class="btn">🐖<br />Income</a>
+        <a href="Expense-Accounts.html" class="btn active">🛒<br />Expense</a>
+    </div>
+
+    <div class="excel-section">
+        <h2 class="table-heading">Expense Records</h2>
+        
+        <div class="search-filter-container">
+            <input type="text" id="search-bar" placeholder="Search by description, amount, or payment method..." onkeyup="filterTable()">
+            
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="month-filter">Month:</label>
+                    <select id="month-filter" onchange="filterTable()">
+                        <option value="">All</option>
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                        <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                        <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="year-filter">Year:</label>
+                    <select id="year-filter" onchange="filterTable()">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="sort-filter">Sort By:</label>
+                    <select id="sort-filter" onchange="filterTable()">
+                        <option value="date-desc">Latest First</option>
+                        <option value="date-asc">Oldest First</option>
+                        <option value="amount-desc">Highest Amount</option>
+                        <option value="amount-asc">Lowest Amount</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="total-amount">
+            <span>Total Amount: </span><span id="total-amount">PKR 0.00</span>
+        </div>
+        
+        <div class="table-container">
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>Sr. No</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Payment Method</th>
+                        <th>Receipt Pic</th>
+                    </tr>
+                </thead>
+                <tbody id="expense-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="imageEnlargeModal">
+        <span class="close" onclick="hideImageModal()">&times;</span>
+        <div id="imageEnlargeModalContent">
+            <img id="enlargedImage" src="#">
+        </div>
+    </div>
+
+<script>
+    let allRecords = []; // Store all fetched records globally
+
+    // --- IMAGE MODAL FUNCTIONS ---
+    function showImageModal(src) {
+        const modal = document.getElementById("imageEnlargeModal");
+        const enlargedImage = document.getElementById("enlargedImage");
+        
+        modal.style.display = "block";
+        enlargedImage.src = src;
+        
+        // Prevent body scrolling when modal is open
+        document.body.style.overflow = 'hidden';
+        
+        // Add click outside to close functionality
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                hideImageModal();
+            }
+        };
+        
+        // Add escape key to close functionality
+        document.addEventListener('keydown', closeOnEscape);
+    }
+    
+    function hideImageModal() {
+        const modal = document.getElementById("imageEnlargeModal");
+        modal.style.display = "none";
+        
+        // Restore body scrolling
+        document.body.style.overflow = 'auto';
+        
+        // Remove escape key listener
+        document.removeEventListener('keydown', closeOnEscape);
+    }
+    
+    function closeOnEscape(event) {
+        if (event.key === 'Escape') {
+            hideImageModal();
+        }
+    }
+
+    // --- DATA FETCHING AND RENDERING ---
+    async function fetchExpenseRecords() {
+        try {
+            const response = await fetch('/api/financials?type=Expense');
+            if (!response.ok) throw new Error('Failed to fetch expense records');
+            allRecords = await response.json();
+            populateYearFilter();
+            filterTable(); // Initial display
+        } catch (error) {
+            console.error('Error fetching expense records:', error);
+            alert('Could not load expense data.');
+        }
+    }
+
+    function renderTable(records) {
+        const tableBody = document.getElementById('expense-table-body');
+        tableBody.innerHTML = '';
+        let totalAmount = 0;
+
+        if (records.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 20px; color: #7f8c8d; font-style: italic;">
+                        No expense records found matching your criteria.
+                    </td>
+                </tr>
+            `;
+            document.getElementById('total-amount').textContent = 'PKR 0.00';
+            return;
+        }
+
+        records.forEach((record, index) => {
+            // Fix receipt path to include /uploads/ prefix if not already present
+            const receiptPath = record.receiptPath 
+                ? (record.receiptPath.startsWith('uploads/') ? `/${record.receiptPath}` : `/uploads/${record.receiptPath}`)
+                : null;
+                
+            const receiptCell = receiptPath
+                ? `<td><img src="${receiptPath}" alt="Receipt" class="receipt-img" onclick="showImageModal('${receiptPath}')" title="Click to enlarge"></td>`
+                : '<td style="text-align: center; color: #95a5a6;">N/A</td>';
+
+            // Format amount with proper currency formatting
+            const formattedAmount = `PKR ${record.amount.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            
+            // Format date for better readability
+            const formattedDate = new Date(record.date).toLocaleDateString('en-PK', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit'
+            });
+
+            const row = `
+                <tr>
+                    <td style="font-weight: 600;">${index + 1}</td>
+                    <td>${formattedDate}</td>
+                    <td style="max-width: 200px; word-wrap: break-word;">${record.description}</td>
+                    <td style="font-weight: 600; color: #e74c3c;">${formattedAmount}</td>
+                    <td><span style="background: #ecf0f1; padding: 2px 8px; border-radius: 4px; font-size: 12px;">${record.paymentMethod}</span></td>
+                    ${receiptCell}
+                </tr>
+            `;
+            tableBody.insertAdjacentHTML('beforeend', row);
+            totalAmount += record.amount;
+        });
+
+        // Format total amount with proper currency formatting
+        const formattedTotal = `PKR ${totalAmount.toLocaleString('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        document.getElementById('total-amount').textContent = formattedTotal;
+    }
+
+    // --- FILTERING LOGIC ---
+    function filterTable() {
+        const searchInput = document.getElementById('search-bar').value.toLowerCase();
+        const monthFilter = document.getElementById('month-filter').value;
+        const yearFilter = document.getElementById('year-filter').value;
+        const sortFilter = document.getElementById('sort-filter').value;
+
+        let filteredRecords = allRecords.filter(record => {
+            const recordDate = new Date(record.date);
+            const matchesSearch = Object.values(record).some(val => String(val).toLowerCase().includes(searchInput));
+            const matchesMonth = !monthFilter || recordDate.getMonth() + 1 == monthFilter;
+            const matchesYear = !yearFilter || recordDate.getFullYear() == yearFilter;
+            
+            return matchesSearch && matchesMonth && matchesYear;
+        });
+
+        // Apply sorting
+        filteredRecords.sort((a, b) => {
+            switch(sortFilter) {
+                case 'date-desc': // Latest first (default)
+                    return new Date(b.date) - new Date(a.date);
+                case 'date-asc': // Oldest first
+                    return new Date(a.date) - new Date(b.date);
+                case 'amount-desc': // Highest amount
+                    return b.amount - a.amount;
+                case 'amount-asc': // Lowest amount
+                    return a.amount - b.amount;
+                default:
+                    return new Date(b.date) - new Date(a.date);
+            }
+        });
+
+        renderTable(filteredRecords);
+    }
+    
+    function populateYearFilter() {
+        const yearFilter = document.getElementById('year-filter');
+        const years = [...new Set(allRecords.map(record => new Date(record.date).getFullYear()))];
+        years.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearFilter.appendChild(option);
+        });
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+                // Initialize header functions after loading
+                if (typeof setActive === 'function') {
+                    setActive();
+                }
+                if (typeof loadUserProfileImage === 'function') {
+                    loadUserProfileImage();
+                }
+                // Initialize hamburger menu
+                if (typeof initializeHamburgerMenu === 'function') {
+                    initializeHamburgerMenu();
+                }
+            });
+        fetchExpenseRecords();
+    });
+</script>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js"></script>
+
+</body>
+</html>

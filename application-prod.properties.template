@@ -1,0 +1,62 @@
+# Production Configuration Template for jeewanavenuesociety.me
+# 
+# INSTRUCTIONS:
+# 1. This is a TEMPLATE file - it won't interfere with your current deployment
+# 2. When ready for production, rename this file to "application-prod.properties"
+# 3. Update the database credentials and other settings as needed
+# 4. Run with: java -Dspring.profiles.active=prod -jar your-app.jar
+#
+# DO NOT rename this file until you're ready to deploy to production!
+
+# Server Configuration for Production
+server.port=8082
+server.address=0.0.0.0
+
+# Production domain configuration
+app.domain=jeewanavenuesociety.me
+app.allowed-origins=https://jeewanavenuesociety.me,https://www.jeewanavenuesociety.me,http://jeewanavenuesociety.me,http://www.jeewanavenuesociety.me
+
+# MySQL Database Connection - Production
+# IMPORTANT: Update these credentials for your production database
+spring.datasource.url=jdbc:mysql://localhost:3306/jeewan_avenue_prod?useSSL=true&serverTimezone=UTC&requireSSL=true
+spring.datasource.username=${DB_USERNAME:root}
+spring.datasource.password=${DB_PASSWORD:12345}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# JPA / Hibernate - Production Settings
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+
+# Security Configuration for Production
+server.servlet.session.cookie.secure=true
+server.servlet.session.cookie.http-only=true
+server.servlet.session.cookie.same-site=strict
+server.servlet.session.timeout=15m
+
+# File Upload Configuration - Production
+file.upload-dir=/var/uploads/jeewan-avenue/
+
+# Logging Configuration for Production
+logging.level.root=WARN
+logging.level.com.jeewanavenue=INFO
+logging.level.org.springframework.security=WARN
+logging.file.name=/var/log/jeewan-avenue/application.log
+logging.file.max-size=10MB
+logging.file.max-history=30
+
+# Performance and Connection Pool Settings
+spring.datasource.hikari.maximum-pool-size=20
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=20000
+spring.datasource.hikari.idle-timeout=600000
+spring.datasource.hikari.max-lifetime=1800000
+
+# Actuator Configuration for Health Checks
+management.endpoints.web.exposure.include=health,info
+management.endpoint.health.show-details=when-authorized
+management.endpoints.web.base-path=/actuator
+
+# Cache Configuration
+spring.cache.type=caffeine
+spring.cache.caffeine.spec=maximumSize=1000,expireAfterWrite=600s

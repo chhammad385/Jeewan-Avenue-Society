@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jeewan Avenue - Housing Society</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      background: #f5f5f5;
+    }
+
+   .logo {
+  font-size: clamp(2.5rem, 7vw, 3.5rem);
+  font-weight: 600;
+}
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 600px;
+      height: auto;
+      max-height: 80vh;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background-image: url('your-background-image.jpg');
+      background-size: cover;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .modal h2 {
+      font-size: clamp(1.5rem, 5vw, 1.8rem);
+      margin-bottom: 1rem;
+    }
+
+    .modal p {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      margin-bottom: 1.5rem;
+    }
+
+    .modal button {
+      background-color: #e74c3c;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      cursor: pointer;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+    }
+
+    .modal button:hover {
+      background-color: #c0392b;
+    }
+
+    .modal .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+
+    .modal .close-btn:hover {
+      background-color: #c0392b;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #34495e;
+      padding: 1rem 2rem;
+      color: white;
+      flex-wrap: wrap;
+    }
+
+    .header-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .header-btn {
+      background: #e74c3c;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: clamp(0.9rem, 2.2vw, 1rem);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: 2px solid transparent;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+
+    .header-btn:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      border-color: #fff;
+    }
+
+    .header-btn.language-btn {
+      background: #f1c40f;
+      color: black;
+    }
+
+    .header-btn.language-btn:hover {
+      background: #d4ac0d;
+      color: white;
+    }
+
+    .header-btn.prayer-btn {
+      background: #3498db;
+      color: white;
+      position: relative;
+    }
+
+    .header-btn.prayer-btn:hover {
+      background: #2980b9;
+      color: white;
+    }
+
+    /* Prayer button notification styles */
+    .header-btn.prayer-btn.has-notifications {
+      background: #e74c3c !important;
+      animation: pulse-notification 2s infinite;
+    }
+
+    .header-btn.prayer-btn.has-notifications:hover {
+      background: #c0392b !important;
+    }
+
+    .prayer-notification-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #f39c12;
+      color: white;
+      border-radius: 50%;
+      min-width: 20px;
+      height: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+      animation: bounce-badge 1.5s infinite;
+    }
+
+    @keyframes pulse-notification {
+      0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+    }
+
+    @keyframes bounce-badge {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-5px); }
+      60% { transform: translateY(-3px); }
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: clamp(2rem, 10vw, 5rem);
+      background: url("/image/Gate.jpeg") no-repeat center/cover;
+      color: white;
+      animation: fadeIn 2s ease-in-out;
+      font-size: clamp(1.5rem, 6vw, 2.5rem);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Sections */
+    .sections {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      padding: clamp(1rem, 5vw, 3rem);
+    }
+
+    .section {
+      text-align: center;
+      width: 100%;
+      max-width: 350px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      padding: 1.5rem;
+      box-sizing: border-box;
+    }
+
+    .section img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .section:hover {
+      transform: scale(1.05);
+      box-shadow: 4px 4px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Map Section */
+    .map-section {
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .map-section img {
+      width: 100%;
+      height: auto;
+      max-width: 800px;
+      border-radius: 8px;
+    }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      background: #34495e;
+      color: white;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .map, .info {
+      width: 100%;
+      max-width: 1500px;
+    }
+
+    .map iframe {
+      width: 100%;
+      height: 200px;
+      border: none;
+    }
+
+    .rights {
+      margin-top: 1.5rem;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      opacity: 0.8;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 1024px) {
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .header-buttons {
+        justify-content: center;
+      }
+
+      .sections {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .section {
+        width: 90%;
+      }
+
+      .footer-content {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .map, .info {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-buttons {
+        flex-direction: row;
+        justify-content: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .header-btn {
+        padding: 0.6rem 1rem;
+        font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+        flex: 1;
+        min-width: 80px;
+        max-width: 120px;
+      }
+
+      /* Ensure prayer button notification styles work in mobile */
+      .header-btn.prayer-btn.has-notifications {
+        background: #e74c3c !important;
+        animation: pulse-notification 2s infinite;
+      }
+
+      .header-btn.prayer-btn.has-notifications:hover {
+        background: #c0392b !important;
+      }
+
+      .hero {
+        font-size: clamp(1.2rem, 5vw, 2rem);
+        padding: 2rem;
+      }
+
+      .modal {
+        width: 95%;
+        padding: 0.5rem;
+      }
+
+      .modal-content {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+      }
+
+      .header-btn {
+        width: 100%;
+        max-width: 200px;
+        text-align: center;
+        padding: 0.75rem;
+        font-size: clamp(0.9rem, 3vw, 1rem);
+      }
+
+      /* Ensure prayer button notification styles work in mobile */
+      .header-btn.prayer-btn.has-notifications {
+        background: #e74c3c !important;
+        animation: pulse-notification 2s infinite;
+      }
+
+      .header-btn.prayer-btn.has-notifications:hover {
+        background: #c0392b !important;
+      }
+
+      /* Ensure prayer notification badge is visible in mobile */
+      .prayer-notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #f39c12;
+        color: white;
+        border-radius: 50%;
+        min-width: 18px;
+        height: 18px;
+        font-size: 11px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid white;
+        animation: bounce-badge 1.5s infinite;
+      }
+
+      .header {
+        padding: 1rem;
+      }
+
+      .logo {
+        font-size: clamp(1.2rem, 4vw, 1.5rem);
+      }
+
+      .section {
+        padding: 1rem;
+      }
+
+      .map-section {
+        padding: 1rem;
+      }
+
+      .footer {
+        padding: 1rem;
+      }
+    }
+  
+  </style>
+</head>
+<body>
+  <!-- Logout Success Message -->
+  <div id="logoutMessage" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #27ae60; color: white; padding: 15px 25px; border-radius: 8px; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-weight: 600;">
+    ✅ Successfully logged out! Welcome back to Jeewan Avenue.
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="welcomeModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">X</button>
+      <h2 class="translate" data-key="modal-title">Welcome to Jeewan Avenue!</h2>
+      <p class="translate" data-key="modal-subtitle">"Unity in Diversity, Strength in Solidarity."</p>
+      <button onclick="closeModal()"><a href="/Login Page.html" style="color: white; text-decoration: none;" class="translate" data-key="login">Login</a></button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <img src="/image/logo3.png" alt="Jeewan Avenue Logo" style="height: 100px; vertical-align: middle;">
+    </div>
+    <div class="header-buttons">
+      <a href="/Prayer-Timing.html" id="prayerTimingBtn" class="header-btn prayer-btn translate" data-key="prayer-timings">
+        Prayer Timings
+        <span id="prayerNotificationBadge" class="prayer-notification-badge" style="display: none;">0</span>
+      </a>
+      <button class="header-btn language-btn" onclick="translateTo('en')">English</button>
+      <button class="header-btn language-btn" onclick="translateTo('ur')">اردو</button>
+      <a href="/Login Page.html" class="header-btn translate" data-key="login">Login</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1 class="translate" data-key="hero-title">Welcome to Jeewan Avenue</h1>
+  </section>
+
+  <!-- Sections -->
+  <section class="sections">
+    <div class="section">
+      <img src="/image/masjid.jpg" alt="Masjid">
+      <h3 class="translate" data-key="masjid-title">Beautiful Masjid</h3>
+      <p class="translate" data-key="masjid-desc">A peaceful place for prayers.</p>
+    </div>
+    <div class="section">
+      <img src="/image/park.jpg" alt="Park">
+      <h3 class="translate" data-key="park-title">Green Parks</h3>
+      <p class="translate" data-key="park-desc">Enjoy nature and fresh air.</p>
+    </div>
+    <div class="section">
+      <img src="/image/Filter plant.jpg" alt="Filter Plant">
+      <h3 class="translate" data-key="filter-title">Filter Plant</h3>
+      <p class="translate" data-key="filter-desc">Pure water for residents.</p>
+    </div>
+  </section>
+
+  <!-- Map -->
+  <div class="map-section">
+    <h3 class="translate" data-key="map-title">Map</h3>
+    <div class="map">
+      <img src="/image/Map.jpeg" alt="Community Center">
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="map">
+        <iframe src="https://maps.google.com/?q=Jeewan+Avenue&output=embed" width="100%" height="200"></iframe>
+      </div>
+      <div class="info">
+        <h3 class="translate" data-key="about-title">About Us</h3>
+        <p class="translate" data-key="about-desc">Jeewan Avenue is a premier housing society offering world-class amenities.</p>
+        
+      </div>
+    </div>
+    <div class="rights">
+      <p class="translate" data-key="rights">© 2025 Jeewan Avenue. All Rights Reserved.</p>
+      <p style="color: #3498db; font-weight: 600; margin: 10px 0; font-size: clamp(0.9rem, 2.2vw, 1rem);">
+        "Bring your ideas online! Get your own website designed by us – contact today."
+      </p>
+      <div style="background: linear-gradient(135deg, #3498db, #2980b9); padding: clamp(15px, 3vw, 25px); border-radius: 15px; margin: 15px 0; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3); display: flex; align-items: center; gap: clamp(15px, 3vw, 25px); flex-wrap: wrap; justify-content: center;">
+        <div style="flex: 0 0 auto; text-align: center;">
+          <img src="/image/Ch Hammad.jpg" alt="M. Hammad" style="width: clamp(60px, 12vw, 80px); height: clamp(60px, 12vw, 80px); border-radius: 50%; object-fit: cover; border: 3px solid #f1c40f; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+        </div>
+        <div style="flex: 1 1 auto; text-align: center; min-width: 250px;">
+          <p style="margin: 0; font-size: clamp(1rem, 2.5vw, 1.2rem); font-weight: 600; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);" class="translate" data-key="developer">
+            ✨ Designed & Developed by M. Hammad ✨
+          </p>
+          <p style="margin: 8px 0 0 0; font-size: clamp(1rem, 2.5vw, 1.2rem); font-weight: 700; color: #f1c40f; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); letter-spacing: 1px;">
+            📞 03056432815 | 03006913494
+          </p>
+          <p style="margin: 5px 0 0 0; font-size: clamp(0.9rem, 2.2vw, 1rem); font-weight: 600; color: #ecf0f1; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+            📧 chhammad385@gmail.com
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal Script -->
+  <script>
+    window.onload = function () {
+      // Check for logout parameter in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const logout = urlParams.get('logout');
+      
+      if (logout !== null) {
+        // Show logout success message
+        const logoutMessage = document.getElementById('logoutMessage');
+        logoutMessage.style.display = 'block';
+        
+        // Hide the message after 4 seconds
+        setTimeout(() => {
+          logoutMessage.style.display = 'none';
+        }, 4000);
+        
+        // Remove the logout parameter from URL without page reload
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+      
+      // Show welcome modal
+      document.getElementById('welcomeModal').style.display = 'flex';
+      translateTo('en'); // Set default language to English
+      
+      // Check for unread suggestions
+      checkUnreadSuggestions();
+    };
+
+    function closeModal() {
+      document.getElementById('welcomeModal').style.display = 'none';
+    }
+
+    // Function to check for unread suggestions and update prayer button
+    async function checkUnreadSuggestions() {
+      try {
+        const response = await fetch('/api/suggestions/unread-count', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const unreadCount = data.count || 0;
+          
+          const prayerBtn = document.getElementById('prayerTimingBtn');
+          const badge = document.getElementById('prayerNotificationBadge');
+          
+          if (unreadCount > 0) {
+            // Add notification styling
+            prayerBtn.classList.add('has-notifications');
+            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            badge.style.display = 'flex';
+            
+            // Add tooltip
+            prayerBtn.title = `You have ${unreadCount} unread suggestion${unreadCount > 1 ? 's' : ''}`;
+          } else {
+            // Remove notification styling
+            prayerBtn.classList.remove('has-notifications');
+            badge.style.display = 'none';
+            prayerBtn.title = 'Prayer Timings';
+          }
+        } else {
+          console.log('Unable to fetch unread suggestions count');
+        }
+      } catch (error) {
+        console.log('Error checking unread suggestions:', error);
+        // Silently handle error - don't show notification if API is unavailable
+      }
+    }
+
+    // Refresh notification count every 5 minutes
+    setInterval(checkUnreadSuggestions, 5 * 60 * 1000);
+  </script>
+
+  <!-- Translation Script -->
+  <script>
+    // Translation data
+    const translations = {
+      en: {
+        'modal-title': 'Welcome to Jeewan Avenue!',
+        'modal-subtitle': '"Unity in Diversity, Strength in Solidarity."',
+        'logo': 'Jeewan Avenue',
+        'login': 'Login',
+        'hero-title': 'Welcome to Jeewan Avenue',
+        'masjid-title': 'Beautiful Masjid',
+        'masjid-desc': 'A peaceful place for prayers.',
+        'park-title': 'Green Parks',
+        'park-desc': 'Enjoy nature and fresh air.',
+        'filter-title': 'Filter Plant',
+        'filter-desc': 'Pure water for residents.',
+        'map-title': 'Map',
+        'about-title': 'About Us',
+        'about-desc': 'Jeewan Avenue is a premier housing society offering world-class amenities.',
+        'contact-title': 'Contact Us',
+        'contact-email': 'Email: info@jeewanavenue.com',
+        'contact-phone': 'Phone: +123 456 7890',
+        'rights': '© 2025 Jeewan Avenue. All Rights Reserved.',
+        'developer': 'Designed & Developed by M. Hammad',
+        'prayer-timings': 'Prayer Timings'
+      },
+      ur: {
+        'modal-title': 'جیون ایونیو میں خوش آمدید!',
+        'modal-subtitle': '"تنوع میں اتحاد، یکجہتی میں طاقت۔"',
+        'logo': 'جیون ایونیو',
+        'login': 'لاگ ان',
+        'hero-title': 'جیون ایونیو میں خوش آمدید',
+        'masjid-title': 'خوبصورت مسجد',
+        'masjid-desc': 'نماز کے لیے ایک پرامن جگہ۔',
+        'park-title': 'ہرے بھرے پارکس',
+        'park-desc': 'فطرت اور تازہ ہوا سے لطف اٹھائیں۔',
+        'filter-title': 'فلٹر پلانٹ',
+        'filter-desc': 'رہائشیوں کے لیے صاف پانی۔',
+        'map-title': 'نقشہ',
+        'about-title': 'ہمارے بارے میں',
+        'about-desc': 'جیون ایونیو ایک اعلیٰ درجے کی ہاؤسنگ سوسائٹی ہے جو عالمی معیار کی سہولیات پیش کرتی ہے۔',
+        'contact-title': 'ہم سے رابطہ کریں',
+        'contact-email': 'ای میل: info@jeewanavenue.com',
+        'contact-phone': 'فون: +123 456 7890',
+        'rights': '© 2025 جیون ایونیو۔ جملہ حقوق محفوظ ہیں۔',
+        'developer': 'ایم۔ حماد کے ذریعہ ڈیزائن اور تیار کیا گیا',
+        'prayer-timings': 'نماز کے اوقات'
+      }
+    };
+
+    // Translation function
+    function translateTo(lang) {
+      document.querySelectorAll('.translate').forEach(element => {
+        const key = element.getAttribute('data-key');
+        if (translations[lang] && translations[lang][key]) {
+          element.textContent = translations[lang][key];
+        }
+      });
+      console.log(`Translated to ${lang}`);
+    }
+  </script>
+  
+  <!-- Announcement Popup Script -->
+  <script src="/js/announcement-popup.js"></script>
+</body>
+</html>

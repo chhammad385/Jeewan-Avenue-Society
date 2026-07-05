@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile Manage - Jeewan Avenue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Your original CSS styles are preserved */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 2vw;
+            border-radius: 10px;
+            margin: 2vw auto;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            max-width: 93%;
+            overflow-x: auto;
+        }
+
+        #search {
+            padding: 10px;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            display: block;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+            min-width: 100px;
+        }
+
+        th {
+            background-color: #1abc9c;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background: #ddd;
+            transition: background-color 0.2s ease;
+        }
+
+        .even-row {
+            background-color: #f2f2f2 !important;
+        }
+
+        .odd-row {
+            background-color: #ffffff !important;
+        }
+
+        .even-row:hover, .odd-row:hover {
+            background-color: #e3f2fd !important;
+            transition: background-color 0.2s ease;
+        }
+
+        .editable {
+            background-color: #f9f9f9;
+            color: black;
+        }
+
+        .non-editable {
+            background-color: #f9f9f9;
+            color: rgba(0, 0, 0, 0.728);
+        }
+
+        .edit-btn,
+        .delete-btn {
+            background-color: #1abc9c;
+            color: white;
+            padding: clamp(0.4rem, 1vw, 0.6rem) clamp(0.8rem, 1.5vw, 1rem);
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 5px;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+            width: clamp(60px, 10vw, 80px);
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            margin-top: 2px;
+        }
+
+        .edit-btn:hover,
+        .delete-btn:hover {
+            background-color: #16a085;
+        }
+
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .new-btn {
+            background-color: #1abc9c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s;
+            margin: 20px;
+            display: block;
+            margin-left: auto;
+        }
+
+        .new-btn:hover {
+            background-color: #16a085;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 0 auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            min-height: fit-content;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            text-align: left;
+            font-size: 1rem;
+            transform: translateY(20px);
+            animation: slideUp 0.3s ease-out forwards;
+            z-index: 10001;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #666;
+            font-weight: bold;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .close:hover {
+            color: #e74c3c;
+            transform: scale(1.1);
+        }
+
+        .modal-content form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .modal-content form > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-content form .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .modal-content h3 {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .center-heading {
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .modal-content label {
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .modal-content input,
+        .modal-content select,
+        .modal-content textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal-content input:focus,
+        .modal-content select:focus,
+        .modal-content textarea:focus {
+            outline: none;
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.1);
+        }
+
+        .modal-content textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-content button {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            margin-top: 0.5rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal-content button:hover {
+            background: linear-gradient(135deg, #16a085 0%, #138d75 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+        }
+
+        .image-preview img {
+            width: 100px;
+            height: 100px;
+            border-radius: 10%;
+            object-fit: cover;
+            margin-top: 10px;
+        }
+
+        /* Status badges styling */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .active-badge {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .inactive-badge {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Inactive user row styling */
+        .inactive-user {
+            opacity: 0.7;
+            background-color: #f8f9fa !important;
+        }
+
+        .inactive-user td {
+            color: #6c757d;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+
+            #search {
+                max-width: 95%;
+                margin-bottom: 15px;
+            }
+
+            table {
+                font-size: 13px;
+                border-collapse: collapse;
+            }
+
+            th, td {
+                padding: 8px 4px;
+                min-width: 80px;
+                word-wrap: break-word;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+                padding: 20px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .modal-content form {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .modal-content .full-width {
+                grid-column: 1;
+            }
+
+            .new-btn {
+                margin: 15px auto;
+                padding: 12px 20px;
+            }
+
+            .center-heading {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 5px;
+                padding: 10px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 6px 3px;
+                min-width: 70px;
+                font-size: 11px;
+            }
+
+            .modal-content {
+                width: 98%;
+                margin: 2% auto;
+                padding: 15px;
+            }
+
+            .modal-content h3 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+
+            .modal-content input,
+            .modal-content select,
+            .modal-content textarea {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .modal-content button {
+                font-size: 14px;
+                padding: 12px;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                padding: 8px;
+            }
+
+            #search {
+                width: 100%;
+                font-size: 14px;
+            }
+
+            .new-btn {
+                width: 100%;
+                margin: 10px 0;
+                font-size: 14px;
+            }
+
+            table {
+                font-size: 11px;
+            }
+
+            th, td {
+                padding: 5px 2px;
+                min-width: 60px;
+                font-size: 10px;
+            }
+
+            .modal-content {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                padding: 15px;
+                border-radius: 0;
+            }
+
+            .modal-content h3 {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .modal-content form {
+                gap: 12px;
+            }
+
+            .modal-content input,
+            .modal-content select,
+            .modal-content textarea {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .modal-content button {
+                font-size: 14px;
+                padding: 10px;
+                width: 100%;
+            }
+
+            .center-heading {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .container {
+                padding: 5px;
+            }
+
+            table {
+                font-size: 10px;
+            }
+
+            th, td {
+                padding: 4px 1px;
+                min-width: 50px;
+                font-size: 9px;
+            }
+
+            .modal-content {
+                padding: 10px;
+            }
+
+            .modal-content h3 {
+                font-size: 14px;
+            }
+
+            .modal-content input,
+            .modal-content select,
+            .modal-content textarea {
+                font-size: 13px;
+                padding: 6px;
+            }
+
+            .modal-content button {
+                font-size: 13px;
+                padding: 8px;
+            }
+
+            .center-heading {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div id="president_console"></div>
+
+    <div class="container">
+        <button class="new-btn" onclick="showAddModal()">New User</button>
+        <button class="new-btn" id="masjidSecretBtn" onclick="showMasjidSecretModal()" style="display: none; margin-left: 10px; background: linear-gradient(135deg, #9b59b6, #8e44ad);">🔐 Masjid Secret Code</button>
+        <button class="new-btn" id="charitySecretBtn" onclick="showCharitySecretModal()" style="display: none; margin-left: 10px; background: linear-gradient(135deg, #e67e22, #d35400);">🤲 Charity Secret Code</button>
+        <h2>Manage User Profile</h2>
+        <input type="text" id="search" placeholder="Search users..." onkeyup="searchUsers()">
+        <div class="table-container">
+            <table id="usersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Name</th><th>Father Name</th><th>Property Type</th><th>Plot No</th><th>Plot Size / No of Shops</th><th>Residence Status</th><th>Renter Name</th><th>Renter Phone</th><th>Renter CNIC</th><th>Renter Address</th><th>Built Status</th><th>Blood Group</th><th>Account Status</th><th>Previous Address</th><th>CNIC</th><th>Family Members</th><th>Phone No</th><th>Email</th><th>Role</th><th>Picture</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideAddModal()">×</span>
+            <form id="newUserForm">
+                <h3>Add New User</h3>
+                <div>
+                    <label>Owner Name *</label>
+                    <input type="text" name="ownerName" required placeholder="Enter owner name">
+                </div>
+                <div>
+                    <label>Father Name</label>
+                    <input type="text" name="fatherName" placeholder="Enter father name">
+                </div>
+                <div>
+                    <label>Property Type</label>
+                    <select name="propertyType" id="propertyType" onchange="togglePropertyFields()">
+                        <option value="">Select Property Type</option>
+                        <option value="House">House</option>
+                        <option value="Shop">Shop</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Plot No</label>
+                    <input type="text" name="plotNo" id="plotNo" placeholder="Enter plot number">
+                </div>
+                <div id="plotSizeContainer">
+                    <label>Plot Size (Marla)</label>
+                    <input type="text" name="plotSizeMarla" id="plotSizeMarla" placeholder="Enter plot size in marla">
+                </div>
+                <div id="noOfShopsContainer" style="display: none;">
+                    <label>No of Shops</label>
+                    <input type="number" name="noOfShops" id="noOfShops" placeholder="Enter number of shops">
+                </div>
+                <div>
+                    <label>Residence Status</label>
+                    <select name="status" id="residenceStatus" onchange="toggleRenterFields()">
+                        <option value="">Select Residence Status</option>
+                        <option value="Owned">Owned</option>
+                        <option value="Rented">Rented</option>
+                        <option value="Both">Both</option>
+                    </select>
+                </div>
+                <div id="renterDetailsContainer" style="display: none;" class="full-width">
+                    <h4 style="margin: 1rem 0 0.5rem 0; color: #2c3e50; grid-column: 1 / -1;">Renter Details</h4>
+                </div>
+                <div id="renterNameContainer" style="display: none;">
+                    <label>Renter Name</label>
+                    <input type="text" name="renterName" id="renterName" placeholder="Enter renter name">
+                </div>
+                <div id="renterPhoneContainer" style="display: none;">
+                    <label>Renter Phone No</label>
+                    <input type="text" name="renterPhoneNo" id="renterPhoneNo" placeholder="Enter renter phone">
+                </div>
+                <div id="renterCnicContainer" style="display: none;">
+                    <label>Renter CNIC</label>
+                    <input type="text" name="renterCnic" id="renterCnic" placeholder="Enter renter CNIC">
+                </div>
+                <div id="renterAddressContainer" style="display: none;" class="full-width">
+                    <label>Renter Previous Address</label>
+                    <textarea name="renterPreviousAddress" id="renterPreviousAddress" placeholder="Enter renter previous address"></textarea>
+                </div>
+                <div>
+                    <label>Account Status *</label>
+                    <select name="accountStatus" required>
+                        <option value="">Select Account Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Built Status</label>
+                    <select name="builtStatus">
+                        <option value="">Select Built Status</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Under-Construction">Under-Construction</option>
+                        <option value="Vacant">Vacant</option>
+                        <option value="Residential">Residential</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Blood Group</label>
+                    <select name="bloodGroup">
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+                <div class="full-width">
+                    <label>Previous Address</label>
+                    <textarea name="previousAddress" placeholder="Enter previous address"></textarea>
+                </div>
+                <div>
+                    <label>Owner CNIC</label>
+                    <input type="text" name="cnic" placeholder="Enter CNIC">
+                </div>
+                <div>
+                    <label>Family Members</label>
+                    <input type="number" name="familyMembers" placeholder="Number of family members">
+                </div>
+                <div>
+                    <label>Phone No</label>
+                    <input type="text" name="phoneNo" placeholder="Enter phone number">
+                </div>
+                <div>
+                    <label>Email *</label>
+                    <input type="email" name="email" required placeholder="Enter email address">
+                </div>
+                <div>
+                    <label>Password *</label>
+                    <input type="password" name="password" required placeholder="Enter password">
+                </div>
+                <div>
+                    <label>Role *</label>
+                    <select name="role" required>
+                        <option value="">Select Role</option>
+                        <option value="Society Member">Society Member</option>
+                        <option value="President">President</option>
+                        <option value="Vice-President">Vice-President</option>
+                        <option value="General-Secretary">General-Secretary</option>
+                        <option value="Finance-Secretary">Finance-Secretary</option>
+                        <option value="Information-Secretary">Information-Secretary</option>
+                    </select>
+                </div>
+                <div class="full-width">
+                    <label>Profile Picture</label>
+                    <input type="file" name="profilePicture" accept="image/*">
+                </div>
+                <button type="submit">Add User</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideEditModal()">×</span>
+            <form id="editUserForm">
+                <h3>Edit User Information</h3>
+                <input type="hidden" id="editUserId" name="id">
+                <div>
+                    <label>Owner Name *</label>
+                    <input type="text" id="editOwnerName" name="ownerName" required placeholder="Enter owner name">
+                </div>
+                <div>
+                    <label>Father Name</label>
+                    <input type="text" id="editFatherName" name="fatherName" placeholder="Enter father name">
+                </div>
+                <div>
+                    <label>Property Type</label>
+                    <select name="propertyType" id="editPropertyType" onchange="toggleEditPropertyFields()">
+                        <option value="">Select Property Type</option>
+                        <option value="House">House</option>
+                        <option value="Shop">Shop</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Plot No</label>
+                    <input type="text" id="editPlotNo" name="plotNo" placeholder="Enter plot number">
+                </div>
+                <div id="editPlotSizeContainer">
+                    <label>Plot Size (Marla)</label>
+                    <input type="text" id="editPlotSizeMarla" name="plotSizeMarla" placeholder="Enter plot size in marla">
+                </div>
+                <div id="editNoOfShopsContainer" style="display: none;">
+                    <label>No of Shops</label>
+                    <input type="number" name="noOfShops" id="editNoOfShops" placeholder="Enter number of shops">
+                </div>
+                <div>
+                    <label>Residence Status</label>
+                    <select id="editStatus" name="status" onchange="toggleEditRenterFields()">
+                        <option value="">Select Residence Status</option>
+                        <option value="Owned">Owned</option>
+                        <option value="Rented">Rented</option>
+                        <option value="Both">Both</option>
+                    </select>
+                </div>
+                <div id="editRenterDetailsContainer" style="display: none;" class="full-width">
+                    <h4 style="margin: 1rem 0 0.5rem 0; color: #2c3e50; grid-column: 1 / -1;">Renter Details</h4>
+                </div>
+                <div id="editRenterNameContainer" style="display: none;">
+                    <label>Renter Name</label>
+                    <input type="text" name="renterName" id="editRenterName" placeholder="Enter renter name">
+                </div>
+                <div id="editRenterPhoneContainer" style="display: none;">
+                    <label>Renter Phone No</label>
+                    <input type="text" name="renterPhoneNo" id="editRenterPhoneNo" placeholder="Enter renter phone">
+                </div>
+                <div id="editRenterCnicContainer" style="display: none;">
+                    <label>Renter CNIC</label>
+                    <input type="text" name="renterCnic" id="editRenterCnic" placeholder="Enter renter CNIC">
+                </div>
+                <div id="editRenterAddressContainer" style="display: none;" class="full-width">
+                    <label>Renter Previous Address</label>
+                    <textarea name="renterPreviousAddress" id="editRenterPreviousAddress" placeholder="Enter renter previous address"></textarea>
+                </div>
+                <div>
+                    <label>Account Status *</label>
+                    <select id="editAccountStatus" name="accountStatus" required>
+                        <option value="">Select Account Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Built Status</label>
+                    <select id="editBuiltStatus" name="builtStatus">
+                        <option value="">Select Built Status</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Under-Construction">Under-Construction</option>
+                        <option value="Vacant">Vacant</option>
+                        <option value="Residential">Residential</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Blood Group</label>
+                    <select id="editBloodGroup" name="bloodGroup">
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+                <div class="full-width">
+                    <label>Previous Address</label>
+                    <textarea id="editPreviousAddress" name="previousAddress" placeholder="Enter previous address"></textarea>
+                </div>
+                <div>
+                    <label>Owner CNIC</label>
+                    <input type="text" id="editCnic" name="cnic" placeholder="Enter CNIC">
+                </div>
+                <div>
+                    <label>Family Members</label>
+                    <input type="number" id="editFamilyMembers" name="familyMembers" placeholder="Number of family members">
+                </div>
+                <div>
+                    <label>Phone No</label>
+                    <input type="text" id="editPhoneNo" name="phoneNo" placeholder="Enter phone number">
+                </div>
+                <div>
+                    <label>Email *</label>
+                    <input type="email" id="editEmail" name="email" required placeholder="Enter email address">
+                </div>
+                <div>
+                    <label>New Password (optional)</label>
+                    <input type="password" name="password" placeholder="Leave blank to keep current">
+                </div>
+                <div>
+                    <label>Role *</label>
+                    <select id="editRole" name="role" required>
+                        <option value="">Select Role</option>
+                        <option value="Society Member">Society Member</option>
+                        <option value="President">President</option>
+                        <option value="Vice-President">Vice-President</option>
+                        <option value="General-Secretary">General-Secretary</option>
+                        <option value="Finance-Secretary">Finance-Secretary</option>
+                        <option value="Information-Secretary">Information-Secretary</option>
+                    </select>
+                </div>
+                <div class="full-width">
+                    <label>Profile Picture</label>
+                    <input type="file" name="profilePicture" accept="image/*">
+                </div>
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    const API_URL = '/api/users';
+    let allUsers = [];
+    // Image caching functions are imported from common.js
+
+    // Helper function to construct correct profile image path
+    function getProfileImagePath(profilePicturePath) {
+        if (!profilePicturePath) {
+            return '/image/default-avatar.png';
+        }
+        
+        if (profilePicturePath.startsWith('/')) {
+            return profilePicturePath;
+        }
+        
+        if (profilePicturePath.startsWith('profiles/')) {
+            return '/uploads/' + profilePicturePath;
+        }
+        
+        if (!profilePicturePath.includes('/')) {
+            return '/uploads/profiles/' + profilePicturePath;
+        }
+        
+        return '/' + profilePicturePath;
+    }
+
+    function showAddModal() { 
+        document.getElementById("addUserModal").style.display = "flex"; 
+        togglePropertyFields();
+        toggleRenterFields();
+    }
+
+    function hideAddModal() { 
+        document.getElementById("addUserModal").style.display = "none"; 
+        document.getElementById("newUserForm").reset(); 
+        togglePropertyFields();
+        toggleRenterFields();
+    }
+
+    function showEditModal() { 
+        document.getElementById("editUserModal").style.display = "flex"; 
+    }
+
+    function hideEditModal() { 
+        document.getElementById("editUserModal").style.display = "none"; 
+        document.getElementById("editUserForm").reset(); 
+        toggleEditPropertyFields();
+        toggleEditRenterFields();
+    }
+
+    // Toggle between Plot Size and No of Shops for Add User form
+    function togglePropertyFields() {
+        const propertyType = document.getElementById('propertyType').value;
+        const plotSizeContainer = document.getElementById('plotSizeContainer');
+        const noOfShopsContainer = document.getElementById('noOfShopsContainer');
+        const plotSizeInput = document.getElementById('plotSizeMarla');
+        const noOfShopsInput = document.getElementById('noOfShops');
+        
+        if (propertyType === 'Shop') {
+            plotSizeContainer.style.display = 'none';
+            noOfShopsContainer.style.display = 'flex';
+            // Disable hidden field to prevent validation
+            plotSizeInput.disabled = true;
+            plotSizeInput.removeAttribute('required');
+            noOfShopsInput.disabled = false;
+            noOfShopsInput.removeAttribute('required');
+        } else if (propertyType === 'House') {
+            plotSizeContainer.style.display = 'flex';
+            noOfShopsContainer.style.display = 'none';
+            // Disable hidden field to prevent validation
+            plotSizeInput.disabled = false;
+            plotSizeInput.removeAttribute('required');
+            noOfShopsInput.disabled = true;
+            noOfShopsInput.removeAttribute('required');
+        } else {
+            plotSizeContainer.style.display = 'flex';
+            noOfShopsContainer.style.display = 'none';
+            plotSizeInput.disabled = false;
+            plotSizeInput.removeAttribute('required');
+            noOfShopsInput.disabled = true;
+            noOfShopsInput.removeAttribute('required');
+        }
+    }
+
+    // Toggle renter fields visibility for Add User form
+    function toggleRenterFields() {
+        const status = document.getElementById('residenceStatus').value;
+        const renterDetailsContainer = document.getElementById('renterDetailsContainer');
+        const renterNameContainer = document.getElementById('renterNameContainer');
+        const renterPhoneContainer = document.getElementById('renterPhoneContainer');
+        const renterCnicContainer = document.getElementById('renterCnicContainer');
+        const renterAddressContainer = document.getElementById('renterAddressContainer');
+        
+        if (status === 'Rented' || status === 'Both') {
+            renterDetailsContainer.style.display = 'block';
+            renterNameContainer.style.display = 'flex';
+            renterPhoneContainer.style.display = 'flex';
+            renterCnicContainer.style.display = 'flex';
+            renterAddressContainer.style.display = 'flex';
+        } else {
+            renterDetailsContainer.style.display = 'none';
+            renterNameContainer.style.display = 'none';
+            renterPhoneContainer.style.display = 'none';
+            renterCnicContainer.style.display = 'none';
+            renterAddressContainer.style.display = 'none';
+            // Clear values when hidden
+            document.getElementById('renterName').value = '';
+            document.getElementById('renterPhoneNo').value = '';
+            document.getElementById('renterCnic').value = '';
+            document.getElementById('renterPreviousAddress').value = '';
+        }
+    }
+
+    // Toggle renter fields visibility for Edit User form
+    function toggleEditRenterFields() {
+        const status = document.getElementById('editStatus').value;
+        const renterDetailsContainer = document.getElementById('editRenterDetailsContainer');
+        const renterNameContainer = document.getElementById('editRenterNameContainer');
+        const renterPhoneContainer = document.getElementById('editRenterPhoneContainer');
+        const renterCnicContainer = document.getElementById('editRenterCnicContainer');
+        const renterAddressContainer = document.getElementById('editRenterAddressContainer');
+        
+        if (status === 'Rented' || status === 'Both') {
+            renterDetailsContainer.style.display = 'block';
+            renterNameContainer.style.display = 'flex';
+            renterPhoneContainer.style.display = 'flex';
+            renterCnicContainer.style.display = 'flex';
+            renterAddressContainer.style.display = 'flex';
+        } else {
+            renterDetailsContainer.style.display = 'none';
+            renterNameContainer.style.display = 'none';
+            renterPhoneContainer.style.display = 'none';
+            renterCnicContainer.style.display = 'none';
+            renterAddressContainer.style.display = 'none';
+            // Clear values when hidden
+            document.getElementById('editRenterName').value = '';
+            document.getElementById('editRenterPhoneNo').value = '';
+            document.getElementById('editRenterCnic').value = '';
+            document.getElementById('editRenterPreviousAddress').value = '';
+        }
+    }
+
+    // Toggle between Plot Size and No of Shops for Edit User form
+    function toggleEditPropertyFields() {
+        const propertyType = document.getElementById('editPropertyType').value;
+        const plotSizeContainer = document.getElementById('editPlotSizeContainer');
+        const noOfShopsContainer = document.getElementById('editNoOfShopsContainer');
+        const plotSizeInput = document.getElementById('editPlotSizeMarla');
+        const noOfShopsInput = document.getElementById('editNoOfShops');
+        
+        if (propertyType === 'Shop') {
+            plotSizeContainer.style.display = 'none';
+            noOfShopsContainer.style.display = 'flex';
+            // Don't clear plotSizeInput - keep the existing value
+            plotSizeInput.removeAttribute('required');
+            noOfShopsInput.removeAttribute('required');
+        } else if (propertyType === 'House') {
+            plotSizeContainer.style.display = 'flex';
+            noOfShopsContainer.style.display = 'none';
+            // Don't clear noOfShopsInput - keep the existing value
+            plotSizeInput.removeAttribute('required');
+            noOfShopsInput.removeAttribute('required');
+        } else {
+            plotSizeContainer.style.display = 'flex';
+            noOfShopsContainer.style.display = 'none';
+            plotSizeInput.removeAttribute('required');
+            noOfShopsInput.removeAttribute('required');
+        }
+    }
+
+    async function fetchAndDisplayUsers() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('Failed to fetch users');
+            allUsers = await response.json();
+
+            const tableBody = document.getElementById('users-table-body');
+            tableBody.innerHTML = '';
+            
+            // Preload images in background (non-blocking)
+            const uniqueImages = new Set();
+            allUsers.forEach(user => {
+                const imagePath = getProfileImagePath(user.profilePicturePath);
+                uniqueImages.add(imagePath);
+            });
+            
+            // Preload images in parallel without blocking rendering
+            Promise.allSettled(
+                Array.from(uniqueImages).map(img => preloadImage(img))
+            ).catch(err => console.log('Image preload error:', err));
+            
+            allUsers.forEach((user, index) => {
+                const accountStatusClass = user.accountStatus === 'Inactive' ? 'inactive-user' : 'active-user';
+                const accountStatusBadge = user.accountStatus === 'Active' ? 
+                    '<span class="status-badge active-badge">Active</span>' : 
+                    '<span class="status-badge inactive-badge">Inactive</span>';
+                
+                let plotSizeDisplay = '-';
+                if (user.propertyType === 'Shop') {
+                    // Shop data is also stored in plotSizeMarla column
+                    plotSizeDisplay = user.plotSizeMarla ? `${user.plotSizeMarla} Shop(s)` : '-';
+                } else if (user.propertyType === 'House' || !user.propertyType) {
+                    plotSizeDisplay = user.plotSizeMarla ? `${user.plotSizeMarla} Marla` : '-';
+                }
+                
+                const imagePath = getProfileImagePath(user.profilePicturePath);
+                
+                const row = `
+                    <tr data-id="${user.id}" class="${index % 2 === 0 ? 'even-row' : 'odd-row'} ${accountStatusClass}">
+                        <td>${user.id}</td>
+                        <td>${user.ownerName || '-'}</td>
+                        <td>${user.fatherName || '-'}</td>
+                        <td>${user.propertyType || '-'}</td>
+                        <td>${user.plotNo || '-'}</td>
+                        <td>${plotSizeDisplay}</td>
+                        <td>${user.status || '-'}</td>
+                        <td>${user.renterName || '-'}</td>
+                        <td>${user.renterPhoneNo || '-'}</td>
+                        <td>${user.renterCnic || '-'}</td>
+                        <td>${user.renterPreviousAddress || '-'}</td>
+                        <td>${user.builtStatus || '-'}</td>
+                        <td>${user.bloodGroup || '-'}</td>
+                        <td>${accountStatusBadge}</td>
+                        <td>${user.previousAddress || '-'}</td>
+                        <td>${user.cnic || '-'}</td>
+                        <td>${user.familyMembers || '-'}</td>
+                        <td>${user.phoneNo || '-'}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role}</td>
+                        <td><img src="${imagePath}" alt="Profile" class="profile-img" onerror="this.src='/image/default-avatar.png'" loading="lazy"></td>
+                        <td>
+                            <button class="edit-btn" onclick="openEditModal(${user.id})">Edit</button>
+                            <button class="delete-btn" onclick="deleteUser(${user.id})">Delete</button>
+                        </td>
+                    </tr>`;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+            
+            const searchInput = document.getElementById("search");
+            if (searchInput && searchInput.value.trim() !== '') {
+                searchUsers();
+            }
+            
+            console.log(`✅ Successfully loaded ${allUsers.length} users`);
+        } catch (error) {
+            console.error('Error:', error);
+            showError('❌ Could not load user data.');
+        }
+    }
+
+    function openEditModal(id) {
+        const user = allUsers.find(u => u.id === id);
+        if (!user) return;
+        
+        const form = document.getElementById('editUserForm');
+        form.id.value = user.id;
+        form.ownerName.value = user.ownerName;
+        form.fatherName.value = user.fatherName || '';
+        form.propertyType.value = user.propertyType || '';
+        form.plotNo.value = user.plotNo || '';
+        form.plotSizeMarla.value = user.plotSizeMarla || '';
+        form.noOfShops.value = user.noOfShops || '';
+        form.status.value = user.status || '';
+        form.renterName.value = user.renterName || '';
+        form.renterPhoneNo.value = user.renterPhoneNo || '';
+        form.renterCnic.value = user.renterCnic || '';
+        form.renterPreviousAddress.value = user.renterPreviousAddress || '';
+        form.previousAddress.value = user.previousAddress || '';
+        form.cnic.value = user.cnic || '';
+        form.familyMembers.value = user.familyMembers || '';
+        form.phoneNo.value = user.phoneNo || '';
+        form.email.value = user.email;
+        form.role.value = user.role;
+        form.password.value = '';
+        form.accountStatus.value = user.accountStatus || 'Active';
+        form.builtStatus.value = user.builtStatus || '';
+        form.bloodGroup.value = user.bloodGroup || '';
+        
+        toggleEditPropertyFields();
+        toggleEditRenterFields();
+        showEditModal();
+    }
+
+    async function handleEditFormSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const id = form.id.value;
+        const formData = new FormData();
+        
+        // Get the current user data to preserve hidden field values
+        const currentUser = allUsers.find(u => u.id == id);
+        
+        // Debug: Check form values
+        console.log('📋 Property Type:', form.propertyType.value);
+        console.log('🏠 plotSizeMarla field value:', form.plotSizeMarla.value);
+        console.log('🏪 noOfShops field value:', form.noOfShops.value);
+        
+        // Determine the value to store in plotSizeMarla column
+        let plotSizeValue;
+        if (form.propertyType.value === 'House') {
+            plotSizeValue = form.plotSizeMarla.value;
+            console.log('✅ Using House plot size:', plotSizeValue);
+        } else {
+            plotSizeValue = form.noOfShops.value;
+            console.log('✅ Using Shop count:', plotSizeValue);
+        }
+        
+        const userData = {
+            id: id, 
+            ownerName: form.ownerName.value, 
+            fatherName: form.fatherName.value,
+            propertyType: form.propertyType.value,
+            plotNo: form.plotNo.value, 
+            // Store both house size and shop count in plotSizeMarla column
+            // propertyType will tell us if it's a size or count
+            plotSizeMarla: plotSizeValue,
+            noOfShops: null,  // Not using this column anymore
+            status: form.status.value,
+            renterName: (form.status.value === 'Rented' || form.status.value === 'Both') ? form.renterName.value : '',
+            renterPhoneNo: (form.status.value === 'Rented' || form.status.value === 'Both') ? form.renterPhoneNo.value : '',
+            renterCnic: (form.status.value === 'Rented' || form.status.value === 'Both') ? form.renterCnic.value : '',
+            renterPreviousAddress: (form.status.value === 'Rented' || form.status.value === 'Both') ? form.renterPreviousAddress.value : '', 
+            previousAddress: form.previousAddress.value,
+            cnic: form.cnic.value, 
+            familyMembers: form.familyMembers.value, 
+            phoneNo: form.phoneNo.value,
+            email: form.email.value, 
+            role: form.role.value, 
+            password: form.password.value,
+            accountStatus: form.accountStatus.value,
+            builtStatus: form.builtStatus.value,
+            bloodGroup: form.bloodGroup.value
+        };
+
+        console.log('🔍 Sending userData to server:', userData);
+        console.log('📊 plotSizeMarla value:', userData.plotSizeMarla);
+        console.log('🏪 noOfShops value:', userData.noOfShops);
+
+        formData.append('user', new Blob([JSON.stringify(userData)], { type: 'application/json' }));
+        if (form.profilePicture.files[0]) {
+            formData.append('profilePicture', form.profilePicture.files[0]);
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Updating...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch(`${API_URL}/${id}`, { method: 'PUT', body: formData });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to update user: ${errorText}`);
+            }
+            
+            const updatedUser = await response.json();
+            console.log('Updated user data:', updatedUser);
+            
+            hideEditModal();
+            await fetchAndDisplayUsers();
+            showSuccess('✅ User updated successfully!');
+            
+        } catch(error) {
+            console.error('Error updating user:', error);
+            showError(`❌ Failed to update user: ${error.message}`);
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    async function handleAddFormSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        
+        // Re-enable all fields BEFORE reading values
+        form.plotSizeMarla.disabled = false;
+        form.noOfShops.disabled = false;
+        
+        console.log('=== ADD USER DEBUG ===');
+        console.log('Property Type:', form.propertyType.value);
+        console.log('plotSizeMarla field value:', form.plotSizeMarla.value);
+        console.log('noOfShops field value:', form.noOfShops.value);
+        
+        // Unified storage: Route both House and Shop values to plotSizeMarla column
+        let plotSizeValue;
+        if (form.propertyType.value === 'House') {
+            plotSizeValue = form.plotSizeMarla.value;
+            console.log('Using House plot size:', plotSizeValue);
+        } else {
+            plotSizeValue = form.noOfShops.value;
+            console.log('Using Shop count:', plotSizeValue);
+        }
+        
+        const formData = new FormData();
+        
+        const userData = {
+            ownerName: form.ownerName.value, 
+            fatherName: form.fatherName.value, 
+            propertyType: form.propertyType.value,
+            plotNo: form.plotNo.value, 
+            plotSizeMarla: plotSizeValue,  // Store both house size and shop count here
+            noOfShops: null,  // Not using this column anymore
+            status: form.status.value,
+            renterName: (form.status.value === 'Rented' || form.status.value === 'Both') ? form.renterName.value : '',
+            renterPhoneNo: (form.status.value === 'Rented' || form.status.value === 'Both') ? form.renterPhoneNo.value : '',
+            renterCnic: (form.status.value === 'Rented' || form.status.value === 'Both') ? form.renterCnic.value : '',
+            renterPreviousAddress: (form.status.value === 'Rented' || form.status.value === 'Both') ? form.renterPreviousAddress.value : '', 
+            previousAddress: form.previousAddress.value, 
+            cnic: form.cnic.value,
+            familyMembers: form.familyMembers.value, 
+            phoneNo: form.phoneNo.value, 
+            email: form.email.value, 
+            password: form.password.value, 
+            role: form.role.value,
+            accountStatus: form.accountStatus.value,
+            builtStatus: form.builtStatus.value,
+            bloodGroup: form.bloodGroup.value
+        };
+
+        formData.append('user', new Blob([JSON.stringify(userData)], { type: 'application/json' }));
+        if (form.profilePicture.files[0]) {
+            formData.append('profilePicture', form.profilePicture.files[0]);
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Adding User...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch(API_URL, { method: 'POST', body: formData });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to create user: ${errorText}`);
+            }
+            
+            const newUser = await response.json();
+            console.log('New user created:', newUser);
+            
+            hideAddModal();
+            await fetchAndDisplayUsers();
+            showSuccess('✅ User added successfully!');
+            
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            showError(`❌ Failed to add user: ${error.message}`);
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    async function deleteUser(id) {
+        if (!confirm('Are you sure you want to delete this user?')) return;
+        
+        try {
+            const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(`Server responded with ${response.status}: ${errorData}`);
+            }
+            
+            console.log(`User ${id} deleted successfully`);
+            await fetchAndDisplayUsers();
+            showSuccess('✅ User deleted successfully!');
+            
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            showError(`❌ Failed to delete user: ${error.message}`);
+        }
+    }
+
+    function searchUsers() {
+        const filter = document.getElementById("search").value.toLowerCase();
+        const rows = document.getElementById("users-table-body").getElementsByTagName("tr");
+        Array.from(rows).forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+        const accessResult = await checkPageAccess(
+            ['President', 'General-Secretary'],
+            ['Vice-President', 'Finance-Secretary', 'Information-Secretary']
+        );
+        
+        if (!accessResult.hasAccess) return;
+        
+        if (accessResult.isViewOnly) {
+            setViewOnlyMode();
+        }
+        
+        // Show Masjid and Charity Secret Code buttons only for President
+        if (accessResult.userRole === 'President') {
+            const masjidSecretBtn = document.getElementById('masjidSecretBtn');
+            if (masjidSecretBtn) {
+                masjidSecretBtn.style.display = 'inline-block';
+            }
+            const charitySecretBtn = document.getElementById('charitySecretBtn');
+            if (charitySecretBtn) {
+                charitySecretBtn.style.display = 'inline-block';
+            }
+        }
+        
+        fetch('header.html').then(r => r.text()).then(data => {
+            document.getElementById('header').innerHTML = data;
+            if (typeof setActive === 'function') {
+                setActive();
+            }
+            if (typeof loadUserProfileImage === 'function') {
+                loadUserProfileImage();
+            }
+            
+            setTimeout(() => {
+                if (typeof window.initializeHamburgerMenu === 'function') {
+                    window.initializeHamburgerMenu();
+                }
+            }, 100);
+        });
+        
+        fetch('President Console.html').then(r => r.text()).then(data => document.getElementById('president_console').innerHTML = data);
+        fetchAndDisplayUsers();
+        
+        document.getElementById('newUserForm').addEventListener('submit', handleAddFormSubmit);
+        document.getElementById('editUserForm').addEventListener('submit', handleEditFormSubmit);
+        
+        window.onclick = function(event) {
+            if (event.target == document.getElementById("addUserModal") || event.target == document.getElementById("editUserModal")) {
+                hideAddModal();
+                hideEditModal();
+            }
+        };
+
+        var plotNo = document.querySelector('#newUserForm [name="plotNo"]');
+        var plotSize = document.querySelector('#newUserForm [name="plotSizeMarla"]');
+        if(plotNo && plotSize) {
+            plotNo.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    plotSize.required = true;
+                } else {
+                    plotSize.required = false;
+                }
+            });
+        }
+        
+        var editPlotNo = document.getElementById('editPlotNo');
+        var editPlotSize = document.getElementById('editPlotSizeMarla');
+        if(editPlotNo && editPlotSize) {
+            editPlotNo.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    editPlotSize.required = true;
+                } else {
+                    editPlotSize.required = false;
+                }
+            });
+        }
+    });
+
+    // Masjid Secret Code Management Functions
+    function showMasjidSecretModal() {
+        document.getElementById('masjidSecretModal').style.display = 'flex';
+        document.getElementById('newSecretCode').value = '';
+        document.getElementById('confirmSecretCode').value = '';
+        document.getElementById('masjidSecretSuccess').style.display = 'none';
+        document.getElementById('masjidSecretError').style.display = 'none';
+    }
+
+    function closeMasjidSecretModal() {
+        document.getElementById('masjidSecretModal').style.display = 'none';
+    }
+
+    async function saveMasjidSecretCode() {
+        const newCode = document.getElementById('newSecretCode').value;
+        const confirmCode = document.getElementById('confirmSecretCode').value;
+        const errorDiv = document.getElementById('masjidSecretError');
+        const successDiv = document.getElementById('masjidSecretSuccess');
+        
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        
+        if (!newCode || !confirmCode) {
+            errorDiv.textContent = '⚠️ Please enter both fields';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        if (newCode.length < 4) {
+            errorDiv.textContent = '⚠️ Code must be at least 4 characters';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        if (newCode !== confirmCode) {
+            errorDiv.textContent = '⚠️ Codes do not match';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        try {
+            const userResponse = await fetch('/api/users/me');
+            const userData = await userResponse.json();
+            
+            const response = await fetch('/api/masjid/set-secret-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code: newCode,
+                    updatedBy: userData.email
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                successDiv.textContent = '✅ Secret code updated successfully!';
+                successDiv.style.display = 'block';
+                setTimeout(() => closeMasjidSecretModal(), 2000);
+            } else {
+                errorDiv.textContent = '❌ ' + (result.message || 'Failed to update code');
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error saving secret code:', error);
+            errorDiv.textContent = '❌ Failed to update secret code';
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    window.onclick = function(event) {
+        const masjidModal = document.getElementById('masjidSecretModal');
+        if (event.target === masjidModal) {
+            closeMasjidSecretModal();
+        }
+        const charityModal = document.getElementById('charitySecretModal');
+        if (event.target === charityModal) {
+            closeCharitySecretModal();
+        }
+    };
+
+    // Charity Secret Code Management Functions
+    function showCharitySecretModal() {
+        document.getElementById('charitySecretModal').style.display = 'flex';
+        document.getElementById('newCharitySecretCode').value = '';
+        document.getElementById('confirmCharitySecretCode').value = '';
+        document.getElementById('charitySecretSuccess').style.display = 'none';
+        document.getElementById('charitySecretError').style.display = 'none';
+    }
+
+    function closeCharitySecretModal() {
+        document.getElementById('charitySecretModal').style.display = 'none';
+    }
+
+    async function saveCharitySecretCode() {
+        const newCode = document.getElementById('newCharitySecretCode').value;
+        const confirmCode = document.getElementById('confirmCharitySecretCode').value;
+        const errorDiv = document.getElementById('charitySecretError');
+        const successDiv = document.getElementById('charitySecretSuccess');
+        
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        
+        if (!newCode || !confirmCode) {
+            errorDiv.textContent = '⚠️ Please enter both fields';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        if (newCode.length < 4) {
+            errorDiv.textContent = '⚠️ Code must be at least 4 characters';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        if (newCode !== confirmCode) {
+            errorDiv.textContent = '⚠️ Codes do not match';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        try {
+            const userResponse = await fetch('/api/users/me');
+            const userData = await userResponse.json();
+            
+            const response = await fetch('/api/charity/set-secret-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code: newCode,
+                    updatedBy: userData.email
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                successDiv.textContent = '✅ Secret code updated successfully!';
+                successDiv.style.display = 'block';
+                setTimeout(() => closeCharitySecretModal(), 2000);
+            } else {
+                errorDiv.textContent = '❌ ' + (result.message || 'Failed to update code');
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error saving secret code:', error);
+            errorDiv.textContent = '❌ Failed to update secret code';
+            errorDiv.style.display = 'block';
+        }
+    }
+</script>
+
+<!-- Masjid Secret Code Modal -->
+<div id="masjidSecretModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeMasjidSecretModal()">×</span>
+        <h3>🔐 Set Masjid Transaction Secret Code</h3>
+        <p style="color: #666; margin-bottom: 1rem; text-align: center;">This code will be required to add Masjid income and expense records</p>
+        
+        <div id="masjidSecretSuccess" style="display: none; padding: 10px; background-color: #d4edda; color: #155724; border-radius: 5px; margin-bottom: 15px; text-align: center;"></div>
+        <div id="masjidSecretError" style="display: none; padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 5px; margin-bottom: 15px; text-align: center;"></div>
+        
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #34495e;">New Secret Code *</label>
+            <input type="password" id="newSecretCode" placeholder="Enter new code (min 4 characters)" 
+                   style="width: 100%; padding: 0.75rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #34495e;">Confirm Secret Code *</label>
+            <input type="password" id="confirmSecretCode" placeholder="Re-enter the code" 
+                   style="width: 100%; padding: 0.75rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+        
+        <button onclick="saveMasjidSecretCode()" 
+                style="width: 100%; background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; padding: 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; margin-top: 1rem;">
+            💾 Save Secret Code
+        </button>
+        
+        <button onclick="closeMasjidSecretModal()" 
+                style="width: 100%; background: #95a5a6; color: white; padding: 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">
+            Cancel
+        </button>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+            <p style="margin: 0; font-size: 0.85rem; color: #856404;">
+                <strong>⚠️ Important:</strong><br>
+                • Keep this code secure and share only with authorized staff<br>
+                • You can change this code anytime from this page<br>
+                • Default code is <strong>1234</strong> - change it immediately for security!
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Charity Secret Code Modal -->
+<div id="charitySecretModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeCharitySecretModal()">×</span>
+        <h3>🤲 Set Charity Transaction Secret Code</h3>
+        <p style="color: #666; margin-bottom: 1rem; text-align: center;">This code will be required to add Charity income and expense records</p>
+        
+        <div id="charitySecretSuccess" style="display: none; padding: 10px; background-color: #d4edda; color: #155724; border-radius: 5px; margin-bottom: 15px; text-align: center;"></div>
+        <div id="charitySecretError" style="display: none; padding: 10px; background-color: #f8d7da; color: #721c24; border-radius: 5px; margin-bottom: 15px; text-align: center;"></div>
+        
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #34495e;">New Secret Code *</label>
+            <input type="password" id="newCharitySecretCode" placeholder="Enter new code (min 4 characters)" 
+                   style="width: 100%; padding: 0.75rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #34495e;">Confirm Secret Code *</label>
+            <input type="password" id="confirmCharitySecretCode" placeholder="Re-enter the code" 
+                   style="width: 100%; padding: 0.75rem; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+        
+        <button onclick="saveCharitySecretCode()" 
+                style="width: 100%; background: linear-gradient(135deg, #e67e22, #d35400); color: white; padding: 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; margin-top: 1rem;">
+            💾 Save Secret Code
+        </button>
+        
+        <button onclick="closeCharitySecretModal()" 
+                style="width: 100%; background: #95a5a6; color: white; padding: 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">
+            Cancel
+        </button>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+            <p style="margin: 0; font-size: 0.85rem; color: #856404;">
+                <strong>⚠️ Important:</strong><br>
+                • Keep this code secure and share only with authorized staff<br>
+                • You can change this code anytime from this page<br>
+                • Default code is <strong>1234</strong> - change it immediately for security!
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js"></script>
+<!-- Include role-based security script -->
+<script src="/js/role-security.js?v=10"></script>
+<!-- Include header menu script for hamburger functionality -->
+<script src="/js/header-menu.js"></script>
+
+<!-- Version: 2.5.3 - Fixed Shop plotSizeMarla storage -->
+</body>
+</html>

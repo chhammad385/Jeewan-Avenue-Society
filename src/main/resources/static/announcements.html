@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Announcements - Jeewan Avenue</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            overflow: hidden;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #fff;
+            width: min(90%, 640px);
+            max-height: 80vh;
+            border-radius: 16px;
+            padding: 26px 28px 30px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.35s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h2 {
+            margin: 0 0 16px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: #1f2937;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .close-btn:hover {
+            color: #444;
+        }
+
+        .status {
+            font-size: 0.75rem;
+            color: #777;
+            margin-left: auto;
+        }
+
+        #announcementContainer {
+            overflow: auto;
+            padding-right: 6px;
+            flex: 1 1 auto;
+            min-height: 140px;
+        }
+
+        .spinner {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner-circle {
+            width: 32px;
+            height: 32px;
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid #7f56d9;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        .announcement {
+            background: #f9f9fb;
+            border-left: 5px solid #7f56d9;
+            padding: 18px 20px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .announcement:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .announcement h4 {
+            margin: 0 0 8px;
+            font-size: 1.1rem;
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .announcement p {
+            margin: 0 0 12px;
+            font-size: 0.95rem;
+            color: #4b5563;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .meta {
+            font-size: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .meta span {
+            background: #e5e7eb;
+            color: #374151;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .error-box {
+            text-align: center;
+            padding: 30px 20px;
+            color: #dc2626;
+            font-size: 0.9rem;
+        }
+
+        .retry-btn {
+            margin-top: 12px;
+            background: #7f56d9;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .retry-btn:hover {
+            background: #6d28d9;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal" id="announcementModal">
+        <div class="modal-content">
+            <button id="closeBtn" class="close-btn">&times;</button>
+            
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <h2>📢 Latest Announcements</h2>
+                <span id="statusText" class="status">Loading…</span>
+            </div>
+            
+            <div id="announcementContainer">
+                <div class="spinner">
+                    <div class="spinner-circle"></div>
+                    <div style="color: #6b7280; font-size: 0.9rem;">Loading announcements...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use relative URL since served from same domain
+        const ACTIVE_URL = '/api/announcements/active';
+
+        console.log('🚀 Loading announcements from:', ACTIVE_URL);
+        
+        function setStatus(msg) {
+            const statusEl = document.getElementById('statusText');
+            if (statusEl) statusEl.textContent = msg;
+        }
+        
+        function renderEmpty() {
+            const container = document.getElementById('announcementContainer');
+            if (container) {
+                container.innerHTML = 
+                    '<div class="empty">📭 No announcements at this time.<br><small>Check back later for updates!</small></div>';
+                setStatus('No announcements');
+            }
+        }
+        
+        function renderError(message) {
+            const container = document.getElementById('announcementContainer');
+            if (container) {
+                container.innerHTML = 
+                    `<div class="error-box">
+                        ❌ ${message}
+                        <br><button class="retry-btn" onclick="loadAnnouncements()">🔄 Retry</button>
+                    </div>`;
+                setStatus('Error');
+            }
+        }
+        
+        function renderAnnouncements(announcements) {
+            const container = document.getElementById('announcementContainer');
+            if (!container) return;
+            
+            if (!announcements || announcements.length === 0) {
+                renderEmpty();
+                return;
+            }
+            
+            // Sort announcements by multiple criteria for better ordering
+            const sortedAnnouncements = [...announcements].sort((a, b) => {
+                // Primary sort: by start date (latest first)
+                const dateA = new Date(a.startDatetime || '1970-01-01');
+                const dateB = new Date(b.startDatetime || '1970-01-01');
+                const dateDiff = dateB.getTime() - dateA.getTime();
+                
+                if (dateDiff !== 0) {
+                    return dateDiff;
+                }
+                
+                // Secondary sort: by ID (higher ID = more recent, assuming auto-increment)
+                if (a.id && b.id) {
+                    return b.id - a.id;
+                }
+                
+                // Tertiary sort: by title (for consistent ordering)
+                return (a.title || '').localeCompare(b.title || '');
+            });
+            
+            console.log('Original announcements:', announcements.map(a => ({ title: a.title, startDatetime: a.startDatetime, id: a.id })));
+            console.log('Sorted announcements:', sortedAnnouncements.map(a => ({ title: a.title, startDatetime: a.startDatetime, id: a.id })));
+            
+            container.innerHTML = '';
+            
+            sortedAnnouncements.forEach((ann, index) => {
+                const div = document.createElement('div');
+                div.className = 'announcement';
+                
+                div.innerHTML = `
+                    <h4>${escapeHtml(ann.title || 'Untitled Announcement')}</h4>
+                    <p>${escapeHtml(ann.content || 'No content available.')}</p>
+                    <div class="meta">
+                        <span>📅 From: ${formatDate(ann.startDatetime)}</span>
+                        <span>⏰ Until: ${formatDate(ann.endDatetime)}</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            
+            setStatus(`${announcements.length} announcement${announcements.length !== 1 ? 's' : ''}`);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
+            
+            try {
+                const date = new Date(dateString.length === 16 ? dateString + ':00' : dateString);
+                
+                if (isNaN(date.getTime())) {
+                    return dateString;
+                }
+                
+                return date.toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                console.warn('Date parsing failed:', dateString, e);
+                return dateString;
+            }
+        }
+        
+        async function loadAnnouncements() {
+            console.log('📡 Fetching announcements...');
+            setStatus('Loading…');
+            
+            try {
+                const response = await fetch(ACTIVE_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('📨 Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('📄 Data received:', data);
+                
+                renderAnnouncements(data);
+                
+            } catch (error) {
+                console.error('❌ Load failed:', error);
+                renderError(`Failed to load announcements: ${error.message}`);
+            }
+        }
+        
+        // Close modal
+        const closeBtn = document.getElementById('closeBtn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                const modal = document.getElementById('announcementModal');
+                if (modal) modal.style.display = 'none';
+            });
+        }
+        
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('announcementModal');
+                if (modal) modal.style.display = 'none';
+            }
+        });
+        
+        // Start loading when page opens - with error handling
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadAnnouncements);
+        } else {
+            loadAnnouncements();
+        }
+        
+        console.log('✅ Script initialized successfully');
+    </script>
+    
+    <!-- Announcement Popup Script -->
+    <script src="/js/announcement-popup.js"></script>
+</body>
+</html>

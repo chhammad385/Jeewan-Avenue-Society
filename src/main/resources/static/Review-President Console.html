@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Review Feedback - President Console</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Your existing CSS styles remain unchanged */
+        body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); font-family: 'Poppins', sans-serif; margin: 0; padding: 0; padding-top: 120px; }
+        .container { max-width: 1350px; width: 100%; margin: 20px auto; padding: 20px; }
+        h1 { font-size: 2rem; color: #333; text-align: center; margin-bottom: 1.5rem; }
+        h2 { font-size: 1.5rem; color: #444; margin-bottom: 1rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 2rem; }
+        #feedbackList { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        @media (min-width: 768px) { #feedbackList { grid-template-columns: 1fr 1fr; } }
+        .feedback-item { border-left: 4px solid #3b82f6; padding: 1rem; background: #f9f9fb; border-radius: 4px;}
+        .feedback-item p { margin: 0.25rem 0; color: #555; }
+        .feedback-item p strong { color: #333; }
+        .filter-container { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+        select { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        
+        /* Suggestion Toggle Button Styles */
+        .suggestion-toggle-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suggestion-toggle-btn:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5a7a);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .suggestion-toggle-btn.has-notifications {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            animation: pulse-suggestion 2s infinite;
+        }
+
+        .suggestion-toggle-btn.has-notifications:hover {
+            background: linear-gradient(135deg, #c0392b, #a52a1a);
+        }
+
+        .suggestion-badge {
+            background: #f39c12;
+            color: white;
+            border-radius: 50%;
+            min-width: 24px;
+            height: 24px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            animation: bounce-badge 1.5s infinite;
+        }
+
+        @keyframes pulse-suggestion {
+            0% { box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3), 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4), 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3), 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        @keyframes bounce-badge {
+            0%, 20%, 50%, 80%, 100% { transform: scale(1); }
+            40% { transform: scale(1.2); }
+            60% { transform: scale(1.1); }
+        }
+
+        /* Suggestion Panel Styles */
+        .suggestion-panel {
+            position: fixed;
+            top: 0;
+            right: -500px;
+            width: 500px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+            transition: right 0.3s ease;
+            z-index: 10000;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-top: 80px; /* Add top padding to avoid header overlap */
+        }
+
+        .suggestion-panel.open {
+            right: 0;
+        }
+
+        .suggestion-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .suggestion-panel-close {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .suggestion-panel-close:hover {
+            background: #c0392b;
+        }
+
+        .suggestion-item {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .suggestion-item:hover {
+            background: #e8f4f8;
+            border-left-color: #2980b9;
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .suggestion-item.unread {
+            background: #fff8f0;
+            border-left-color: #e74c3c;
+        }
+
+        .suggestion-item.unread:hover {
+            background: #fff0e6;
+            border-left-color: #c0392b;
+        }
+
+        .suggestion-item.high-priority {
+            border-left-color: #e74c3c;
+        }
+
+        .suggestion-item.medium-priority {
+            border-left-color: #f39c12;
+        }
+
+        .suggestion-item.low-priority {
+            border-left-color: #27ae60;
+        }
+
+        .suggestion-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+
+        .suggestion-priority {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .priority-medium {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+        }
+
+        .priority-low {
+            background: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+        }
+
+        .suggestion-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .suggestion-description {
+            color: #5a6c7d;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .suggestion-category {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 140px;
+            }
+            
+            .suggestion-panel {
+                width: 100%;
+                right: -100%;
+                padding-top: 100px; /* More padding for mobile header */
+            }
+            
+            .suggestion-toggle-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding-top: 160px;
+            }
+            
+            .suggestion-panel {
+                padding-top: 120px; /* Even more padding for small mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div id="president_console"></div>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <h1 style="margin: 0;">Feedback Review Dashboard</h1>
+            <button id="suggestionToggleBtn" class="suggestion-toggle-btn" onclick="toggleSuggestionPanel()">
+                <span id="suggestionBtnText">View Suggestions</span>
+                <span id="suggestionBadge" class="suggestion-badge" style="display: none;">0</span>
+            </button>
+        </div>
+
+        <div class="card">
+            <h2>Member Satisfaction Scores</h2>
+            <div class="filter-container">
+                <select id="chartCategoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="Committee Member">Committee Members</option>
+                    <option value="Security Guard">Security Guards</option>
+                    <option value="Gardener">Gardeners</option>
+                    <option value="Imam-Masjid">Imam-Masjid</option>
+                </select>
+                <select id="chartTimeFilter">
+                    <option value="">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="quarter">Last 3 Months</option>
+                </select>
+            </div>
+            <canvas id="satisfactionChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h2>Feedback Details</h2>
+            <div class="filter-container">
+                <select id="listCategoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="Committee Member">Committee Members</option>
+                    <option value="Security Guard">Security Guards</option>
+                    <option value="Gardener">Gardeners</option>
+                    <option value="Imam-Masjid">Imam-Masjid</option>
+                </select>
+                <select id="listMemberFilter">
+                    <option value="">All Members</option>
+                </select>
+                <select id="timeFilter">
+                    <option value="">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="quarter">Last 3 Months</option>
+                </select>
+                <select id="sortOrder">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="satisfied">Satisfied First</option>
+                    <option value="unsatisfied">Unsatisfied First</option>
+                </select>
+            </div>
+            <div id="feedbackList"></div>
+        </div>
+    </div>
+
+    <!-- Suggestion Panel -->
+    <div id="suggestionPanel" class="suggestion-panel">
+        <div class="suggestion-panel-header">
+            <h3 style="margin: 0; color: #2c3e50;">Suggestions Management</h3>
+            <button class="suggestion-panel-close" onclick="closeSuggestionPanel()">&times;</button>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <button id="readAllBtn" onclick="markAllAsRead()" 
+                    style="background: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                📖 Read All
+            </button>
+            <button onclick="toggleUserLimitModal()" 
+                    style="background: #f39c12; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                ⚙️ Manage User Limits
+            </button>
+        </div>
+        
+        <div style="background: #e8f4f8; padding: 10px; margin-bottom: 15px; border-radius: 6px; font-size: 0.9rem; color: #2c3e50;">
+            💡 <strong>How to use:</strong> Click on any suggestion card to mark it as read. Unread suggestions have a red dot and "● NEW" label.<br>
+            🏛️ <strong>Access:</strong> All position holders can manage suggestions and user limits.
+        </div>
+        <div id="suggestionFilters" style="margin-bottom: 20px;">
+            <select id="suggestionCategoryFilter" onchange="filterSuggestions()" style="margin-right: 10px;">
+                <option value="">All Categories</option>
+                <option value="facility">Facility Management</option>
+                <option value="security">Security</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="communication">Communication</option>
+                <option value="financial">Financial</option>
+                <option value="other">Other</option>
+            </select>
+            <select id="suggestionPriorityFilter" onchange="filterSuggestions()">
+                <option value="">All Priorities</option>
+                <option value="high">High Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="low">Low Priority</option>
+            </select>
+        </div>
+        <div id="suggestionList">
+            <!-- Suggestions will be loaded here -->
+        </div>
+    </div>
+
+    <!-- User Limit Management Modal -->
+    <div id="userLimitModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10001;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #2c3e50;">Manage User Suggestion Limits</h3>
+                <button onclick="toggleUserLimitModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #7f8c8d;">&times;</button>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                <p style="margin: 0; color: #2c3e50; font-size: 0.9rem;">
+                    <strong>ℹ️ Current System Default:</strong> 5 suggestions per user per month<br>
+                    <em>You can modify individual user limits below. Changes apply to the current month.</em>
+                </p>
+            </div>
+            
+            <!-- Bulk Actions -->
+            <div style="background: #e8f4f8; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #3498db;">
+                <h4 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 1rem;">🔧 Bulk Actions</h4>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <label for="bulkLimitInput" style="color: #2c3e50; font-weight: 500;">Set limit for all users:</label>
+                    <input type="number" id="bulkLimitInput" min="0" max="50" value="5" 
+                           style="width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                    <button onclick="setBulkLimit()" 
+                            style="background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                        🔄 Apply to All Users
+                    </button>
+                </div>
+                <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #7f8c8d;">
+                    <strong>⚠️ Warning:</strong> This will override all individual user limits.
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="userSearchInput" placeholder="🔍 Search by email or name..." 
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;"
+                       onkeyup="searchUsers()">
+            </div>
+            
+            <div id="userLimitList" style="max-height: 400px; overflow-y: auto;">
+                <!-- User limits will be loaded here -->
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <button onclick="refreshUserLimits()" 
+                        style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                    🔄 Refresh List
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let allFeedback = [];
+    let allStaff = [];
+    let satisfactionChart = null;
+
+    // --- DATA FETCHING & INITIALIZATION ---
+    async function initializeDashboard() {
+        try {
+            const [feedbackRes, staffRes] = await Promise.all([
+                fetch('/api/feedback'),
+                fetch('/api/staff')
+            ]);
+            if (!feedbackRes.ok || !staffRes.ok) throw new Error('Failed to fetch data');
+            
+            allFeedback = await feedbackRes.json();
+            allStaff = await staffRes.json();
+            
+            // Debug: Log feedback data to console
+            console.log('Loaded feedback data:', allFeedback);
+            if (allFeedback.length > 0) {
+                console.log('Sample feedback item:', allFeedback[0]);
+                console.log('Feedback timestamp format:', typeof allFeedback[0].submittedAt, allFeedback[0].submittedAt);
+                console.log('Feedback timezone:', allFeedback[0].timeZone);
+            }
+            
+            populateMemberFilters();
+            renderChart();
+            renderFeedbackList();
+            
+            // Add event listeners to filters
+            document.getElementById('chartCategoryFilter').addEventListener('change', renderChart);
+            document.getElementById('chartTimeFilter').addEventListener('change', renderChart);
+            document.getElementById('listCategoryFilter').addEventListener('change', () => {
+                populateMemberFilters();
+                renderFeedbackList();
+            });
+            document.getElementById('listMemberFilter').addEventListener('change', renderFeedbackList);
+            document.getElementById('timeFilter').addEventListener('change', renderFeedbackList);
+            document.getElementById('sortOrder').addEventListener('change', renderFeedbackList);
+
+        } catch (error) {
+            console.error('Error initializing dashboard:', error);
+            alert('Could not load dashboard data.');
+        }
+    }
+    
+    function populateMemberFilters() {
+        const category = document.getElementById('listCategoryFilter').value;
+        const memberFilter = document.getElementById('listMemberFilter');
+        memberFilter.innerHTML = '<option value="">All Members</option>'; // Reset
+        
+        const members = allStaff.filter(s => !category || s.category === category);
+        
+        [...new Set(members.map(s => s.name))].forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            memberFilter.appendChild(option);
+        });
+    }
+
+    // --- CHART RENDERING ---
+    function renderChart() {
+        const categoryFilter = document.getElementById('chartCategoryFilter').value;
+        const chartTimeFilter = document.getElementById('chartTimeFilter').value;
+        
+        let filteredFeedback = allFeedback.filter(f => !categoryFilter || f.category === categoryFilter);
+        
+        // Apply time filter to chart data
+        if (chartTimeFilter) {
+            const now = new Date();
+            let startDate;
+            
+            switch (chartTimeFilter) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'week':
+                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    break;
+                case 'quarter':
+                    startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                    break;
+            }
+            
+            if (startDate) {
+                filteredFeedback = filteredFeedback.filter(f => {
+                    if (!f.submittedAt) return false; // Exclude items without timestamp
+                    let feedbackDate;
+                    try {
+                        if (typeof f.submittedAt === 'string') {
+                            feedbackDate = f.submittedAt.includes('T') ? 
+                                new Date(f.submittedAt) : 
+                                new Date(f.submittedAt.replace(' ', 'T'));
+                        } else {
+                            feedbackDate = new Date(f.submittedAt);
+                        }
+                        return !isNaN(feedbackDate.getTime()) && feedbackDate >= startDate;
+                    } catch (error) {
+                        console.warn('Invalid date in chart filter:', f.submittedAt);
+                        return false;
+                    }
+                });
+            }
+        }
+
+        const memberScores = {}; // { "John Doe": { satisfied: 10, total: 15, timeframe: "Last 3 months" } }
+        filteredFeedback.forEach(fb => {
+            if (!memberScores[fb.personName]) {
+                memberScores[fb.personName] = { satisfied: 0, total: 0 };
+            }
+            if (fb.isSatisfied) {
+                memberScores[fb.personName].satisfied++;
+            }
+            memberScores[fb.personName].total++;
+        });
+
+        const labels = Object.keys(memberScores);
+        const data = labels.map(name => {
+            const score = memberScores[name];
+            return score.total > 0 ? (score.satisfied / score.total) * 100 : 0;
+        });
+        
+        // Create tooltip data with counts
+        const tooltipData = labels.map(name => {
+            const score = memberScores[name];
+            return {
+                name: name,
+                satisfied: score.satisfied,
+                total: score.total,
+                percentage: score.total > 0 ? ((score.satisfied / score.total) * 100).toFixed(1) : '0'
+            };
+        });
+
+        const ctx = document.getElementById('satisfactionChart').getContext('2d');
+        if (satisfactionChart) {
+            satisfactionChart.destroy();
+        }
+        
+        // Add time frame info to chart title
+        const timeFrameText = chartTimeFilter ? 
+            ` (${document.getElementById('chartTimeFilter').selectedOptions[0].text})` : 
+            ' (All Time)';
+            
+        satisfactionChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: `Satisfaction Score % ${timeFrameText}`,
+                    data: data,
+                    backgroundColor: data.map(value => 
+                        value >= 80 ? 'rgba(46, 204, 113, 0.7)' : 
+                        value >= 60 ? 'rgba(241, 196, 15, 0.7)' : 
+                        'rgba(231, 76, 60, 0.7)'
+                    ),
+                    borderColor: data.map(value => 
+                        value >= 80 ? 'rgba(46, 204, 113, 1)' : 
+                        value >= 60 ? 'rgba(241, 196, 15, 1)' : 
+                        'rgba(231, 76, 60, 1)'
+                    ),
+                    borderWidth: 1
+                }]
+            },
+            options: { 
+                responsive: true,
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    } 
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function(context) {
+                                const data = tooltipData[context.dataIndex];
+                                return `${data.satisfied}/${data.total} satisfied feedback(s)`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: true
+                    }
+                }
+            }
+        });
+    }
+
+    // --- FEEDBACK LIST RENDERING ---
+    function renderFeedbackList() {
+        const categoryFilter = document.getElementById('listCategoryFilter').value;
+        const memberFilter = document.getElementById('listMemberFilter').value;
+        const timeFilter = document.getElementById('timeFilter').value;
+        const sortOrder = document.getElementById('sortOrder').value;
+
+        let filteredFeedback = allFeedback.filter(fb => 
+            (!categoryFilter || fb.category === categoryFilter) &&
+            (!memberFilter || fb.personName === memberFilter)
+        );
+
+        // Apply time filter
+        if (timeFilter) {
+            const now = new Date();
+            let startDate;
+            
+            switch (timeFilter) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'week':
+                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    break;
+                case 'quarter':
+                    startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                    break;
+            }
+            
+            if (startDate) {
+                filteredFeedback = filteredFeedback.filter(fb => {
+                    if (!fb.submittedAt) return false;
+                    const feedbackDate = new Date(fb.submittedAt);
+                    return feedbackDate >= startDate;
+                });
+            }
+        }
+
+        // Apply sorting
+        filteredFeedback.sort((a, b) => {
+            switch (sortOrder) {
+                case 'newest':
+                    if (a.submittedAt && b.submittedAt) {
+                        return new Date(b.submittedAt) - new Date(a.submittedAt);
+                    }
+                    return 0;
+                case 'oldest':
+                    if (a.submittedAt && b.submittedAt) {
+                        return new Date(a.submittedAt) - new Date(b.submittedAt);
+                    }
+                    return 0;
+                case 'satisfied':
+                    return b.isSatisfied - a.isSatisfied;
+                case 'unsatisfied':
+                    return a.isSatisfied - b.isSatisfied;
+                default:
+                    return 0;
+            }
+        });
+
+        const listContainer = document.getElementById('feedbackList');
+        listContainer.innerHTML = '';
+        
+        if (filteredFeedback.length === 0) {
+            listContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No feedback found for the selected filters.</p>';
+            return;
+        }
+
+        // Add summary info
+        const satisfiedCount = filteredFeedback.filter(fb => fb.isSatisfied).length;
+        const satisfactionRate = ((satisfiedCount / filteredFeedback.length) * 100).toFixed(1);
+        
+        listContainer.innerHTML = `
+            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
+                <strong>📊 Summary:</strong> ${filteredFeedback.length} feedback(s) found | 
+                ${satisfiedCount} satisfied (${satisfactionRate}%) | 
+                ${filteredFeedback.length - satisfiedCount} unsatisfied
+            </div>
+        `;
+
+        filteredFeedback.forEach(fb => {
+            const timeInfo = formatTimestamp(fb.submittedAt, fb.timeZone);
+            const relativeTime = getRelativeTime(fb.submittedAt);
+            
+            const item = `
+                <div class="feedback-item" style="border-left-color: ${fb.isSatisfied ? '#2ecc71' : '#e74c3c'};">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <p style="margin: 0;"><strong>📋 About Member:</strong> ${fb.personName} (${fb.category})</p>
+                        <span style="background: ${fb.isSatisfied ? '#d4edda' : '#f8d7da'}; color: ${fb.isSatisfied ? '#155724' : '#721c24'}; 
+                                     padding: 2px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold;">
+                            ${fb.isSatisfied ? '✅ Satisfied' : '❌ Unsatisfied'}
+                        </span>
+                    </div>
+                    <p><strong>Comment:</strong> ${fb.comments || '<i>No comment provided.</i>'}</p>
+                    ${fb.submittedByUserId ? 
+                        `<p style="font-size: 0.8em; color: #888; margin: 2px 0;"><strong>👤 Submitted by:</strong> User ID ${fb.submittedByUserId}${fb.plotNo ? `, Plot No ${fb.plotNo}` : ''}</p>` : 
+                        `<p style="font-size: 0.8em; color: #888; margin: 2px 0;"><strong>👤 Submitted by:</strong> Anonymous</p>`
+                    }
+                    <div style="font-size: 0.85em; color: #666; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
+                        <p style="margin: 2px 0;"><strong>� Submitted:</strong> ${relativeTime}</p>
+                        <p style="margin: 2px 0; font-size: 0.8em; color: #999;"><strong>📅 Full Time:</strong> ${timeInfo}</p>
+                    </div>
+                </div>
+            `;
+            listContainer.insertAdjacentHTML('beforeend', item);
+        });
+    }
+
+    // --- RELATIVE TIME FUNCTION ---
+    function getRelativeTime(submittedAt) {
+        if (!submittedAt) return 'Unknown time ago';
+        
+        try {
+            let feedbackDate;
+            if (typeof submittedAt === 'string') {
+                // Handle both ISO format and local datetime format
+                if (submittedAt.includes('T')) {
+                    feedbackDate = new Date(submittedAt);
+                } else {
+                    // Local datetime format from database
+                    feedbackDate = new Date(submittedAt.replace(' ', 'T'));
+                }
+            } else {
+                feedbackDate = new Date(submittedAt);
+            }
+            
+            // Check if date is valid
+            if (isNaN(feedbackDate.getTime())) {
+                console.warn('Invalid date for relative time:', submittedAt);
+                return 'Invalid date';
+            }
+            
+            const now = new Date();
+            const diffInMs = now - feedbackDate;
+            const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+            const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+            const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+            
+            if (diffInMinutes < 1) return 'Just now';
+            if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+            if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+            if (diffInDays < 30) return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+            
+            return feedbackDate.toLocaleDateString();
+        } catch (error) {
+            console.error('Error calculating relative time:', error, 'Original value:', submittedAt);
+            return 'Time error';
+        }
+    }
+
+    // --- TIME FORMATTING FUNCTION ---
+    function formatTimestamp(submittedAt, timeZone) {
+        if (!submittedAt) {
+            return 'Unknown time';
+        }
+        
+        try {
+            // Handle both string and Date formats
+            let date;
+            if (typeof submittedAt === 'string') {
+                // If it's a string, it might be in ISO format or local datetime format
+                if (submittedAt.includes('T')) {
+                    // ISO format with timezone
+                    date = new Date(submittedAt);
+                } else {
+                    // Local datetime format from database (assumes local server timezone)
+                    date = new Date(submittedAt.replace(' ', 'T'));
+                }
+            } else {
+                date = new Date(submittedAt);
+            }
+            
+            // Check if date is valid
+            if (isNaN(date.getTime())) {
+                console.warn('Invalid date:', submittedAt);
+                return 'Invalid date';
+            }
+            
+            // Format in user's local timezone
+            const localTime = date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            
+            // Also show the original timezone if provided and different from local
+            const clientTimeZone = timeZone || 'UTC';
+            let timeInClientZone = '';
+            
+            try {
+                if (clientTimeZone && clientTimeZone !== 'UTC') {
+                    timeInClientZone = date.toLocaleString('en-US', {
+                        timeZone: clientTimeZone,
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                    return `${localTime} (Your Local) | ${timeInClientZone} (${clientTimeZone})`;
+                }
+            } catch (tzError) {
+                console.warn('Timezone conversion error:', tzError);
+            }
+            
+            return `${localTime} (Local Time)${clientTimeZone ? ` - Submitted from ${clientTimeZone}` : ''}`;
+            
+        } catch (error) {
+            console.error('Error formatting timestamp:', error, 'Original value:', submittedAt);
+            return `${submittedAt}${timeZone ? ` (${timeZone})` : ''}`;
+        }
+    }
+
+    // --- SUGGESTION MANAGEMENT FUNCTIONS ---
+    let allSuggestions = [];
+    let filteredSuggestions = [];
+
+    async function loadSuggestions() {
+        try {
+            console.log('Loading suggestions...');
+            const response = await fetch('/api/suggestions/all', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('Response status:', response.status);
+            
+            if (response.ok) {
+                allSuggestions = await response.json();
+                console.log('Loaded suggestions:', allSuggestions.length, allSuggestions);
+                filteredSuggestions = [...allSuggestions];
+                displaySuggestions();
+                updateSuggestionButtonBadge();
+            } else {
+                const errorText = await response.text();
+                console.error('Failed to load suggestions. Status:', response.status, 'Response:', errorText);
+                document.getElementById('suggestionList').innerHTML = 
+                    `<div style="text-align: center; color: #7f8c8d; padding: 20px;">Unable to load suggestions (${response.status})</div>`;
+            }
+        } catch (error) {
+            console.error('Error loading suggestions:', error);
+            document.getElementById('suggestionList').innerHTML = 
+                '<div style="text-align: center; color: #e74c3c; padding: 20px;">Error loading suggestions</div>';
+        }
+    }
+
+    function updateSuggestionButtonBadge() {
+        const unreadCount = allSuggestions.filter(s => !s.isRead).length;
+        const btn = document.getElementById('suggestionToggleBtn');
+        const badge = document.getElementById('suggestionBadge');
+        const btnText = document.getElementById('suggestionBtnText');
+
+        if (unreadCount > 0) {
+            btn.classList.add('has-notifications');
+            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            badge.style.display = 'flex';
+            btnText.textContent = `View Suggestions (${unreadCount})`;
+        } else {
+            btn.classList.remove('has-notifications');
+            badge.style.display = 'none';
+            btnText.textContent = 'View Suggestions';
+        }
+    }
+
+    function toggleSuggestionPanel() {
+        const panel = document.getElementById('suggestionPanel');
+        const isOpen = panel.classList.contains('open');
+        
+        if (isOpen) {
+            closeSuggestionPanel();
+        } else {
+            openSuggestionPanel();
+        }
+    }
+
+    function openSuggestionPanel() {
+        const panel = document.getElementById('suggestionPanel');
+        panel.classList.add('open');
+        loadSuggestions();
+    }
+
+    function closeSuggestionPanel() {
+        const panel = document.getElementById('suggestionPanel');
+        panel.classList.remove('open');
+    }
+
+    function filterSuggestions() {
+        const categoryFilter = document.getElementById('suggestionCategoryFilter').value;
+        const priorityFilter = document.getElementById('suggestionPriorityFilter').value;
+
+        filteredSuggestions = allSuggestions.filter(suggestion => {
+            const matchesCategory = !categoryFilter || suggestion.category === categoryFilter;
+            const matchesPriority = !priorityFilter || suggestion.priority === priorityFilter;
+            return matchesCategory && matchesPriority;
+        });
+
+        displaySuggestions();
+    }
+
+    function displaySuggestions() {
+        const suggestionList = document.getElementById('suggestionList');
+        
+        if (filteredSuggestions.length === 0) {
+            suggestionList.innerHTML = '<div style="text-align: center; color: #7f8c8d; padding: 20px;">No suggestions found</div>';
+            return;
+        }
+
+        // Sort suggestions by submission date (latest first)
+        const sortedSuggestions = [...filteredSuggestions].sort((a, b) => {
+            return new Date(b.submittedAt) - new Date(a.submittedAt);
+        });
+
+        const suggestionsHtml = sortedSuggestions.map(suggestion => {
+            const priorityClass = `priority-${suggestion.priority}`;
+            const itemClass = `suggestion-item ${suggestion.priority}-priority ${!suggestion.isRead ? 'unread' : ''}`;
+            const clickHint = !suggestion.isRead ? ' title="Click to mark as read"' : ' title="Already read"';
+            
+            return `
+                <div class="${itemClass}" onclick="markSuggestionAsRead(${suggestion.id})"${clickHint}>
+                    <div class="suggestion-meta">
+                        <span>${formatTimestamp(suggestion.submittedAt)}</span>
+                        <span class="suggestion-priority ${priorityClass}">${suggestion.priority}</span>
+                        ${!suggestion.isRead ? '<span style="color: #e74c3c; font-weight: bold; margin-left: 10px;">● NEW</span>' : ''}
+                    </div>
+                    <div class="suggestion-title">${suggestion.title}</div>
+                    <div class="suggestion-description">${suggestion.description}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <span class="suggestion-category">${suggestion.category}</span>
+                        <span style="font-size: 0.8rem; color: #95a5a6;">By: ${suggestion.userName}</span>
+                    </div>
+                    ${!suggestion.isRead ? '<div style="width: 8px; height: 8px; background: #e74c3c; border-radius: 50%; position: absolute; top: 10px; right: 10px;"></div>' : ''}
+                    ${!suggestion.isRead ? '<div style="position: absolute; bottom: 10px; right: 15px; font-size: 0.75rem; color: #e74c3c; font-weight: 600;">Click to mark as read</div>' : ''}
+                </div>
+            `;
+        }).join('');
+
+        suggestionList.innerHTML = suggestionsHtml;
+    }
+
+    async function markSuggestionAsRead(suggestionId) {
+        try {
+            const response = await fetch(`/api/suggestions/${suggestionId}/mark-read`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Update local state
+                const suggestion = allSuggestions.find(s => s.id === suggestionId);
+                if (suggestion) {
+                    suggestion.isRead = true;
+                }
+                
+                // Refresh display
+                displaySuggestions();
+                updateSuggestionButtonBadge();
+            }
+        } catch (error) {
+            console.error('Error marking suggestion as read:', error);
+        }
+    }
+
+    // --- NEW SUGGESTION MANAGEMENT FUNCTIONS ---
+
+    // Mark all unread suggestions as read
+    async function markAllAsRead() {
+        const readAllBtn = document.getElementById('readAllBtn');
+        const originalText = readAllBtn.textContent;
+        
+        try {
+            readAllBtn.disabled = true;
+            readAllBtn.textContent = '⏳ Processing...';
+            
+            const response = await fetch('/api/suggestions/mark-all-read', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Update local state - mark all as read
+                allSuggestions.forEach(suggestion => {
+                    suggestion.isRead = true;
+                });
+                
+                // Refresh display
+                displaySuggestions();
+                updateSuggestionButtonBadge();
+                
+                // Show success message
+                readAllBtn.textContent = '✅ Done!';
+                setTimeout(() => {
+                    readAllBtn.textContent = originalText;
+                }, 2000);
+            } else {
+                throw new Error('Failed to mark all as read');
+            }
+        } catch (error) {
+            console.error('Error marking all as read:', error);
+            readAllBtn.textContent = '❌ Error';
+            setTimeout(() => {
+                readAllBtn.textContent = originalText;
+            }, 2000);
+        } finally {
+            readAllBtn.disabled = false;
+        }
+    }
+
+    // --- USER LIMIT MANAGEMENT FUNCTIONS ---
+    let allUsers = [];
+
+    function toggleUserLimitModal() {
+        const modal = document.getElementById('userLimitModal');
+        const isVisible = modal.style.display !== 'none';
+        
+        if (isVisible) {
+            modal.style.display = 'none';
+        } else {
+            modal.style.display = 'block';
+            loadUserLimits();
+        }
+    }
+
+    async function loadUserLimits() {
+        try {
+            const response = await fetch('/api/suggestions/user-limits', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                allUsers = await response.json();
+                displayUserLimits(allUsers);
+            } else {
+                document.getElementById('userLimitList').innerHTML = 
+                    '<div style="text-align: center; color: #e74c3c; padding: 20px;">Unable to load user limits</div>';
+            }
+        } catch (error) {
+            console.error('Error loading user limits:', error);
+            document.getElementById('userLimitList').innerHTML = 
+                '<div style="text-align: center; color: #e74c3c; padding: 20px;">Error loading user limits</div>';
+        }
+    }
+
+    function displayUserLimits(users) {
+        const userLimitList = document.getElementById('userLimitList');
+        
+        if (users.length === 0) {
+            userLimitList.innerHTML = '<div style="text-align: center; color: #7f8c8d; padding: 20px;">No users found</div>';
+            return;
+        }
+
+        const usersHtml = users.map(user => `
+            <div style="border: 1px solid #ddd; border-radius: 6px; padding: 15px; margin-bottom: 10px; background: #f8f9fa;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div>
+                        <strong style="color: #2c3e50;">${user.firstName}</strong><br>
+                        <span style="color: #7f8c8d; font-size: 0.9rem;">${user.email}</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.8rem; color: #95a5a6;">Current Usage</span><br>
+                        <span style="font-weight: bold; color: ${user.suggestionCount >= user.maxSuggestions ? '#e74c3c' : '#27ae60'};">
+                            ${user.suggestionCount}/${user.maxSuggestions}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="color: #2c3e50; font-weight: 500;">Monthly Limit:</label>
+                    <input type="number" id="limit_${user.id}" value="${user.maxSuggestions}" min="0" max="50" 
+                           style="width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                    <button onclick="updateUserLimit(${user.id})" 
+                            style="background: #3498db; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                        Update
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        userLimitList.innerHTML = usersHtml;
+    }
+
+    async function updateUserLimit(userId) {
+        const limitInput = document.getElementById(`limit_${userId}`);
+        const newLimit = parseInt(limitInput.value);
+        
+        if (isNaN(newLimit) || newLimit < 0) {
+            alert('Please enter a valid number (0 or higher)');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/suggestions/user-limits/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ maxSuggestions: newLimit })
+            });
+
+            if (response.ok) {
+                // Update local data
+                const user = allUsers.find(u => u.id === userId);
+                if (user) {
+                    user.maxSuggestions = newLimit;
+                }
+                
+                // Show success feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✅';
+                button.style.background = '#27ae60';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#3498db';
+                }, 1500);
+            } else {
+                throw new Error('Failed to update limit');
+            }
+        } catch (error) {
+            console.error('Error updating user limit:', error);
+            alert('Error updating limit. Please try again.');
+        }
+    }
+
+    function searchUsers() {
+        const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
+        const filteredUsers = allUsers.filter(user => 
+            user.email.toLowerCase().includes(searchTerm) ||
+            user.firstName.toLowerCase().includes(searchTerm)
+        );
+        displayUserLimits(filteredUsers);
+    }
+
+    function refreshUserLimits() {
+        document.getElementById('userSearchInput').value = '';
+        loadUserLimits();
+    }
+
+    async function setBulkLimit() {
+        const bulkLimitInput = document.getElementById('bulkLimitInput');
+        const newLimit = parseInt(bulkLimitInput.value);
+        
+        if (isNaN(newLimit) || newLimit < 0) {
+            alert('Please enter a valid number (0 or higher)');
+            return;
+        }
+        
+        const confirmMessage = `Are you sure you want to set the monthly limit to ${newLimit} for ALL users?\n\nThis will override all individual user limits.`;
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/suggestions/user-limits/bulk', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ maxSuggestions: newLimit })
+            });
+
+            if (response.ok) {
+                // Update local data
+                allUsers.forEach(user => {
+                    user.maxSuggestions = newLimit;
+                });
+                
+                // Refresh display
+                displayUserLimits(allUsers);
+                
+                // Show success message
+                alert(`✅ Successfully updated limit to ${newLimit} for all users!`);
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update bulk limits');
+            }
+        } catch (error) {
+            console.error('Error setting bulk limit:', error);
+            alert('❌ Error updating bulk limits: ' + error.message);
+        }
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Check page access - Allow all position holders except Society-Member
+        const accessResult = await checkPageAccess(
+            [
+                'President', 
+                'General-Secretary', 
+                'Information-Secretary',
+                'Vice-President', 
+                'Finance-Secretary',
+                'Joint-Secretary',
+                'Additional-Secretary',
+                'Assistant-Secretary',
+                'Treasurer',
+                'Joint-Treasurer',
+                'Security-Officer',
+                'Maintenance-Officer',
+                'Sports-Secretary',
+                'Cultural-Secretary',
+                'Welfare-Secretary',
+                'Legal-Advisor',
+                'Committee-Member'
+            ], // Full access roles
+            [] // No view-only roles - all position holders get full access
+        );
+        
+        if (!accessResult.hasAccess) return; // Page will redirect if no access
+        
+        // All position holders get full access to suggestion management
+        console.log('✅ Position holder access granted to suggestion management');
+        
+        fetch('header.html').then(r => r.text()).then(data => {
+            document.getElementById('header').innerHTML = data;
+            // Initialize header functions after loading
+            if (typeof setActive === 'function') {
+                setActive();
+            }
+            if (typeof loadUserProfileImage === 'function') {
+                loadUserProfileImage();
+            }
+            
+            // Initialize hamburger menu functionality
+            setTimeout(() => {
+                if (typeof window.initializeHamburgerMenu === 'function') {
+                    window.initializeHamburgerMenu();
+                }
+            }, 100);
+        });
+        fetch('President Console.html').then(r => r.text()).then(data => document.getElementById('president_console').innerHTML = data);
+        initializeDashboard();
+        
+        // Initialize suggestion system
+        updateSuggestionButtonBadge();
+    });
+</script>
+
+<!-- Include common JavaScript functions -->
+<script src="/js/common.js"></script>
+<!-- Include announcement popup script for header button -->
+<script src="/js/announcement-popup.js"></script>
+<!-- Include header menu script for hamburger functionality -->
+<script src="/js/header-menu.js"></script>
+
+</body>
+</html>

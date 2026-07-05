@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Restricted Tabs Demo</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .dashboard-header p {
+            margin: 10px 0 0 0;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .user-info {
+            background: rgba(19, 168, 158, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .console-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .console-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #2c3e50;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .console-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            background: rgba(19, 168, 158, 0.95);
+            color: white;
+        }
+
+        .console-section h3 {
+            margin: 15px 0 10px 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .console-section .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .console-section .description {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .legend {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .legend-item.restricted {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .legend-item.partial {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .legend-item.allowed {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .legend-icon {
+            font-size: 20px;
+            margin-right: 10px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .demo-controls {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-selector {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background: #13A89E;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .role-selector:hover {
+            background: #0f8b82;
+            transform: translateY(-2px);
+        }
+
+        .role-selector.active {
+            background: #2c3e50;
+            transform: scale(1.1);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-allowed {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .status-restricted {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        .status-partial {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            .console-container {
+                grid-template-columns: 1fr;
+                padding: 10px;
+            }
+            
+            .console-section {
+                min-height: 120px;
+                padding: 20px;
+            }
+            
+            .console-section .icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-header">
+        <h1>🏛️ Admin Console - Role-Based Tab Restrictions</h1>
+        <p>Experience dynamic tab restrictions based on your administrative role</p>
+    </div>
+
+    <div class="user-info" id="userInfo">
+        <span id="userRole">Loading user information...</span>
+    </div>
+
+    <div class="demo-controls">
+        <h3>🎮 Simulation Controls</h3>
+        <p>Click to simulate different admin roles and see tab restrictions in action:</p>
+        <button class="role-selector" onclick="simulateRole('President')">👑 President</button>
+        <button class="role-selector" onclick="simulateRole('General-Secretary')">📋 General Secretary</button>
+        <button class="role-selector" onclick="simulateRole('Finance-Secretary')">💰 Finance Secretary</button>
+        <button class="role-selector" onclick="simulateRole('Information-Secretary')">📢 Information Secretary</button>
+        <button class="role-selector" onclick="simulateRole('Vice-President')">🎖️ Vice President</button>
+        <button class="role-selector" onclick="resetToActualRole()">🔄 Reset to Actual Role</button>
+    </div>
+
+    <div class="console-container">
+        <a href="Manage Member-President Console.html" class="console-section" id="members-tab">
+            <div class="icon">👥</div>
+            <h3>Manage Members</h3>
+            <div class="description">Add, edit, and manage society members</div>
+            <span class="status-indicator status-allowed" id="members-status">Full Access</span>
+        </a>
+
+        <a href="Financials-President Console.html" class="console-section" id="financials-tab">
+            <div class="icon">💰</div>
+            <h3>Financial Management</h3>
+            <div class="description">Handle income, expenses, and financial records</div>
+            <span class="status-indicator status-restricted" id="financials-status">Restricted</span>
+        </a>
+
+        <a href="Announcement-President Console.html" class="console-section" id="announcements-tab">
+            <div class="icon">📢</div>
+            <h3>Announcements & Documents</h3>
+            <div class="description">Create announcements and upload documents</div>
+            <span class="status-indicator status-restricted" id="announcements-status">Restricted</span>
+        </a>
+
+        <a href="Review-President Console.html" class="console-section" id="feedback-tab">
+            <div class="icon">📝</div>
+            <h3>Review Feedback</h3>
+            <div class="description">Review and respond to community feedback</div>
+            <span class="status-indicator status-allowed" id="feedback-status">Full Access</span>
+        </a>
+
+        <a href="Manage User-President Console.html" class="console-section" id="users-tab">
+            <div class="icon">👮</div>
+            <h3>User Management</h3>
+            <div class="description">Manage user profiles and permissions</div>
+            <span class="status-indicator status-partial" id="users-status">Limited Access</span>
+        </a>
+
+        <a href="Renters Docs-President Console.html" class="console-section" id="renters-tab">
+            <div class="icon">📂</div>
+            <h3>Renter Documents</h3>
+            <div class="description">Manage rental agreements and documents</div>
+            <span class="status-indicator status-restricted" id="renters-status">Restricted</span>
+        </a>
+    </div>
+
+    <div class="legend">
+        <h3>🔐 Access Legend</h3>
+        <div class="legend-item allowed">
+            <div class="legend-icon">✅</div>
+            <div><strong>Full Access:</strong> Complete functionality available</div>
+        </div>
+        <div class="legend-item partial">
+            <div class="legend-icon">⚠️</div>
+            <div><strong>Limited Access:</strong> View-only mode, edit buttons disabled</div>
+        </div>
+        <div class="legend-item restricted">
+            <div class="legend-icon">🚫</div>
+            <div><strong>Restricted:</strong> Tab is disabled and non-clickable</div>
+        </div>
+    </div>
+
+    <!-- Include required scripts -->
+    <script src="/js/role-security.js"></script>
+    <script src="/js/admin-tab-restrictions.js"></script>
+
+    <script>
+        let actualUserRole = null;
+        let currentSimulatedRole = null;
+
+        // Role-based tab access configuration (matching backend logic)
+        const TAB_ACCESS_CONFIG = {
+            'President': {
+                'members-tab': 'allowed',
+                'financials-tab': 'restricted', // President removed from financial access
+                'announcements-tab': 'restricted', // President removed from announcement access
+                'feedback-tab': 'allowed',
+                'users-tab': 'allowed',
+                'renters-tab': 'restricted' // President removed from renter docs access
+            },
+            'General-Secretary': {
+                'members-tab': 'allowed',
+                'financials-tab': 'restricted', // Only Finance Secretary
+                'announcements-tab': 'restricted', // Only Information Secretary
+                'feedback-tab': 'allowed',
+                'users-tab': 'allowed',
+                'renters-tab': 'allowed' // General Secretary has access
+            },
+            'Finance-Secretary': {
+                'members-tab': 'partial', // Can view but limited edit
+                'financials-tab': 'allowed', // Exclusive access
+                'announcements-tab': 'restricted',
+                'feedback-tab': 'allowed',
+                'users-tab': 'partial',
+                'renters-tab': 'restricted'
+            },
+            'Information-Secretary': {
+                'members-tab': 'partial',
+                'financials-tab': 'restricted',
+                'announcements-tab': 'allowed', // Exclusive access
+                'feedback-tab': 'allowed',
+                'users-tab': 'partial',
+                'renters-tab': 'restricted'
+            },
+            'Vice-President': {
+                'members-tab': 'partial',
+                'financials-tab': 'restricted',
+                'announcements-tab': 'restricted',
+                'feedback-tab': 'allowed',
+                'users-tab': 'partial',
+                'renters-tab': 'restricted'
+            }
+        };
+
+        async function loadActualUserRole() {
+            try {
+                const response = await fetch('/api/auth/current-user', {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    actualUserRole = user.role;
+                    updateUserInfo(actualUserRole, false);
+                    applyRoleRestrictions(actualUserRole);
+                    
+                    // Highlight actual role button
+                    document.querySelectorAll('.role-selector').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.textContent.includes(actualUserRole.replace(/[_-]/g, ' '))) {
+                            btn.classList.add('active');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading user role:', error);
+                updateUserInfo('Unable to load role', false);
+            }
+        }
+
+        function updateUserInfo(role, isSimulated) {
+            const userInfo = document.getElementById('userInfo');
+            const roleDisplay = role.replace(/[_-]/g, ' ');
+            
+            if (isSimulated) {
+                userInfo.innerHTML = `
+                    <span style="opacity: 0.8;">🎭 Simulating Role:</span> 
+                    <span style="font-size: 20px;">${roleDisplay}</span>
+                    <span style="font-size: 14px; opacity: 0.7; display: block; margin-top: 5px;">
+                        (Actual Role: ${actualUserRole?.replace(/[_-]/g, ' ') || 'Unknown'})
+                    </span>
+                `;
+            } else {
+                userInfo.innerHTML = `
+                    <span style="opacity: 0.8;">👤 Your Role:</span> 
+                    <span style="font-size: 20px;">${roleDisplay}</span>
+                `;
+            }
+        }
+
+        function applyRoleRestrictions(role) {
+            const config = TAB_ACCESS_CONFIG[role] || {};
+            
+            Object.keys(config).forEach(tabId => {
+                const tab = document.getElementById(tabId);
+                const status = document.getElementById(tabId.replace('-tab', '-status'));
+                const accessLevel = config[tabId];
+                
+                if (!tab || !status) return;
+                
+                // Remove existing classes
+                tab.classList.remove('tab-restricted', 'tab-partially-restricted');
+                tab.style.pointerEvents = '';
+                tab.removeAttribute('onclick');
+                
+                switch (accessLevel) {
+                    case 'allowed':
+                        status.className = 'status-indicator status-allowed';
+                        status.textContent = 'Full Access';
+                        break;
+                        
+                    case 'partial':
+                        status.className = 'status-indicator status-partial';
+                        status.textContent = 'Limited Access';
+                        tab.classList.add('tab-partially-restricted');
+                        break;
+                        
+                    case 'restricted':
+                        status.className = 'status-indicator status-restricted';
+                        status.textContent = 'Restricted';
+                        tab.classList.add('tab-restricted');
+                        tab.style.pointerEvents = 'none';
+                        tab.setAttribute('onclick', 'event.preventDefault(); return false;');
+                        break;
+                }
+            });
+
+            console.log(`Applied restrictions for role: ${role}`);
+        }
+
+        function simulateRole(role) {
+            currentSimulatedRole = role;
+            updateUserInfo(role, true);
+            applyRoleRestrictions(role);
+            
+            // Update active button
+            document.querySelectorAll('.role-selector').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(role.replace(/[_-]/g, ' '))) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function resetToActualRole() {
+            currentSimulatedRole = null;
+            if (actualUserRole) {
+                updateUserInfo(actualUserRole, false);
+                applyRoleRestrictions(actualUserRole);
+                
+                // Update active button
+                document.querySelectorAll('.role-selector').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.textContent.includes(actualUserRole.replace(/[_-]/g, ' '))) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // Enhanced click handling for restricted tabs
+        document.addEventListener('click', function(e) {
+            const restrictedTab = e.target.closest('.console-section.tab-restricted');
+            if (restrictedTab) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Show a subtle feedback
+                restrictedTab.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    restrictedTab.style.animation = '';
+                }, 500);
+                
+                return false;
+            }
+        }, true);
+
+        // Add shake animation
+        const shakeStyle = document.createElement('style');
+        shakeStyle.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(shakeStyle);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadActualUserRole();
+            
+            // Apply actual admin tab restrictions if available
+            setTimeout(() => {
+                if (typeof applyAdminTabRestrictions === 'function') {
+                    applyAdminTabRestrictions();
+                }
+            }, 1000);
+        });
+
+        // Override the admin tab restrictions to work with our demo
+        if (typeof window.applyAdminTabRestrictions !== 'undefined') {
+            const originalFunction = window.applyAdminTabRestrictions;
+            window.applyAdminTabRestrictions = function() {
+                // Apply the original function
+                originalFunction();
+                // Then apply our demo visualization
+                if (currentSimulatedRole) {
+                    setTimeout(() => applyRoleRestrictions(currentSimulatedRole), 100);
+                } else if (actualUserRole) {
+                    setTimeout(() => applyRoleRestrictions(actualUserRole), 100);
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>
